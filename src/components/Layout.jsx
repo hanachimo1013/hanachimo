@@ -81,11 +81,10 @@ export default function Layout({ children }) {
             <SidebarBtn to="/employees" text="Employees" icon="👥" onClick={closeSidebar} />
             <SidebarBtn to="/settings" text="Settings" icon="⚙️" onClick={closeSidebar} />
             <SidebarBtn to="/reports" text="Reports" icon="📈" onClick={closeSidebar} />
-          </div>
-
-          <button className="w-full py-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded-lg shadow-md mt-auto flex-shrink-0 font-semibold transition-all hover:shadow-lg">
+            <button className="w-full py-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded-lg shadow-md mt-auto flex-shrink-0 font-semibold transition-all hover:shadow-lg">
             🚪 Logout
           </button>
+          </div>
         </aside>
 
         {/* Main Content Area */}
