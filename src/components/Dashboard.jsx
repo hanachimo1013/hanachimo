@@ -4,9 +4,9 @@ import { useEmployees } from '../hooks/useEmployees';
 
 // Sub-component for the Status Cards
 const StatusCard = ({ title, value }) => (
-  <div className="bg-[#f2dede] p-6 rounded shadow-md flex flex-col items-center justify-center h-40 hover:shadow-lg transition-shadow">
-    <span className="text-sm font-semibold text-gray-600 mb-2">{title}</span>
-    <span className="text-4xl font-bold text-[#bc7676] mb-1">{value}</span>
+  <div className="bg-[#f2dede] p-4 md:p-6 rounded shadow-md flex flex-col items-center justify-center min-h-32 md:h-40 hover:shadow-lg transition-shadow">
+    <span className="text-xs md:text-sm font-semibold text-gray-600 mb-2">{title}</span>
+    <span className="text-2xl md:text-4xl font-bold text-[#bc7676] mb-1 break-words text-center">{value}</span>
   </div>
 );
 
@@ -152,22 +152,22 @@ export default function Dashboard() {
   return (
     <>
         <div>
-            <h2 className="text-center text-3xl font-bold text-gray-800 mb-2">Total Payments</h2>
-            <p className="text-center text-gray-600">(to be paid)</p>
+            <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-800 mb-2">Total Payments</h2>
+            <p className="text-center text-sm md:text-base text-gray-600">(to be paid)</p>
         </div>
 
       {/* Status Cards */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         <StatusCard title="SSS" value={`₱${totals.sss.toLocaleString('en-PH')}`}/>
         <StatusCard title="PAG-IBIG" value={`₱${totals.pagibig.toLocaleString('en-PH')}`}/>
         <StatusCard title="PhilHealth" value={`₱${totals.philhealth.toLocaleString('en-PH')}`}/>
       </div>
 
       {/* Employee List */}
-      <section className="bg-white p-8 rounded-lg shadow-md">
+      <section className="bg-white p-4 md:p-8 rounded-lg shadow-md">
         <div className="mb-6">
-          <h3 className="text-2xl font-bold text-gray-800 mb-1">Employee Directory</h3>
-          <p className="text-gray-600 text-sm">Recently active employees</p>
+          <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-1">Employee Directory</h3>
+          <p className="text-gray-600 text-xs md:text-sm">Recently active employees</p>
         </div>
         <EmployeeTable employees={employees} loading={loading} />
       </section>
