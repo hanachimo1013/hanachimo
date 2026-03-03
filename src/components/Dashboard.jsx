@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import jsPDF from 'jspdf';
 import { useEmployees } from '../hooks/useEmployees';
 import EmployeeCard from './EmployeeCard';
@@ -10,6 +10,10 @@ const StatusCard = ({ title, value }) => (
     <span className="text-2xl md:text-4xl font-bold text-[#bc7676] mb-1 break-words text-center">{value}</span>
   </div>
 );
+
+const formatPeso = (value) => `₱${(value || 0).toLocaleString('en-PH')}`;
+const getEeShare = (employee) => employee?.eeshare ?? employee?.eeShare ?? 0;
+const getErShare = (employee) => employee?.ershare ?? employee?.erShare ?? 0;
 
 // Function to generate PDF receipt for employer share
 const generateEmployerReceipt = (employee) => {
@@ -62,10 +66,10 @@ const generateEmployerReceipt = (employee) => {
   // Table content
   doc.setFont(undefined, 'normal');
   doc.text('Employee Share (EE)', 20, 125);
-  doc.text(`₱${(employee.eeShare || 0).toLocaleString('en-PH')}`, pageWidth - 40, 125, { align: 'right' });
+  doc.text(formatPeso(getEeShare(employee)), pageWidth - 40, 125, { align: 'right' });
   
   doc.text('Employer Share (ER)', 20, 135);
-  doc.text(`₱${(employee.erShare || 0).toLocaleString('en-PH')}`, pageWidth - 40, 135, { align: 'right' });
+  doc.text(formatPeso(getErShare(employee)), pageWidth - 40, 135, { align: 'right' });
   
   // Divider
   doc.setDrawColor(100);
@@ -75,7 +79,7 @@ const generateEmployerReceipt = (employee) => {
   doc.setFont(undefined, 'bold');
   doc.setFontSize(11);
   doc.text('Total Employer Share', 20, 152);
-  doc.text(`₱${(employee.erShare || 0).toLocaleString('en-PH')}`, pageWidth - 40, 152, { align: 'right' });
+  doc.text(formatPeso(getErShare(employee)), pageWidth - 40, 152, { align: 'right' });
   
   // Footer
   doc.setFontSize(9);
@@ -115,9 +119,9 @@ const EmployeeTable = ({ employees, loading }) => {
             <tr key={emp.id} className="border-b border-gray-200 hover:bg-[#fce4ec] transition-colors">
               <td className="px-4 py-3 text-gray-700">{emp.id}</td>
               <td className="px-4 py-3 font-medium text-gray-800">{emp.name}</td>
-              <td className="px-4 py-3 text-gray-800 font-semibold text-[#10b981]">₱{emp.eeShare?.toLocaleString('en-PH') || emp.eeShare}</td>
-              <td className="px-4 py-3 text-gray-800 font-semibold text-[#3b82f6]">₱{emp.erShare?.toLocaleString('en-PH') || emp.erShare}</td>
-              <td className="px-4 py-3 text-gray-800 font-bold text-[#dc2626]">₱{((emp.eeShare || 0) + (emp.erShare || 0)).toLocaleString('en-PH')}</td>
+              <td className="px-4 py-3 text-gray-800 font-semibold text-[#10b981]">{formatPeso(getEeShare(emp))}</td>
+              <td className="px-4 py-3 text-gray-800 font-semibold text-[#3b82f6]">{formatPeso(getErShare(emp))}</td>
+              <td className="px-4 py-3 text-gray-800 font-bold text-[#dc2626]">{formatPeso(getEeShare(emp) + getErShare(emp))}</td>
               <td className="px-4 py-3 text-center">
                 <button
                   onClick={() => generateEmployerReceipt(emp)}
@@ -138,8 +142,7 @@ export default function Dashboard() {
   const { employees, loading } = useEmployees();
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'grid'
 
-  // Calculate totals from employees
-  const calculateTotals = () => {
+  const totals = useMemo(() => {
     if (!employees || employees.length === 0) return { sss: 0, pagibig: 0, philhealth: 0 };
     
     return {
@@ -147,9 +150,7 @@ export default function Dashboard() {
       pagibig: employees.reduce((sum, emp) => sum + (emp.pagibig || 0), 0),
       philhealth: employees.reduce((sum, emp) => sum + (emp.philhealth || 0), 0),
     };
-  };
-
-  const totals = calculateTotals();
+  }, [employees]);
 
   return (
     <>
@@ -160,9 +161,9 @@ export default function Dashboard() {
 
       {/* Status Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-        <StatusCard title="SSS" value={`₱${totals.sss.toLocaleString('en-PH')}`}/>
-        <StatusCard title="PAG-IBIG" value={`₱${totals.pagibig.toLocaleString('en-PH')}`}/>
-        <StatusCard title="PhilHealth" value={`₱${totals.philhealth.toLocaleString('en-PH')}`}/>
+        <StatusCard title="SSS" value={formatPeso(totals.sss)}/>
+        <StatusCard title="PAG-IBIG" value={formatPeso(totals.pagibig)}/>
+        <StatusCard title="PhilHealth" value={formatPeso(totals.philhealth)}/>
       </div>
 
       {/* Employee List */}
