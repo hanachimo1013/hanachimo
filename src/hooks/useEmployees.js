@@ -2,14 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../config/supabaseClient';
 
 export const useEmployees = () => {
-  const [employees, setEmployees] = useState([
-    // Fallback data - replace with Supabase data
-    { id: 1, name: 'John Doe', sss: 1250, pagibig: 500, philhealth: 300, eeshare: 8500, ershare: 12750 },
-    { id: 2, name: 'Jane Smith', sss: 1100, pagibig: 450, philhealth: 280, eeshare: 7200, ershare: 10800 },
-    { id: 3, name: 'Mike Johnson', sss: 1000, pagibig: 400, philhealth: 250, eeshare: 6500, ershare: 9750 },
-    { id: 4, name: 'Sarah Williams', sss: 1050, pagibig: 425, philhealth: 265, eeshare: 7000, ershare: 10500 },
-    { id: 5, name: 'Tom Brown', sss: 1300, pagibig: 520, philhealth: 310, eeshare: 8800, ershare: 13200 },
-  ]);
+  const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
