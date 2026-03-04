@@ -141,12 +141,16 @@ export default function Dashboard() {
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'grid'
 
   const totals = useMemo(() => {
-    if (!employees || employees.length === 0) return { sss: 0, pagibig: 0, philhealth: 0 };
+    if (!employees || employees.length === 0) {
+      return { sss: 0, pagibig: 0, philhealth: 0, eeShare: 0, erShare: 0 };
+    }
     
     return {
       sss: employees.reduce((sum, emp) => sum + (emp.sss || 0), 0),
       pagibig: employees.reduce((sum, emp) => sum + (emp.pagibig || 0), 0),
       philhealth: employees.reduce((sum, emp) => sum + (emp.philhealth || 0), 0),
+      eeShare: employees.reduce((sum, emp) => sum + getEeShare(emp), 0),
+      erShare: employees.reduce((sum, emp) => sum + getErShare(emp), 0),
     };
   }, [employees]);
 
@@ -158,10 +162,12 @@ export default function Dashboard() {
         </div>
 
       {/* Status Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
         <StatusCard title="SSS" value={formatPeso(totals.sss)}/>
         <StatusCard title="PAG-IBIG" value={formatPeso(totals.pagibig)}/>
         <StatusCard title="PhilHealth" value={formatPeso(totals.philhealth)}/>
+        <StatusCard title="Total EE Share" value={formatPeso(totals.eeShare)}/>
+        <StatusCard title="Total ER Share" value={formatPeso(totals.erShare)}/>
       </div>
 
       {/* Employee List */}
