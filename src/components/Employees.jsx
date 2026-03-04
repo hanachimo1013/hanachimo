@@ -57,6 +57,17 @@ const EmployeeForm = ({ onSubmit, onCancel, initialData = null, isLoading = fals
     }));
   };
 
+  useEffect(() => {
+    const sss = parseFloat(formData.sss) || 0;
+    const pagibig = parseFloat(formData.pagibig) || 0;
+    const philhealth = parseFloat(formData.philhealth) || 0;
+    const eeShare = sss + pagibig + philhealth;
+    setFormData((prev) => ({
+      ...prev,
+      eeShare: eeShare.toFixed(2)
+    }));
+  }, [formData.sss, formData.pagibig, formData.philhealth]);
+
   const handlePhotoChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -160,10 +171,10 @@ const EmployeeForm = ({ onSubmit, onCancel, initialData = null, isLoading = fals
             type="number"
             name="eeShare"
             value={formData.eeShare}
-            onChange={handleInputChange}
             step="0.01"
             required
-            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#d97706] focus:outline-none text-black bg-white dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700"
+            readOnly
+            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#d97706] focus:outline-none text-black bg-white dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 cursor-not-allowed"
             placeholder="0.00"
           />
         </div>
