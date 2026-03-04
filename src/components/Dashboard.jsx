@@ -162,10 +162,7 @@ export default function Dashboard() {
         </div>
 
       {/* Status Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
-        <StatusCard title="SSS" value={formatPeso(totals.sss)}/>
-        <StatusCard title="PAG-IBIG" value={formatPeso(totals.pagibig)}/>
-        <StatusCard title="PhilHealth" value={formatPeso(totals.philhealth)}/>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <StatusCard title="Total EE Share" value={formatPeso(totals.eeShare)}/>
         <StatusCard title="Total ER Share" value={formatPeso(totals.erShare)}/>
       </div>
