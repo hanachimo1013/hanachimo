@@ -37,7 +37,10 @@ export default function Layout({ children }) {
     <div className="flex flex-col w-screen min-h-screen bg-white font-sans text-gray-900 dark:bg-gray-900 dark:text-gray-100">
       {/* Header Section - Floating on Mobile */}
       <header className="flex justify-between items-center px-4 md:px-8 py-4 bg-[#f2dede] border-b-4 border-[#bc7676] shadow-md fixed md:static w-full top-0 z-50 dark:bg-gray-800 dark:border-gray-700">
-        <h1 className="text-2xl md:text-4xl font-black tracking-tight text-gray-900 dark:text-gray-100">BDLAG Utility</h1>
+        <h1 className="text-2xl md:text-4xl font-black tracking-tight text-gray-900 dark:text-gray-100">
+          <span className="md:hidden">BDLAG Utility</span>
+          <span className="hidden md:inline">Bato de Luna Art Gallery</span>
+        </h1>
         
         <div className="flex gap-2 md:gap-6 text-xs md:text-sm font-semibold items-center">
           {/* Hamburger Menu - Mobile Only */}
@@ -95,6 +98,7 @@ export default function Layout({ children }) {
 
           <div className="mt-6 w-full rounded-lg border border-[#bc7676]/40 bg-white/70 p-3 text-center text-[10px] leading-relaxed text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-900/60 dark:text-gray-300">
             Built by hanachimo using React, Vite, Tailwind CSS, and Supabase.
+            c.2026
           </div>
         </aside>
 
