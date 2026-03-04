@@ -251,24 +251,30 @@ export default function Reports() {
           <div className="grid grid-cols-2 gap-6 mb-8">
             <div 
               onClick={() => setSelectedReport('insurance')}
-              className="border-2 border-gray-200 rounded-lg p-6 hover:border-[#d97706] hover:shadow-lg transition-all cursor-pointer flex flex-col"
+              className="border-2 border-gray-200 rounded-lg p-6 hover:border-[#d97706] hover:shadow-lg transition-all cursor-pointer flex flex-col text-center"
             >
-              <div className="text-4xl mb-4">INS</div>
+              <div className="mb-3 text-2xl text-gray-700 text-center">
+                <i className="bi bi-clipboard2-pulse" aria-hidden="true" />
+              </div>
               <h3 className="text-xl font-bold text-gray-800 mb-2">Insurance Payment Report</h3>
               <p className="text-gray-600 text-sm mb-4 flex-1">Overall total and detailed distribution of SSS, PAG-IBIG, and PhilHealth</p>
               <button className="bg-[#3b82f6] hover:bg-[#2563eb] text-white px-4 py-2 rounded-lg font-medium transition-all">
+                <i className="bi bi-graph-up mr-2" aria-hidden="true" />
                 View Report
               </button>
             </div>
 
             <div 
               onClick={() => setSelectedReport('salary')}
-              className="border-2 border-gray-200 rounded-lg p-6 hover:border-[#d97706] hover:shadow-lg transition-all cursor-pointer flex flex-col"
+              className="border-2 border-gray-200 rounded-lg p-6 hover:border-[#d97706] hover:shadow-lg transition-all cursor-pointer flex flex-col text-center"
             >
-              <div className="text-4xl mb-4">SAL</div>
+              <div className="mb-3 text-2xl text-gray-700 text-center">
+                <i className="bi bi-cash-coin" aria-hidden="true" />
+              </div>
               <h3 className="text-xl font-bold text-gray-800 mb-2">Salary Distribution Report</h3>
               <p className="text-gray-600 text-sm mb-4 flex-1">Employee and Employer share breakdown with totals</p>
               <button className="bg-[#10b981] hover:bg-[#059669] text-white px-4 py-2 rounded-lg font-medium transition-all">
+                <i className="bi bi-graph-up-arrow mr-2" aria-hidden="true" />
                 View Report
               </button>
             </div>
@@ -282,6 +288,7 @@ export default function Reports() {
               onClick={() => setSelectedReport(null)}
               className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-all mb-4"
             >
+              <i className="bi bi-arrow-left mr-2" aria-hidden="true" />
               Back to Reports
             </button>
             
@@ -339,9 +346,9 @@ export default function Reports() {
             </div>
 
             {/* Charts */}
-            <div className="grid grid-cols-2 gap-6 mb-6 mt-6">
+            <div className="grid grid-cols-1 gap-4 mb-6 mt-6 md:grid-cols-2 md:gap-6">
               {/* Pie Chart */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm min-h-[340px]">
                 <h4 className="font-bold text-gray-800 mb-4">Distribution by Insurance Type</h4>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
@@ -369,7 +376,7 @@ export default function Reports() {
               </div>
 
               {/* Bar Chart */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm min-h-[340px]">
                 <h4 className="font-bold text-gray-800 mb-4">Employee Contributions</h4>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={normalizedEmployees}>
@@ -391,12 +398,14 @@ export default function Reports() {
                 onClick={printInsuranceReport}
                 className="bg-[#f59e0b] hover:bg-[#d97706] text-white px-6 py-2 rounded-lg font-semibold transition-all"
               >
+                <i className="bi bi-printer mr-2" aria-hidden="true" />
                 Print Report
               </button>
               <button
                 onClick={generateInsurancePaymentReport}
                 className="bg-[#3b82f6] hover:bg-[#2563eb] text-white px-6 py-2 rounded-lg font-semibold transition-all"
               >
+                <i className="bi bi-download mr-2" aria-hidden="true" />
                 Download PDF Report
               </button>
             </div>
@@ -410,6 +419,7 @@ export default function Reports() {
               onClick={() => setSelectedReport(null)}
               className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-all mb-4"
             >
+              <i className="bi bi-arrow-left mr-2" aria-hidden="true" />
               Back to Reports
             </button>
             
@@ -470,9 +480,9 @@ export default function Reports() {
             </div>
 
             {/* Charts */}
-            <div className="grid grid-cols-2 gap-6 mb-6 mt-6">
+            <div className="grid grid-cols-1 gap-4 mb-6 mt-6 md:grid-cols-2 md:gap-6">
               {/* Pie Chart */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm min-h-[340px]">
                 <h4 className="font-bold text-gray-800 mb-4">EE vs ER Share Distribution</h4>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
@@ -498,7 +508,7 @@ export default function Reports() {
               </div>
 
               {/* Bar Chart */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm min-h-[340px]">
                 <h4 className="font-bold text-gray-800 mb-4">Employee Share Comparison</h4>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={normalizedEmployees}>
@@ -519,12 +529,14 @@ export default function Reports() {
                 onClick={printSalaryReport}
                 className="bg-[#f59e0b] hover:bg-[#d97706] text-white px-6 py-2 rounded-lg font-semibold transition-all"
               >
+                <i className="bi bi-printer mr-2" aria-hidden="true" />
                 Print Report
               </button>
               <button
                 onClick={generateSalaryDistributionReport}
                 className="bg-[#10b981] hover:bg-[#059669] text-white px-6 py-2 rounded-lg font-semibold transition-all"
               >
+                <i className="bi bi-download mr-2" aria-hidden="true" />
                 Download PDF Report
               </button>
             </div>

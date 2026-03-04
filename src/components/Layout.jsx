@@ -82,7 +82,8 @@ export default function Layout({ children }) {
             <SidebarBtn to="/employees" text="Employees" icon={<i className="bi bi-people-fill" />} onClick={closeSidebar} />
             <SidebarBtn to="/settings" text="Settings" icon={<i className="bi bi-gear-fill" />} onClick={closeSidebar} />
             <SidebarBtn to="/reports" text="Reports" icon={<i className="bi bi-bar-chart-fill" />} onClick={closeSidebar} />
-            <button className="w-full py-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded-lg shadow-md mt-auto flex-shrink-0 font-semibold transition-all hover:shadow-lg">
+          <button className="w-full py-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded-lg shadow-md mt-auto flex-shrink-0 font-semibold transition-all hover:shadow-lg">
+            <i className="bi bi-box-arrow-right mr-2" aria-hidden="true" />
             Logout
           </button>
           </div>

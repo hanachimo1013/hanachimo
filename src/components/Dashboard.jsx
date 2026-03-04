@@ -124,6 +124,7 @@ const EmployeeTable = ({ employees, loading }) => {
                   onClick={() => generateEmployerReceipt(emp)}
                   className="bg-[#10b981] hover:bg-[#059669] text-white px-3 py-1 rounded font-semibold transition-colors text-xs"
                 >
+                  <i className="bi bi-receipt mr-1" aria-hidden="true" />
                   Receipt
                 </button>
               </td>
@@ -179,6 +180,7 @@ export default function Dashboard() {
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
+              <i className="bi bi-table mr-2" aria-hidden="true" />
               Table
             </button>
             <button
@@ -189,6 +191,7 @@ export default function Dashboard() {
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
+              <i className="bi bi-grid-3x3-gap mr-2" aria-hidden="true" />
               Cards
             </button>
           </div>

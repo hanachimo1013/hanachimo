@@ -21,12 +21,14 @@ export default function NotFound() {
             to="/dashboard"
             className="rounded-full bg-emerald-400 px-6 py-3 text-sm font-semibold text-[#0f172a] transition hover:brightness-110"
           >
+            <i className="bi bi-speedometer2 mr-2" aria-hidden="true" />
             Go to Dashboard
           </Link>
           <Link
             to="/employees"
             className="rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white/90 transition hover:border-white/60 hover:text-white"
           >
+            <i className="bi bi-people-fill mr-2" aria-hidden="true" />
             View Employees
           </Link>
         </div>

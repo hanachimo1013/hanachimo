@@ -205,6 +205,7 @@ const EmployeeForm = ({ onSubmit, onCancel, initialData = null, isLoading = fals
           className="px-6 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded-lg font-semibold transition-all"
           disabled={isLoading}
         >
+          <i className="bi bi-x-circle mr-2" aria-hidden="true" />
           Cancel
         </button>
         <button
@@ -212,6 +213,7 @@ const EmployeeForm = ({ onSubmit, onCancel, initialData = null, isLoading = fals
           className="px-6 py-2 bg-[#10b981] hover:bg-[#059669] text-white rounded-lg font-semibold transition-all disabled:opacity-50"
           disabled={isLoading}
         >
+          <i className="bi bi-save mr-2" aria-hidden="true" />
           {isLoading ? 'Saving...' : initialData ? 'Update Employee' : 'Add Employee'}
         </button>
       </div>
@@ -276,12 +278,14 @@ const EmployeeTable = ({ employees, loading, onEdit, onDelete }) => {
                   onClick={() => onEdit(emp)}
                   className="px-2 py-1 bg-[#3b82f6] hover:bg-[#2563eb] text-white rounded text-xs font-semibold mr-2 transition-all"
                 >
+                  <i className="bi bi-pencil-square mr-1" aria-hidden="true" />
                   Edit
                 </button>
                 <button
                   onClick={() => onDelete(emp.id)}
                   className="px-2 py-1 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded text-xs font-semibold transition-all"
                 >
+                  <i className="bi bi-trash mr-1" aria-hidden="true" />
                   Delete
                 </button>
               </td>
@@ -366,6 +370,7 @@ export default function Employees() {
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
+            <i className="bi bi-table mr-2" aria-hidden="true" />
             Table View
           </button>
           <button
@@ -376,6 +381,7 @@ export default function Employees() {
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
+            <i className="bi bi-grid-3x3-gap mr-2" aria-hidden="true" />
             Card View
           </button>
         </div>
@@ -385,6 +391,7 @@ export default function Employees() {
             onClick={() => setShowForm(true)}
             className="self-start md:self-auto px-6 py-2 bg-[#10b981] hover:bg-[#059669] text-white rounded-lg font-semibold transition-all"
           >
+            <i className="bi bi-person-plus mr-2" aria-hidden="true" />
             Add New Employee
           </button>
         )}

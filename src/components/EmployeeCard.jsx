@@ -60,12 +60,14 @@ export default function EmployeeCard({ employee, onEdit, onDelete }) {
             onClick={() => onEdit(employee)}
             className="flex-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold text-sm transition-all"
           >
+            <i className="bi bi-pencil-square mr-2" aria-hidden="true" />
             Edit
           </button>
           <button
             onClick={() => onDelete(employee.id)}
             className="flex-1 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold text-sm transition-all"
           >
+            <i className="bi bi-trash mr-2" aria-hidden="true" />
             Delete
           </button>
         </div>
