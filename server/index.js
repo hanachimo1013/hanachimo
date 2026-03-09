@@ -68,6 +68,19 @@ function requireRole(...allowedRoles) {
   };
 }
 
+function toDbEmployee(payload) {
+  return {
+    name: String(payload.name || '').trim(),
+    designation: String(payload.designation || '').trim(),
+    sss: Number(payload.sss || 0),
+    pagibig: Number(payload.pagibig || 0),
+    philhealth: Number(payload.philhealth || 0),
+    eeshare: Number(payload.eeShare ?? payload.eeshare ?? 0),
+    ershare: Number(payload.erShare ?? payload.ershare ?? 0),
+    photo_url: payload.photoUrl ? String(payload.photoUrl) : null,
+  };
+}
+
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
@@ -128,6 +141,85 @@ app.get('/api/auth/me', requireAuth, (req, res) => {
 
 app.get('/api/auth/superadmin-only', requireAuth, requireRole('superadmin'), (_req, res) => {
   res.json({ message: 'You are a superadmin.' });
+});
+
+app.get('/api/employees', requireAuth, async (_req, res) => {
+  const { data, error } = await supabaseAdmin
+    .from('employees')
+    .select('*')
+    .order('id', { ascending: true });
+
+  if (error) {
+    console.error('Employees GET error:', error);
+    return res.status(500).json({ message: 'Failed to fetch employees.' });
+  }
+
+  return res.json({ data: data || [] });
+});
+
+app.post('/api/employees', requireAuth, async (req, res) => {
+  const newEmployee = toDbEmployee(req.body || {});
+  if (!newEmployee.name) {
+    return res.status(400).json({ message: 'Employee name is required.' });
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from('employees')
+    .insert([newEmployee])
+    .select('*')
+    .single();
+
+  if (error) {
+    console.error('Employees POST error:', error);
+    return res.status(500).json({ message: 'Failed to create employee.' });
+  }
+
+  return res.status(201).json({ data });
+});
+
+app.patch('/api/employees/:id', requireAuth, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!id) {
+    return res.status(400).json({ message: 'Invalid employee id.' });
+  }
+
+  const updateData = toDbEmployee(req.body || {});
+  if (!updateData.name) {
+    return res.status(400).json({ message: 'Employee name is required.' });
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from('employees')
+    .update(updateData)
+    .eq('id', id)
+    .select('*')
+    .single();
+
+  if (error) {
+    console.error('Employees PATCH error:', error);
+    return res.status(500).json({ message: 'Failed to update employee.' });
+  }
+
+  return res.json({ data });
+});
+
+app.delete('/api/employees/:id', requireAuth, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!id) {
+    return res.status(400).json({ message: 'Invalid employee id.' });
+  }
+
+  const { error } = await supabaseAdmin
+    .from('employees')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Employees DELETE error:', error);
+    return res.status(500).json({ message: 'Failed to delete employee.' });
+  }
+
+  return res.json({ success: true });
 });
 
 app.listen(PORT, () => {

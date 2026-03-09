@@ -51,6 +51,10 @@ This repo now includes Vercel serverless auth endpoints:
 - `POST /api/auth/login`
 - `GET /api/auth/me`
 - `GET /api/health`
+- `GET /api/employees`
+- `POST /api/employees`
+- `PATCH /api/employees/:id`
+- `DELETE /api/employees/:id`
 
 Set these env vars in Vercel Project Settings:
 
@@ -65,3 +69,10 @@ Set these env vars in Vercel Project Settings:
 Notes:
 - Keep `SUPABASE_SERVICE_ROLE_KEY` out of frontend env files.
 - Local development can still use the Express server with `.env.server`.
+
+## 6) Lock down Supabase employees RLS after backend CRUD is live
+Run:
+
+- `supabase/sql/employees_rls_lockdown.sql`
+
+This removes direct `anon`/`authenticated` access on `public.employees`, so all employee reads/writes go through your protected backend API.
