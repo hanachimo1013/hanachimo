@@ -6,6 +6,7 @@ import Employees from './components/Employees';
 import Settings from './components/Settings';
 import Reports from './components/Reports';
 import NotFound from './components/NotFound';
+import Login from './components/Login';
 
 export default function App() {
   return (
@@ -13,7 +14,7 @@ export default function App() {
       <Routes>
         <Route
           path="/"
-          element={<Navigate to="/dashboard" replace />}
+          element={<Navigate to="/login" replace />}
         />
         <Route
           path="/dashboard"
@@ -47,6 +48,7 @@ export default function App() {
             </Layout>
           }
         />
+        <Route path="/login" element={<Login />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
