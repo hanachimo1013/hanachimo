@@ -7,6 +7,8 @@ import Settings from './components/Settings';
 import Reports from './components/Reports';
 import NotFound from './components/NotFound';
 import Login from './components/Login';
+import ProtectedRoute from './components/ProtectedRoute';
+import PublicOnlyRoute from './components/PublicOnlyRoute';
 
 export default function App() {
   return (
@@ -19,36 +21,51 @@ export default function App() {
         <Route
           path="/dashboard"
           element={
-            <Layout>
-              <Dashboard />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/employees"
           element={
-            <Layout>
-              <Employees />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Employees />
+              </Layout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/settings"
           element={
-            <Layout>
-              <Settings />
-            </Layout>
+            <ProtectedRoute allowedRoles={['superadmin']}>
+              <Layout>
+                <Settings />
+              </Layout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/reports"
           element={
-            <Layout>
-              <Reports />
-            </Layout>
+            <ProtectedRoute allowedRoles={['superadmin']}>
+              <Layout>
+                <Reports />
+              </Layout>
+            </ProtectedRoute>
           }
         />
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/login"
+          element={
+            <PublicOnlyRoute>
+              <Login />
+            </PublicOnlyRoute>
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

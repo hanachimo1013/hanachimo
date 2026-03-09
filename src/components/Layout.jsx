@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import adminAvatar from '../assets/admin-avatar.png';
+import { useAuth } from '../context/AuthContext';
 
 const SidebarBtn = ({ to, text, icon, onClick }) => {
   const location = useLocation();
@@ -24,6 +26,8 @@ const SidebarBtn = ({ to, text, icon, onClick }) => {
 
 export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -31,6 +35,12 @@ export default function Layout({ children }) {
 
   const closeSidebar = () => {
     setSidebarOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    closeSidebar();
+    navigate('/login', { replace: true });
   };
 
   return (
@@ -56,7 +66,7 @@ export default function Layout({ children }) {
 
           {/* Desktop Menu Items */}
           <button className="hidden md:block px-4 py-2 hover:bg-[#e6a891] rounded transition-colors dark:hover:bg-gray-700">Contact</button>
-          <button className="hidden md:block px-4 py-2 hover:bg-[#d59780] rounded transition-colors dark:hover:bg-gray-700">Log-Out</button>
+          <button onClick={handleLogout} className="hidden md:block px-4 py-2 hover:bg-[#d59780] rounded transition-colors dark:hover:bg-gray-700">Log-Out</button>
         </div>
       </header>
 
@@ -90,7 +100,7 @@ export default function Layout({ children }) {
             <SidebarBtn to="/employees" text="Employees" icon={<i className="bi bi-people-fill" />} onClick={closeSidebar} />
             <SidebarBtn to="/settings" text="Settings" icon={<i className="bi bi-gear-fill" />} onClick={closeSidebar} />
             <SidebarBtn to="/reports" text="Reports" icon={<i className="bi bi-bar-chart-fill" />} onClick={closeSidebar} />
-          <button className="w-full py-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded-lg shadow-md mt-auto flex-shrink-0 font-semibold transition-all hover:shadow-lg">
+          <button onClick={handleLogout} className="w-full py-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded-lg shadow-md mt-auto flex-shrink-0 font-semibold transition-all hover:shadow-lg">
             <i className="bi bi-box-arrow-right mr-2" aria-hidden="true" />
             Logout
           </button>
