@@ -28,6 +28,26 @@ function toDbEmployee(payload) {
   };
 }
 
+function maskText(value) {
+  const text = String(value || '');
+  if (text.length <= 2) return '*'.repeat(text.length);
+  return `${text.slice(0, 2)}${'*'.repeat(Math.max(1, text.length - 3))}${text.slice(-1)}`;
+}
+
+function maskEmployeesForViewer(list) {
+  return list.map((emp) => ({
+    ...emp,
+    name: maskText(emp.name),
+    designation: maskText(emp.designation || '-'),
+    sss: 0,
+    pagibig: 0,
+    philhealth: 0,
+    eeshare: 0,
+    ershare: 0,
+    photo_url: null,
+  }));
+}
+
 export default async function handler(req, res) {
   const user = getAuthenticatedUser(req, res);
   if (!user) return;
@@ -45,7 +65,8 @@ export default async function handler(req, res) {
       return res.status(500).json({ message: 'Failed to fetch employees.' });
     }
 
-    return res.status(200).json({ data: data || [] });
+    const result = user.role === 'viewer' ? maskEmployeesForViewer(data || []) : (data || []);
+    return res.status(200).json({ data: result });
   }
 
   if (req.method === 'POST') {
