@@ -48,7 +48,7 @@ export default function Layout({ children }) {
       closeSidebar();
       setLogoutOpen(false);
       setLoggingOut(false);
-      navigate('/login', { replace: true });
+      navigate('/login', { replace: true, state: { loggedOut: true } });
     }, 350);
   };
 

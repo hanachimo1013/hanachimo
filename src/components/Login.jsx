@@ -12,7 +12,7 @@ export default function Login() {
   const [error, setError] = useState('');
 
   const fromPath = location.state?.from?.pathname || '/dashboard';
-  const showAccessWarning = Boolean(location.state?.from);
+  const showAccessWarning = Boolean(location.state?.from) && !location.state?.loggedOut;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
