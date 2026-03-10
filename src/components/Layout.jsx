@@ -149,8 +149,6 @@ export default function Layout({ children }) {
                 text="Reports"
                 icon={<i className="bi bi-bar-chart-fill" />}
                 onClick={closeSidebar}
-                disabled={isViewer}
-                title={isViewer ? 'You are in viewing mode' : undefined}
               />
             )}
           <button onClick={openLogout} className="w-full py-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded-lg shadow-md mt-auto flex-shrink-0 font-semibold transition-all hover:shadow-lg">
