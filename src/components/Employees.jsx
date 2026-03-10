@@ -318,12 +318,6 @@ export default function Employees() {
   const [viewMode, setViewMode] = useState('table');
   const formRef = useRef(null);
 
-  useEffect(() => {
-    if (showForm && formRef.current) {
-      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [showForm, editingEmployee]);
-
   const handleFormSubmit = async (formData) => {
     setIsSubmitting(true);
     setError(null);
@@ -417,13 +411,23 @@ export default function Employees() {
       </div>
 
       {showForm && (
-        <div ref={formRef}>
-          <EmployeeForm
-            onSubmit={handleFormSubmit}
-            onCancel={handleFormCancel}
-            initialData={editingEmployee}
-            isLoading={isSubmitting}
+        <div className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in"
+            onClick={handleFormCancel}
+            aria-hidden="true"
           />
+          <div
+            ref={formRef}
+            className="relative w-full max-w-4xl px-4 animate-fade-scale"
+          >
+            <EmployeeForm
+              onSubmit={handleFormSubmit}
+              onCancel={handleFormCancel}
+              initialData={editingEmployee}
+              isLoading={isSubmitting}
+            />
+          </div>
         </div>
       )}
 
