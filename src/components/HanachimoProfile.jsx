@@ -6,7 +6,7 @@ export default function HanachimoProfile() {
   return (
     <div className="min-h-screen bg-[#0b0f1a] text-white">
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.25),transparent_60%),radial-gradient(circle_at_30%_20%,rgba(244,63,94,0.18),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.25),_transparent_60%),radial-gradient(circle_at_30%_20%,_rgba(244,63,94,0.18),_transparent_55%)]" />
         <div className="relative border-b border-white/10">
           <div
             className="h-72 w-full"
