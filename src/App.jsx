@@ -17,7 +17,6 @@ const routeTitles = {
   '/settings': 'Settings',
   '/reports': 'Reports',
   '/login': 'Login',
-  '/hanachimo': 'Hanachimo',
 };
 
 function TitleUpdater() {
