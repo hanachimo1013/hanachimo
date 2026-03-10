@@ -152,7 +152,7 @@ export default function Layout({ children }) {
               className="w-full h-full object-cover"
             />
           </div>
-          <h2 className="text-xl font-bold mb-2 text-gray-800 dark:text-gray-100">{displayName}</h2>\n          <p className="text-xs text-gray-600 mb-8 dark:text-gray-300">{displayRole}</p>
+          <h2 className="text-xl font-bold mb-2 text-gray-800 dark:text-gray-100">{displayName}</h2>          <p className="text-xs text-gray-600 mb-8 dark:text-gray-300">{displayRole}</p>
           
           <div className="w-full flex-1">
             <SidebarBtn to="/dashboard" text="Dashboard" icon={<i className="bi bi-speedometer2" />} onClick={closeSidebar} />
@@ -197,7 +197,7 @@ export default function Layout({ children }) {
               className="w-full h-full object-cover"
             />
           </div>
-          <h2 className="text-xl font-bold mb-2 text-gray-800 dark:text-gray-100">{displayName}</h2>\n          <p className="text-xs text-gray-600 mb-8 dark:text-gray-300">{displayRole}</p>
+          <h2 className="text-xl font-bold mb-2 text-gray-800 dark:text-gray-100">{displayName}</h2>          <p className="text-xs text-gray-600 mb-8 dark:text-gray-300">{displayRole}</p>
           
           <div className="w-full flex-1">
             <SidebarBtn to="/dashboard" text="Dashboard" icon={<i className="bi bi-speedometer2" />} onClick={closeSidebar} />
