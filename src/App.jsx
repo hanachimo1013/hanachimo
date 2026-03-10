@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import Employees from './components/Employees';
@@ -10,9 +10,29 @@ import Login from './components/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicOnlyRoute from './components/PublicOnlyRoute';
 
+const routeTitles = {
+  '/dashboard': 'Dashboard',
+  '/employees': 'Employees',
+  '/settings': 'Settings',
+  '/reports': 'Reports',
+  '/login': 'Login',
+};
+
+function TitleUpdater() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const title = routeTitles[location.pathname] || 'Page';
+    document.title = `BDLAG | ${title}`;
+  }, [location.pathname]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <Router>
+      <TitleUpdater />
       <Routes>
         <Route
           path="/"
