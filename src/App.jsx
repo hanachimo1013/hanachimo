@@ -80,6 +80,10 @@ export default function App() {
           }
         />
         <Route
+          path="/report"
+          element={<Navigate to="/reports" replace />}
+        />
+        <Route
           path="/login"
           element={
             <PublicOnlyRoute>
