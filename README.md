@@ -1,22 +1,81 @@
 # BDLAG Utility
 
-Internal admin dashboard for Bato de Luna Art Gallery (BDLAG). Built with React, Vite, Tailwind CSS, Supabase, and a JWT-based login flow.
+## 1. Description
 
-## Features
+Internal admin dashboard for Bato de Luna Art Gallery (BDLAG).
+
+This is a modern full-stack application built with React (Vite) on the frontend and a Node.js/Express-based serverless API backend. It features a robust front-end structure utilizing context for state management (Authentication and Theming) and `react-router-dom` for client-side navigation. The project includes role-based access control (JWT) for protected routes, secure CRUD operations for employee data via serverless functions, and is styled with Tailwind CSS. The entire system is backed by Supabase for database and storage.
+
+## 2. Features
 - JWT login with role-based access (`superadmin`, `employee`)
 - Protected routes and session persistence
+- Client-side routing with `react-router-dom`
+- Role-based access control for specific routes
+- Global state management for Auth and Theming via React Context
 - Employees CRUD via secure serverless API
 - Supabase-backed data and storage
 
-## Tech Stack
-- React 19 + Vite
-- Tailwind CSS
-- Supabase
-- Vercel serverless functions (`/api/*`)
+## 3. Tech Stack
+- **Frontend**: React 19, Vite, React Router DOM v6
+- **Backend**: Vercel Serverless Functions (Node.js/Express-like)
+- **Database**: Supabase (PostgreSQL)
+- **Styling**: Tailwind CSS, Bootstrap Icons
+- **Linting**: ESLint
 
-## Quick Start (Local)
+## 4. Project Structure
+```
+/
+├── api/                  # Vercel Serverless Functions (Backend)
+├── public/
+├── src/                  # React Frontend Source
+│   ├── assets/
+│   ├── components/
+│   │   ├── Dashboard.jsx
+│   │   ├── Employees.jsx
+│   │   ├── ...
+│   │   └── Settings.jsx
+│   ├── context/
+│   │   ├── AuthContext.jsx
+│   │   └── ThemeContext.jsx
+│   ├── App.jsx             # Main application component with routing
+│   ├── index.css           # Global styles
+│   └── main.jsx            # Application entry point
+├── supabase/             # SQL schemas and migrations
+├── .env.local            # Frontend environment variables
+├── .env.server           # Backend environment variables
+├── package.json
+└── vercel.json           # Vercel deployment configuration
+```
 
-Install dependencies:
+## 5. Routing and Navigation (Frontend)
+Routing is defined in `src/App.jsx` and managed by `react-router-dom`.
+
+### Key Routing Components
+- **`ProtectedRoute`**: Wraps routes that require authentication. It checks for a valid user session and can also enforce role-based access.
+- **`PublicOnlyRoute`**: Wraps routes like `/login` to prevent access by already authenticated users, redirecting them to the dashboard.
+- **`Layout`**: A wrapper component for protected pages, providing a consistent UI shell (e.g., sidebar, navbar).
+- **`TitleUpdater`**: A utility component that dynamically updates the document title based on the current route.
+
+#### Route Configuration
+| Path | Component | Access | Notes |
+| :--- | :--- | :--- | :--- |
+| `/` | Redirect | - | Redirects to `/login` |
+| `/login` | `Login` | Public Only | Accessible only if not logged in |
+| `/dashboard` | `Dashboard` | Protected | Wrapped in `Layout` component |
+| `/employees` | `Employees` | Protected | Wrapped in `Layout` component |
+| `/settings` | `Settings` | Protected | Roles: `superadmin`, `viewer` |
+| `/reports` | `Reports` | Protected | Roles: `superadmin`, `viewer` |
+| `/hanachimo` | `HanachimoProfile` | Public | - |
+| `*` | `NotFound` | Public | 404 Page |
+
+## 6. State Management (Context)
+Global state is managed via React's Context API.
+- **`src/context/AuthContext.jsx`**: Provides authentication state (e.g., user object, login/logout functions) to the entire application.
+- **`src/context/ThemeContext.jsx`**: Manages the application's theme (e.g., light/dark mode).
+
+## 7. Quick Start (Local Development)
+
+### 1. Install Dependencies
 ```bash
 npm install
 ```
