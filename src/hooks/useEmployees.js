@@ -136,7 +136,7 @@ export const useEmployees = () => {
     }
   };
 
-  const fetchEmployeeValues = async (employee, options = {}) => {
+  const fetchEmployeeValues = useCallback(async (employee, options = {}) => {
     const name = employee?.name;
     const designation = employee?.designation ?? '';
     const limit = Number(options.limit || 10);
@@ -162,7 +162,7 @@ export const useEmployees = () => {
     } finally {
       setValuesLoading(false);
     }
-  };
+  }, [request]);
 
   return {
     employees,

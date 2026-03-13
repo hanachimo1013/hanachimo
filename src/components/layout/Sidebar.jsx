@@ -1,9 +1,10 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import adminAvatar from '../../assets/admin-avatar.png';
 
 export const SidebarBtn = ({ to, text, icon, onClick, disabled, title }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isActive = location.pathname === to;
 
   if (disabled) {
@@ -19,10 +20,16 @@ export const SidebarBtn = ({ to, text, icon, onClick, disabled, title }) => {
     );
   }
 
+  const handleNavigate = () => {
+    if (disabled) return;
+    if (onClick) onClick();
+    navigate(to);
+  };
+
   return (
-    <Link
-      to={to}
-      onClick={onClick}
+    <button
+      type="button"
+      onClick={handleNavigate}
       className={`w-full py-2 px-4 rounded-lg shadow-md transition-all mb-3 font-semibold text-base ${
         isActive
           ? 'bg-[#b45309] text-white shadow-lg'
@@ -31,20 +38,29 @@ export const SidebarBtn = ({ to, text, icon, onClick, disabled, title }) => {
     >
       {icon && <span className="mr-2 inline-flex text-sm">{icon}</span>}
       {text}
-    </Link>
+    </button>
   );
 };
 
-export const SidebarIconBtn = ({ to, icon, onClick, title }) => (
-  <Link
-    to={to}
-    onClick={onClick}
-    title={title}
-    className="w-12 h-12 rounded-xl mb-3 flex items-center justify-center bg-[#d97706] hover:bg-[#b45309] text-white shadow-md transition-all"
-  >
-    {icon}
-  </Link>
-);
+export const SidebarIconBtn = ({ to, icon, onClick, title }) => {
+  const navigate = useNavigate();
+
+  const handleNavigate = () => {
+    if (onClick) onClick();
+    navigate(to);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleNavigate}
+      title={title}
+      className="w-12 h-12 rounded-xl mb-3 inline-flex items-center justify-center bg-[#d97706] hover:bg-[#b45309] text-white shadow-md transition-all"
+    >
+      {icon}
+    </button>
+  );
+};
 
 export const SidebarContent = ({ displayName, displayRole, isEmployee, isViewer, onClose, onLogout }) => (
   <>
