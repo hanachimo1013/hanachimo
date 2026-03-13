@@ -110,7 +110,7 @@ const EmployeeTable = ({ employees, loading, isViewer, onSelect, onHistory }) =>
   }
 
   return (
-    <div className="max-h-[calc(100vh-320px)] overflow-auto">
+    <div className="h-full overflow-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b-2 border-[#e6a891] bg-gray-100 dark:bg-gray-800 dark:border-gray-700">
@@ -250,7 +250,7 @@ export default function Dashboard() {
       </div>
 
       {/* Employee List */}
-      <section className="bg-white p-4 md:p-8 rounded-lg shadow-md dark:bg-gray-900 dark:text-gray-100">
+      <section className="bg-white p-4 md:p-8 rounded-lg shadow-md dark:bg-gray-900 dark:text-gray-100 flex flex-col max-h-[calc(100vh-260px)] overflow-hidden">
         <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-1 dark:text-gray-100">Employee Directory</h3>
@@ -258,7 +258,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="relative">
+        <div className="relative flex-1 overflow-hidden">
           {loading && <LoadingOverlay message="Loading employees..." />}
 
           <EmployeeTable

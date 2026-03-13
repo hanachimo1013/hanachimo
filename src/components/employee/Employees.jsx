@@ -95,7 +95,22 @@ export default function Employees() {
 
   const handleEdit = (employee) => {
     if (isViewer) return;
-    setEditingEmployee(employee);
+    setEditingEmployee({
+      ...employee,
+      sssNumber: employee.sss_number ?? employee.sssNumber ?? '',
+      pagibigNumber: employee.pagibig_number ?? employee.pagibigNumber ?? '',
+      philhealthNumber: employee.philhealth_number ?? employee.philhealthNumber ?? '',
+      sssEe: employee.sss_ee ?? employee.sssEe ?? '',
+      sssEr: employee.sss_er ?? employee.sssEr ?? '',
+      pagibigEe: employee.pagibig_ee ?? employee.pagibigEe ?? '',
+      pagibigEr: employee.pagibig_er ?? employee.pagibigEr ?? '',
+      philhealthEe: employee.philhealth_ee ?? employee.philhealthEe ?? '',
+      philhealthEr: employee.philhealth_er ?? employee.philhealthEr ?? '',
+      salaryPerDay: employee.salary_per_day ?? employee.salaryPerDay ?? '',
+      status: employee.status ?? 'employed',
+      eeTotal: employee.ee_total ?? employee.eeTotal ?? employee.eeShare ?? '',
+      erTotal: employee.er_total ?? employee.erTotal ?? employee.erShare ?? '',
+    });
     setShowForm(true);
   };
 
