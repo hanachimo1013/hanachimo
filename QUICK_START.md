@@ -4,7 +4,7 @@
 
 ### 1. Create Supabase Project (2 min)
 ```
-Go to supabase.com → Sign up → Create Project
+Go to supabase.com -> Sign up -> Create Project
 ```
 
 ### 2. Create Database Table (1 min)
@@ -24,7 +24,7 @@ CREATE TABLE employees (
 Run this in Supabase SQL Editor.
 
 ### 3. Get API Keys (1 min)
-1. Settings → API
+1. Settings -> API
 2. Copy: Project URL
 3. Copy: anon public key
 
@@ -40,18 +40,18 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOi...
 npm run dev
 ```
 
-✅ Done! Your app now connects to Supabase.
+Done. Your app now connects to Supabase.
 
 ---
 
 ## Data Already in App
 
 5 sample employees are automatically used if Supabase is offline:
-- John Doe (₱8500 EE, ₱12750 ER)
-- Jane Smith (₱7200 EE, ₱10800 ER)
-- Mike Johnson (₱6500 EE, ₱9750 ER)
-- Sarah Williams (₱7000 EE, ₱10500 ER)
-- Tom Brown (₱8800 EE, ₱13200 ER)
+- John Doe (PHP 8500 EE, PHP 12750 ER)
+- Jane Smith (PHP 7200 EE, PHP 10800 ER)
+- Mike Johnson (PHP 6500 EE, PHP 9750 ER)
+- Sarah Williams (PHP 7000 EE, PHP 10500 ER)
+- Tom Brown (PHP 8800 EE, PHP 13200 ER)
 
 Add them to Supabase with this SQL:
 ```sql
@@ -67,17 +67,17 @@ INSERT INTO employees (name, sss, pagibig, philhealth, eeShare, erShare) VALUES
 
 ## What Changed in Your App
 
-✅ **Dashboard**
+**Dashboard**
 - Status cards now show totals from database
 - Employee directory pulls live data
 - Receipt generation uses real values
 
-✅ **Employees Page**
+**Employees Page**
 - Shows SSS, PAG-IBIG, PhilHealth per employee
 - EE/ER share columns
 - All data from Supabase
 
-✅ **Reports**
+**Reports**
 - Insurance report uses live data
 - Salary distribution uses live data
 - Charts update automatically
@@ -122,7 +122,7 @@ export default function MyComponent() {
 |------|---------|
 | `src/config/supabaseClient.js` | Database connection setup |
 | `src/hooks/useEmployees.js` | Employee data management hook |
-| `.env.local` | Your Supabase credentials (keep secret!) |
+| `.env.local` | Your Supabase credentials (keep secret) |
 | `SUPABASE_SETUP.md` | Detailed setup guide |
 
 ---
@@ -131,11 +131,11 @@ export default function MyComponent() {
 
 Only 2 variables needed:
 ```
-VITE_SUPABASE_URL     → From Supabase Settings
-VITE_SUPABASE_ANON_KEY → From Supabase Settings
+VITE_SUPABASE_URL      -> From Supabase Settings
+VITE_SUPABASE_ANON_KEY -> From Supabase Settings
 ```
 
-⚠️ Never commit `.env.local` to git!
+Never commit `.env.local` to git.
 
 ---
 
@@ -158,7 +158,7 @@ const subscription = supabase
 // Set policies per user in Supabase dashboard
 ```
 
-See SUPABASE_SETUP.md for more security best practices.
+See `SUPABASE_SETUP.md` for more security best practices.
 
 ---
 
@@ -167,10 +167,10 @@ See SUPABASE_SETUP.md for more security best practices.
 If you deploy your app:
 
 1. Add environment variables in Vercel dashboard:
-   - Project Settings → Environment Variables
+   - Project Settings -> Environment Variables
    - Add VITE_SUPABASE_URL
    - Add VITE_SUPABASE_ANON_KEY
 
 2. Deploy branches will automatically use these values
 
-3. Supabase stays online so your app always has data ✅
+3. Supabase stays online so your app always has data

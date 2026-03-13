@@ -7,7 +7,7 @@ Internal admin dashboard for Bato de Luna Art Gallery (BDLAG).
 This is a modern full-stack application built with React (Vite) on the frontend and a Node.js/Express-based serverless API backend. It features a robust front-end structure utilizing context for state management (Authentication and Theming) and `react-router-dom` for client-side navigation. The project includes role-based access control (JWT) for protected routes, secure CRUD operations for employee data via serverless functions, and is styled with Tailwind CSS. The entire system is backed by Supabase for database and storage.
 
 ## 2. Features
-- JWT login with role-based access (`superadmin`, `employee`)
+- JWT login with role-based access (`superadmin`, `employee`, `viewer`)
 - Protected routes and session persistence
 - Client-side routing with `react-router-dom`
 - Role-based access control for specific routes
@@ -25,26 +25,30 @@ This is a modern full-stack application built with React (Vite) on the frontend 
 ## 4. Project Structure
 ```
 /
-├── api/                  # Vercel Serverless Functions (Backend)
-├── public/
-├── src/                  # React Frontend Source
-│   ├── assets/
-│   ├── components/
-│   │   ├── Dashboard.jsx
-│   │   ├── Employees.jsx
-│   │   ├── ...
-│   │   └── Settings.jsx
-│   ├── context/
-│   │   ├── AuthContext.jsx
-│   │   └── ThemeContext.jsx
-│   ├── App.jsx             # Main application component with routing
-│   ├── index.css           # Global styles
-│   └── main.jsx            # Application entry point
-├── supabase/             # SQL schemas and migrations
-├── .env.local            # Frontend environment variables
-├── .env.server           # Backend environment variables
-├── package.json
-└── vercel.json           # Vercel deployment configuration
+|-- api/                  # Vercel Serverless Functions (Backend)
+|-- public/
+|-- src/                  # React Frontend Source
+|   |-- assets/
+|   |-- components/
+|   |   |-- auth/
+|   |   |-- employee/
+|   |   |-- layout/
+|   |   |-- pages/
+|   |   |-- ui/
+|   |-- config/
+|   |-- context/
+|   |   |-- AuthContext.jsx
+|   |   |-- ThemeContext.jsx
+|   |-- hooks/
+|   |-- utils/
+|   |-- App.jsx            # Main application component with routing
+|   |-- index.css          # Global styles
+|   |-- main.jsx           # Application entry point
+|-- supabase/              # SQL schemas and migrations
+|-- .env.local             # Frontend environment variables
+|-- .env.server            # Backend environment variables
+|-- package.json
+|-- vercel.json            # Vercel deployment configuration
 ```
 
 ## 5. Routing and Navigation (Frontend)

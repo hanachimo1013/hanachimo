@@ -159,21 +159,21 @@ export default function Employees() {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto overscroll-contain touch-pan-y py-6 md:items-center animate-fade-in">
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in"
             onClick={handleFormCancel}
             aria-hidden="true"
           />
-          <div
-            className="relative w-full max-w-4xl px-4 animate-fade-scale"
-          >
-            <EmployeeForm
-              onSubmit={handleFormSubmit}
-              onCancel={handleFormCancel}
-              initialData={editingEmployee}
-              isLoading={isSubmitting}
-            />
+          <div className="relative w-full max-w-4xl px-4 animate-fade-scale">
+            <div className="max-h-[calc(100vh-3rem)] overflow-y-auto overscroll-contain touch-pan-y">
+              <EmployeeForm
+                onSubmit={handleFormSubmit}
+                onCancel={handleFormCancel}
+                initialData={editingEmployee}
+                isLoading={isSubmitting}
+              />
+            </div>
           </div>
         </div>
       )}
