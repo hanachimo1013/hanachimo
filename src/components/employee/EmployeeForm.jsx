@@ -11,6 +11,18 @@ const FormField = ({ label, ...props }) => (
   </div>
 );
 
+const SelectField = ({ label, children, ...props }) => (
+  <div>
+    <label className="block text-sm font-semibold text-black mb-2 dark:text-gray-200">{label}{props.required && ' *'}</label>
+    <select
+      {...props}
+      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#d97706] focus:outline-none text-black bg-white dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700"
+    >
+      {children}
+    </select>
+  </div>
+);
+
 const getInitialState = (initialData) => ({
   name: initialData?.name || '',
   designation: initialData?.designation || '',
@@ -117,7 +129,11 @@ export default function EmployeeForm({ onSubmit, onCancel, initialData = null, i
         <FormField label="PhilHealth EE (PHP)" type="number" name="philhealthEe" value={formData.philhealthEe} onChange={handleInputChange} step="0.01" placeholder="0.00" />
         <FormField label="PhilHealth ER (PHP)" type="number" name="philhealthEr" value={formData.philhealthEr} onChange={handleInputChange} step="0.01" placeholder="0.00" />
         <FormField label="Salary Per Day (PHP)" type="number" name="salaryPerDay" value={formData.salaryPerDay} onChange={handleInputChange} step="0.01" placeholder="0.00" />
-        <FormField label="Employee Status" name="status" value={formData.status} onChange={handleInputChange} placeholder="employed / awol / resigned" />
+        <SelectField label="Employee Status" name="status" value={formData.status} onChange={handleInputChange}>
+          <option value="employed">employed</option>
+          <option value="suspended">suspended</option>
+          <option value="removed">removed</option>
+        </SelectField>
         <FormField label="EE Share (Auto) (PHP)" type="number" name="eeTotal" value={formData.eeTotal} required readOnly placeholder="Auto-calculated" />
         <FormField label="ER Share (Auto) (PHP)" type="number" name="erTotal" value={formData.erTotal} required readOnly placeholder="Auto-calculated" />
 

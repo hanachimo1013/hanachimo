@@ -95,13 +95,7 @@ export default function Employees() {
 
   const handleEdit = async (employee) => {
     if (isViewer) return;
-
-    let values = null;
-    const result = await fetchEmployeeValues(employee, { limit: 1, offset: 0 });
-    if (result.success && result.data?.length) {
-      values = result.data[0];
-    }
-
+    const values = employee;
     setEditingEmployee({
       ...employee,
       sssNumber: employee.sss_number ?? employee.sssNumber ?? '',
