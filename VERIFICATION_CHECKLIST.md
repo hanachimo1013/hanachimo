@@ -8,6 +8,7 @@
 - [x] Updated `src/components/pages/Dashboard.jsx` - Now uses useEmployees hook
 - [x] Updated `src/components/pages/Reports.jsx` - Now uses useEmployees hook
 - [x] Updated `src/components/employee/Employees.jsx` - Complete rewrite with hook
+- [x] Added `employee_values` history endpoint and UI
 - [x] Fixed all lint errors - No warnings or errors remaining
 - [x] @supabase/supabase-js already installed in package.json
 
@@ -46,6 +47,10 @@
 3. Copy SQL from SUPABASE_SETUP.md
 4. Run the query
 5. You should see a success message
+```
+Then run:
+```
+supabase/sql/2026_03_13_employee_schema_update.sql
 ```
 
 ### Step 3: Get Your Credentials
@@ -93,8 +98,9 @@
 | Dashboard | Employee table | Shows all 5 employees with data |
 | Dashboard | Click Receipt button | PDF opens with employee info |
 | Employees | Open page | Table shows all employees |
-| Employees | Columns | ID, Name, SSS, PAG-IBIG, PhilHealth, EE Share, ER Share |
+| Employees | Columns | ID, Name, SSS, PAG-IBIG, PhilHealth, EE Total, ER Total |
 | Employees | Currency | All amounts formatted as PHP |
+| Employees | History | History modal opens and shows values |
 | Reports | Insurance Report | Pie chart with SSS/PAG-IBIG/PhilHealth |
 | Reports | Salary Report | Pie chart for EE and ER share |
 | Console | F12 -> Console tab | No error messages |
@@ -136,8 +142,9 @@ Your React App
 **Employees Page**
 - Live employee list
 - All insurance contribution fields
-- EE/ER share data
+- EE/ER total data
 - Currency formatting
+- Values history modal
 
 **Reports Page**
 - Insurance Payment Report (live data)

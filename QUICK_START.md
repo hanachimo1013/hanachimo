@@ -23,6 +23,11 @@ CREATE TABLE employees (
 ```
 Run this in Supabase SQL Editor.
 
+Then run the schema update:
+```
+supabase/sql/2026_03_13_employee_schema_update.sql
+```
+
 ### 3. Get API Keys (1 min)
 1. Settings -> API
 2. Copy: Project URL
@@ -74,8 +79,11 @@ INSERT INTO employees (name, sss, pagibig, philhealth, eeShare, erShare) VALUES
 
 **Employees Page**
 - Shows SSS, PAG-IBIG, PhilHealth per employee
-- EE/ER share columns
+- EE/ER total columns
 - All data from Supabase
+
+**History**
+- Values history modal (EE/ER totals over time)
 
 **Reports**
 - Insurance report uses live data

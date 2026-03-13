@@ -2,12 +2,15 @@
 
 ## 2026-03-13
 **Status:** Complete
-**Changes:** Component restructure and build fix
+**Changes:** Component restructure, build fix, and employee values history
 
 - Moved UI components into subfolders under `src/components/`:
   - `auth/`, `employee/`, `layout/`, `pages/`, `ui/`
 - Restored missing/corrupted components and updated imports
 - Fixed Vercel/Linux build resolution issues
+- Added `employee_values` history table and API
+- Added values history modal and EE/ER totals display
+- Updated reports/receipts to use totals
 
 ---
 

@@ -13,6 +13,7 @@ This is a modern full-stack application built with React (Vite) on the frontend 
 - Role-based access control for specific routes
 - Global state management for Auth and Theming via React Context
 - Employees CRUD via secure serverless API
+- Employee values history (EE/ER totals over time)
 - Supabase-backed data and storage
 
 ## 3. Tech Stack
@@ -26,6 +27,7 @@ This is a modern full-stack application built with React (Vite) on the frontend 
 ```
 /
 |-- api/                  # Vercel Serverless Functions (Backend)
+|   |-- employee-values/  # Values history endpoint
 |-- public/
 |-- src/                  # React Frontend Source
 |   |-- assets/
@@ -103,6 +105,8 @@ VITE_API_BASE_URL=
 
 Run SQL in Supabase:
 - `supabase/sql/auth_schema.sql`
+- `supabase/sql/2026_03_13_employee_schema_update.sql`
+- (optional) `supabase/sql/employee_values_backfill.sql`
 
 Start dev servers (two terminals):
 ```bash
