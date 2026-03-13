@@ -252,12 +252,74 @@ export default function Employees() {
                   Close
                 </button>
               </div>
-              <EmployeeCard
-                employee={selectedEmployee}
-                isViewer={isViewer}
-                maskText={maskText}
-                maskNumber={maskNumber}
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">SSS Number</p>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    {isViewer ? '***' : (selectedEmployee.sss_number || selectedEmployee.sssNumber || '-')}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">PAG-IBIG Number</p>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    {isViewer ? '***' : (selectedEmployee.pagibig_number || selectedEmployee.pagibigNumber || '-')}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">PhilHealth Number</p>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    {isViewer ? '***' : (selectedEmployee.philhealth_number || selectedEmployee.philhealthNumber || '-')}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">SSS EE</p>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    {isViewer ? '***' : formatPeso(selectedEmployee.sss_ee)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">SSS ER</p>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    {isViewer ? '***' : formatPeso(selectedEmployee.sss_er)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">PAG-IBIG EE</p>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    {isViewer ? '***' : formatPeso(selectedEmployee.pagibig_ee)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">PAG-IBIG ER</p>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    {isViewer ? '***' : formatPeso(selectedEmployee.pagibig_er)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">PhilHealth EE</p>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    {isViewer ? '***' : formatPeso(selectedEmployee.philhealth_ee)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">PhilHealth ER</p>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    {isViewer ? '***' : formatPeso(selectedEmployee.philhealth_er)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">Salary Per Day</p>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    {isViewer ? '***' : formatPeso(selectedEmployee.salary_per_day || selectedEmployee.salaryPerDay || 0)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">Status</p>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    {isViewer ? '***' : (selectedEmployee.status || 'employed')}
+                  </p>
+                </div>
+              </div>
 
               <div className="mt-6">
                 <h4 className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-2">Values History</h4>

@@ -14,11 +14,19 @@ const FormField = ({ label, ...props }) => (
 const getInitialState = (initialData) => ({
   name: initialData?.name || '',
   designation: initialData?.designation || '',
-  sss: initialData?.sss || '',
-  pagibig: initialData?.pagibig || '',
-  philhealth: initialData?.philhealth || '',
-  eeShare: initialData?.eeShare || '',
-  erShare: initialData?.erShare || '',
+  sssNumber: initialData?.sss_number || initialData?.sssNumber || '',
+  pagibigNumber: initialData?.pagibig_number || initialData?.pagibigNumber || '',
+  philhealthNumber: initialData?.philhealth_number || initialData?.philhealthNumber || '',
+  sssEe: initialData?.sss_ee || initialData?.sssEe || '',
+  sssEr: initialData?.sss_er || initialData?.sssEr || '',
+  pagibigEe: initialData?.pagibig_ee || initialData?.pagibigEe || '',
+  pagibigEr: initialData?.pagibig_er || initialData?.pagibigEr || '',
+  philhealthEe: initialData?.philhealth_ee || initialData?.philhealthEe || '',
+  philhealthEr: initialData?.philhealth_er || initialData?.philhealthEr || '',
+  salaryPerDay: initialData?.salary_per_day || initialData?.salaryPerDay || '',
+  status: initialData?.status || 'employed',
+  eeTotal: initialData?.ee_total || initialData?.eeTotal || initialData?.eeShare || '',
+  erTotal: initialData?.er_total || initialData?.erTotal || initialData?.erShare || '',
   photoUrl: initialData?.photoUrl || '',
 });
 
@@ -39,17 +47,29 @@ export default function EmployeeForm({ onSubmit, onCancel, initialData = null, i
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Effect to auto-calculate EE Share
+  // Effect to auto-calculate EE/ER totals
   useEffect(() => {
-    const sss = parseFloat(formData.sss) || 0;
-    const pagibig = parseFloat(formData.pagibig) || 0;
-    const philhealth = parseFloat(formData.philhealth) || 0;
-    const totalEeShare = sss + pagibig + philhealth;
+    const sssEe = parseFloat(formData.sssEe) || 0;
+    const pagibigEe = parseFloat(formData.pagibigEe) || 0;
+    const philhealthEe = parseFloat(formData.philhealthEe) || 0;
+    const sssEr = parseFloat(formData.sssEr) || 0;
+    const pagibigEr = parseFloat(formData.pagibigEr) || 0;
+    const philhealthEr = parseFloat(formData.philhealthEr) || 0;
+    const totalEeShare = sssEe + pagibigEe + philhealthEe;
+    const totalErShare = sssEr + pagibigEr + philhealthEr;
     setFormData((prev) => ({
       ...prev,
-      eeShare: totalEeShare > 0 ? totalEeShare.toFixed(2) : '',
+      eeTotal: totalEeShare > 0 ? totalEeShare.toFixed(2) : '',
+      erTotal: totalErShare > 0 ? totalErShare.toFixed(2) : '',
     }));
-  }, [formData.sss, formData.pagibig, formData.philhealth]);
+  }, [
+    formData.sssEe,
+    formData.pagibigEe,
+    formData.philhealthEe,
+    formData.sssEr,
+    formData.pagibigEr,
+    formData.philhealthEr,
+  ]);
 
   const handlePhotoChange = (e) => {
     const file = e.target.files?.[0];
@@ -65,11 +85,15 @@ export default function EmployeeForm({ onSubmit, onCancel, initialData = null, i
     e.preventDefault();
     onSubmit({
       ...formData,
-      sss: parseFloat(formData.sss) || 0,
-      pagibig: parseFloat(formData.pagibig) || 0,
-      philhealth: parseFloat(formData.philhealth) || 0,
-      eeShare: parseFloat(formData.eeShare) || 0,
-      erShare: parseFloat(formData.erShare) || 0,
+      sssEe: parseFloat(formData.sssEe) || 0,
+      sssEr: parseFloat(formData.sssEr) || 0,
+      pagibigEe: parseFloat(formData.pagibigEe) || 0,
+      pagibigEr: parseFloat(formData.pagibigEr) || 0,
+      philhealthEe: parseFloat(formData.philhealthEe) || 0,
+      philhealthEr: parseFloat(formData.philhealthEr) || 0,
+      eeTotal: parseFloat(formData.eeTotal) || 0,
+      erTotal: parseFloat(formData.erTotal) || 0,
+      salaryPerDay: parseFloat(formData.salaryPerDay) || 0,
       photoFile,
     });
   };
@@ -83,11 +107,19 @@ export default function EmployeeForm({ onSubmit, onCancel, initialData = null, i
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField label="Name" name="name" value={formData.name} onChange={handleInputChange} required placeholder="Employee name" />
         <FormField label="Designation (Work)" name="designation" value={formData.designation} onChange={handleInputChange} required placeholder="e.g., Software Engineer" />
-        <FormField label="SSS (PHP)" type="number" name="sss" value={formData.sss} onChange={handleInputChange} step="0.01" placeholder="0.00" />
-        <FormField label="PAG-IBIG (PHP)" type="number" name="pagibig" value={formData.pagibig} onChange={handleInputChange} step="0.01" placeholder="0.00" />
-        <FormField label="PhilHealth (PHP)" type="number" name="philhealth" value={formData.philhealth} onChange={handleInputChange} step="0.01" placeholder="0.00" />
-        <FormField label="EE Share (Employee) (PHP)" type="number" name="eeShare" value={formData.eeShare} required readOnly placeholder="Auto-calculated" />
-        <FormField label="ER Share (Employer) (PHP)" type="number" name="erShare" value={formData.erShare} onChange={handleInputChange} step="0.01" required placeholder="0.00" />
+        <FormField label="SSS Number" name="sssNumber" value={formData.sssNumber} onChange={handleInputChange} placeholder="SSS number" />
+        <FormField label="PAG-IBIG Number" name="pagibigNumber" value={formData.pagibigNumber} onChange={handleInputChange} placeholder="PAG-IBIG number" />
+        <FormField label="PhilHealth Number" name="philhealthNumber" value={formData.philhealthNumber} onChange={handleInputChange} placeholder="PhilHealth number" />
+        <FormField label="SSS EE (PHP)" type="number" name="sssEe" value={formData.sssEe} onChange={handleInputChange} step="0.01" placeholder="0.00" />
+        <FormField label="SSS ER (PHP)" type="number" name="sssEr" value={formData.sssEr} onChange={handleInputChange} step="0.01" placeholder="0.00" />
+        <FormField label="PAG-IBIG EE (PHP)" type="number" name="pagibigEe" value={formData.pagibigEe} onChange={handleInputChange} step="0.01" placeholder="0.00" />
+        <FormField label="PAG-IBIG ER (PHP)" type="number" name="pagibigEr" value={formData.pagibigEr} onChange={handleInputChange} step="0.01" placeholder="0.00" />
+        <FormField label="PhilHealth EE (PHP)" type="number" name="philhealthEe" value={formData.philhealthEe} onChange={handleInputChange} step="0.01" placeholder="0.00" />
+        <FormField label="PhilHealth ER (PHP)" type="number" name="philhealthEr" value={formData.philhealthEr} onChange={handleInputChange} step="0.01" placeholder="0.00" />
+        <FormField label="Salary Per Day (PHP)" type="number" name="salaryPerDay" value={formData.salaryPerDay} onChange={handleInputChange} step="0.01" placeholder="0.00" />
+        <FormField label="Employee Status" name="status" value={formData.status} onChange={handleInputChange} placeholder="employed / awol / resigned" />
+        <FormField label="EE Share (Auto) (PHP)" type="number" name="eeTotal" value={formData.eeTotal} required readOnly placeholder="Auto-calculated" />
+        <FormField label="ER Share (Auto) (PHP)" type="number" name="erTotal" value={formData.erTotal} required readOnly placeholder="Auto-calculated" />
 
         <div className="md:col-span-2">
           <label className="block text-sm font-semibold text-black mb-2 dark:text-gray-200">Profile Photo</label>
