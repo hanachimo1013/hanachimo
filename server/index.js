@@ -190,6 +190,21 @@ app.post('/api/employees', requireAuth, async (req, res) => {
     return res.status(400).json({ message: 'Employee name is required.' });
   }
 
+  const { data: existing, error: existingError } = await supabaseAdmin
+    .from('employees')
+    .select('id')
+    .ilike('name', newEmployee.name)
+    .limit(1);
+
+  if (existingError) {
+    console.error('Employees POST duplicate check error:', existingError);
+    return res.status(500).json({ message: 'Failed to validate employee.' });
+  }
+
+  if (existing && existing.length > 0) {
+    return res.status(409).json({ message: 'Employee record already exists.' });
+  }
+
   const { data, error } = await supabaseAdmin
     .from('employees')
     .insert([newEmployee])
