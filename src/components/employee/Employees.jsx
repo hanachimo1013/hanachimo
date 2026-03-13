@@ -93,23 +93,30 @@ export default function Employees() {
     }
   };
 
-  const handleEdit = (employee) => {
+  const handleEdit = async (employee) => {
     if (isViewer) return;
+
+    let values = null;
+    const result = await fetchEmployeeValues(employee, { limit: 1, offset: 0 });
+    if (result.success && result.data?.length) {
+      values = result.data[0];
+    }
+
     setEditingEmployee({
       ...employee,
       sssNumber: employee.sss_number ?? employee.sssNumber ?? '',
       pagibigNumber: employee.pagibig_number ?? employee.pagibigNumber ?? '',
       philhealthNumber: employee.philhealth_number ?? employee.philhealthNumber ?? '',
-      sssEe: employee.sss_ee ?? employee.sssEe ?? '',
-      sssEr: employee.sss_er ?? employee.sssEr ?? '',
-      pagibigEe: employee.pagibig_ee ?? employee.pagibigEe ?? '',
-      pagibigEr: employee.pagibig_er ?? employee.pagibigEr ?? '',
-      philhealthEe: employee.philhealth_ee ?? employee.philhealthEe ?? '',
-      philhealthEr: employee.philhealth_er ?? employee.philhealthEr ?? '',
+      sssEe: values?.sss_ee ?? employee.sss_ee ?? employee.sssEe ?? '',
+      sssEr: values?.sss_er ?? employee.sss_er ?? employee.sssEr ?? '',
+      pagibigEe: values?.pagibig_ee ?? employee.pagibig_ee ?? employee.pagibigEe ?? '',
+      pagibigEr: values?.pagibig_er ?? employee.pagibig_er ?? employee.pagibigEr ?? '',
+      philhealthEe: values?.philhealth_ee ?? employee.philhealth_ee ?? employee.philhealthEe ?? '',
+      philhealthEr: values?.philhealth_er ?? employee.philhealth_er ?? employee.philhealthEr ?? '',
       salaryPerDay: employee.salary_per_day ?? employee.salaryPerDay ?? '',
       status: employee.status ?? 'employed',
-      eeTotal: employee.ee_total ?? employee.eeTotal ?? employee.eeShare ?? '',
-      erTotal: employee.er_total ?? employee.erTotal ?? employee.erShare ?? '',
+      eeTotal: values?.ee_total ?? employee.ee_total ?? employee.eeTotal ?? employee.eeShare ?? '',
+      erTotal: values?.er_total ?? employee.er_total ?? employee.erTotal ?? employee.erShare ?? '',
     });
     setShowForm(true);
   };
