@@ -164,7 +164,7 @@ export default function Employees() {
         </div>
       )}
 
-      <div className="overflow-y-auto flex-1 relative">
+      <div className="relative h-[60vh] md:h-[50vh] overflow-auto">
         {loading && <LoadingOverlay message="Loading employees..." />}
         <EmployeeTable
           employees={displayEmployees}
