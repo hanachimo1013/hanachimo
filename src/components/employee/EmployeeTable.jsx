@@ -78,14 +78,24 @@ const EmployeeTable = ({ employees, loading, onEdit, onDelete, onSelect }) => {
                 {emp.__maskedNumber ?? formatPeso(getErShare(emp))}
               </td>
               <td className="px-2 md:px-4 py-3 text-center">
-                <button onClick={() => onEdit(emp)} disabled={emp.__readOnly} className="px-2 py-1 bg-[#3b82f6] hover:bg-[#2563eb] text-white rounded text-xs font-semibold mr-2 transition-all disabled:cursor-not-allowed disabled:opacity-50">
-                  <i className="bi bi-pencil-square mr-1" aria-hidden="true" />
-                  Edit
-                </button>
-                <button onClick={() => onDelete(emp.id)} disabled={emp.__readOnly} className="px-2 py-1 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50">
-                  <i className="bi bi-trash mr-1" aria-hidden="true" />
-                  Delete
-                </button>
+                <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-center">
+                  <button
+                    onClick={() => onEdit(emp)}
+                    disabled={emp.__readOnly}
+                    className="w-full sm:w-auto px-3 py-2 bg-[#3b82f6] hover:bg-[#2563eb] text-white rounded text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <i className="bi bi-pencil-square mr-1" aria-hidden="true" />
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onDelete(emp.id)}
+                    disabled={emp.__readOnly}
+                    className="w-full sm:w-auto px-3 py-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <i className="bi bi-trash mr-1" aria-hidden="true" />
+                    Delete
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
