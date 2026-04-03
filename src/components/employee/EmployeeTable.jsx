@@ -1,7 +1,7 @@
 import React from 'react';
 import { formatPeso, getEeShare, getErShare, getPhotoUrl } from '../../utils/formatters';
 
-const EmployeeTable = ({ employees, loading, onEdit, onDelete, onSelect, onHistory }) => {
+const EmployeeTable = ({ employees, loading, onEdit, onDelete, onHistory }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
