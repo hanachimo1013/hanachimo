@@ -18,10 +18,12 @@ This is a modern full-stack application built with React (Vite) on the frontend 
 
 ## 3. Tech Stack
 - **Frontend**: React 19, Vite, React Router DOM v6
-- **Backend**: Vercel Serverless Functions (Node.js/Express-like)
+- **UI Components & Charts**: Recharts
+- **PDF Generation**: html2canvas, jsPDF
+- **Backend**: Vercel Serverless Functions (Node.js/Express-like), Express, CORS, JSON Web Token (JWT), bcryptjs
 - **Database**: Supabase (PostgreSQL)
-- **Styling**: Tailwind CSS, Bootstrap Icons
-- **Linting**: ESLint
+- **Styling**: Tailwind CSS v4, Bootstrap Icons
+- **Linting & Code Quality**: ESLint
 
 ## 4. Project Structure
 ```
