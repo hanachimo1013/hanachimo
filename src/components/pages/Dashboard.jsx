@@ -100,7 +100,7 @@ const maskText = (value) => {
 const maskNumber = () => '***';
 
 // Employee Table Component
-const EmployeeTable = ({ employees, loading, isViewer, onSelect, onHistory }) => {
+const EmployeeTable = ({ employees, loading, isViewer, onHistory }) => {
   if (loading) {
     return <div className="text-center py-8 text-gray-500 dark:text-gray-300">Loading employee data...</div>;
   }
@@ -187,15 +187,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     let active = true;
-    if (!selectedEmployee) {
-      setValuesHistory([]);
-      setValuesError(null);
-      setValuesOffset(0);
-      setValuesHasMore(false);
-      return () => {};
-    }
 
     const loadValues = async () => {
+      if (!selectedEmployee) return;
+
       const result = await fetchEmployeeValues(selectedEmployee, {
         limit: valuesPageSize,
         offset: 0,
@@ -213,11 +208,29 @@ export default function Dashboard() {
       setValuesHasMore(rows.length === valuesPageSize);
     };
 
-    loadValues();
+    if (selectedEmployee) {
+      loadValues();
+    } else {
+       // Reset state locally avoiding synchronous effect update when possible,
+       // but here we just leave it for when it's closed.
+    }
+
     return () => {
       active = false;
     };
   }, [selectedEmployee, fetchEmployeeValues]);
+
+  // Derived state to manage clearing selectedEmployee values history
+  const [prevSelectedEmployee, setPrevSelectedEmployee] = useState(selectedEmployee);
+  if (selectedEmployee !== prevSelectedEmployee) {
+    setPrevSelectedEmployee(selectedEmployee);
+    if (!selectedEmployee) {
+      setValuesHistory([]);
+      setValuesError(null);
+      setValuesOffset(0);
+      setValuesHasMore(false);
+    }
+  }
 
   const handleLoadMoreValues = async () => {
     if (!selectedEmployee) return;
@@ -265,7 +278,6 @@ export default function Dashboard() {
             employees={employees}
             loading={loading}
             isViewer={isViewer}
-            onSelect={(emp) => setSelectedEmployee(emp)}
             onHistory={(emp) => setSelectedEmployee(emp)}
           />
         </div>

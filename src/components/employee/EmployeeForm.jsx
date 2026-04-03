@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 // A small reusable component for form fields to reduce repetition.
 const FormField = ({ label, ...props }) => (
@@ -47,41 +47,34 @@ export default function EmployeeForm({ onSubmit, onCancel, initialData = null, i
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(initialData?.photoUrl || null);
 
-  // Effect to reset form when initialData changes (e.g., from edit to add)
-  useEffect(() => {
+  const [prevInitialData, setPrevInitialData] = useState(initialData);
+
+  // Sync state when initialData changes
+  if (initialData !== prevInitialData) {
+    setPrevInitialData(initialData);
     setFormData(getInitialState(initialData));
     setPhotoPreview(initialData?.photoUrl || null);
     setPhotoFile(null);
-  }, [initialData]);
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Effect to auto-calculate EE/ER totals
-  useEffect(() => {
-    const sssEe = parseFloat(formData.sssEe) || 0;
-    const pagibigEe = parseFloat(formData.pagibigEe) || 0;
-    const philhealthEe = parseFloat(formData.philhealthEe) || 0;
-    const sssEr = parseFloat(formData.sssEr) || 0;
-    const pagibigEr = parseFloat(formData.pagibigEr) || 0;
-    const philhealthEr = parseFloat(formData.philhealthEr) || 0;
-    const totalEeShare = sssEe + pagibigEe + philhealthEe;
-    const totalErShare = sssEr + pagibigEr + philhealthEr;
-    setFormData((prev) => ({
-      ...prev,
-      eeTotal: totalEeShare > 0 ? totalEeShare.toFixed(2) : '',
-      erTotal: totalErShare > 0 ? totalErShare.toFixed(2) : '',
-    }));
-  }, [
-    formData.sssEe,
-    formData.pagibigEe,
-    formData.philhealthEe,
-    formData.sssEr,
-    formData.pagibigEr,
-    formData.philhealthEr,
-  ]);
+  // Auto-calculate EE/ER totals
+  const sssEe = parseFloat(formData.sssEe) || 0;
+  const pagibigEe = parseFloat(formData.pagibigEe) || 0;
+  const philhealthEe = parseFloat(formData.philhealthEe) || 0;
+  const sssEr = parseFloat(formData.sssEr) || 0;
+  const pagibigEr = parseFloat(formData.pagibigEr) || 0;
+  const philhealthEr = parseFloat(formData.philhealthEr) || 0;
+
+  const totalEeShare = sssEe + pagibigEe + philhealthEe;
+  const totalErShare = sssEr + pagibigEr + philhealthEr;
+
+  const derivedEeTotal = totalEeShare > 0 ? totalEeShare.toFixed(2) : '';
+  const derivedErTotal = totalErShare > 0 ? totalErShare.toFixed(2) : '';
 
   const handlePhotoChange = (e) => {
     const file = e.target.files?.[0];
@@ -103,8 +96,8 @@ export default function EmployeeForm({ onSubmit, onCancel, initialData = null, i
       pagibigEr: parseFloat(formData.pagibigEr) || 0,
       philhealthEe: parseFloat(formData.philhealthEe) || 0,
       philhealthEr: parseFloat(formData.philhealthEr) || 0,
-      eeTotal: parseFloat(formData.eeTotal) || 0,
-      erTotal: parseFloat(formData.erTotal) || 0,
+      eeTotal: parseFloat(derivedEeTotal) || 0,
+      erTotal: parseFloat(derivedErTotal) || 0,
       salaryPerDay: parseFloat(formData.salaryPerDay) || 0,
       photoFile,
     });
@@ -134,8 +127,8 @@ export default function EmployeeForm({ onSubmit, onCancel, initialData = null, i
           <option value="suspended">suspended</option>
           <option value="removed">removed</option>
         </SelectField>
-        <FormField label="EE Share (Auto) (PHP)" type="number" name="eeTotal" value={formData.eeTotal} required readOnly placeholder="Auto-calculated" />
-        <FormField label="ER Share (Auto) (PHP)" type="number" name="erTotal" value={formData.erTotal} required readOnly placeholder="Auto-calculated" />
+        <FormField label="EE Share (Auto) (PHP)" type="number" name="eeTotal" value={derivedEeTotal} required readOnly placeholder="Auto-calculated" />
+        <FormField label="ER Share (Auto) (PHP)" type="number" name="erTotal" value={derivedErTotal} required readOnly placeholder="Auto-calculated" />
 
         <div className="md:col-span-2">
           <label className="block text-sm font-semibold text-black mb-2 dark:text-gray-200">Profile Photo</label>
