@@ -110,7 +110,7 @@ const EmployeeTable = ({ employees, loading, isViewer, onHistory }) => {
   }
 
   return (
-    <div className="max-h-[calc(100vh-320px)] overflow-y-auto overflow-x-auto touch-pan-y overscroll-contain custom-scrollbar border rounded-lg">
+    <div className="h-full overflow-y-auto overflow-x-auto touch-pan-y overscroll-contain custom-scrollbar border rounded-lg dark:border-gray-700">
       <table className="w-full text-sm min-w-[800px]">
         <thead>
           <tr className="border-b-2 border-[#e6a891] bg-gray-100 dark:bg-gray-800 dark:border-gray-700">
