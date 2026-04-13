@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { useEmployees } from '../../hooks/useEmployees';
 import EmployeeCard from '../employee/EmployeeCard';
 import { formatPeso, getEeShare, getErShare } from '../../utils/formatters';
@@ -21,72 +22,57 @@ const generateEmployerReceipt = (employee, masked) => {
   const pageHeight = doc.internal.pageSize.getHeight();
   const maskedText = '***';
   
+  const formatPdfPhp = (value) => `PHP ${(Number(value) || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
   // Header
-  doc.setFontSize(18);
+  doc.setFontSize(20);
+  doc.setTextColor(40, 40, 40);
   doc.setFont(undefined, 'bold');
   doc.text('BDLAG UTILITY', pageWidth / 2, 20, { align: 'center' });
   
   doc.setFontSize(14);
-  doc.setFont(undefined, 'bold');
-  doc.text('Contribution Totals Receipt', pageWidth / 2, 32, { align: 'center' });
+  doc.setTextColor(100, 100, 100);
+  doc.text('Contribution Totals Receipt', pageWidth / 2, 30, { align: 'center' });
   
   doc.setFontSize(10);
-  doc.setFont(undefined, 'normal');
-  doc.text(`Date: ${new Date().toLocaleDateString('en-PH')}`, 20, 45);
-  doc.text(`Receipt No: ${Math.floor(Math.random() * 100000)}`, 20, 52);
+  doc.setTextColor(150, 150, 150);
+  doc.text(`Date: ${new Date().toLocaleDateString('en-PH')}`, 20, 40);
+  doc.text(`Receipt No: ${Math.floor(Math.random() * 100000)}`, 20, 45);
   
-  // Divider
-  doc.setDrawColor(200);
-  doc.line(20, 58, pageWidth - 20, 58);
-  
-  // Employee Information
-  doc.setFont(undefined, 'bold');
-  doc.setFontSize(12);
-  doc.text('Employee Information', 20, 68);
-  
-  doc.setFont(undefined, 'normal');
-  doc.setFontSize(10);
-  doc.text(`Employee ID: ${masked ? maskedText : employee.id}`, 20, 78);
-  doc.text(`Employee Name: ${masked ? maskedText : employee.name}`, 20, 85);
-  
-  // Divider
-  doc.line(20, 92, pageWidth - 20, 92);
-  
-  // Payment Details
-  doc.setFont(undefined, 'bold');
-  doc.setFontSize(12);
-  doc.text('Contribution Totals', 20, 102);
-  
-  // Table Headers
-  doc.setFont(undefined, 'bold');
-  doc.setFontSize(10);
-  doc.text('Description', 20, 115);
-  doc.text('Amount', pageWidth - 40, 115, { align: 'right' });
-  
-  // Table content
-  doc.setFont(undefined, 'normal');
-  doc.text('Employee Total (EE)', 20, 125);
-  doc.text(masked ? maskedText : formatPeso(getEeShare(employee)), pageWidth - 40, 125, { align: 'right' });
-  
-  doc.text('Employer Total (ER)', 20, 135);
-  doc.text(masked ? maskedText : formatPeso(getErShare(employee)), pageWidth - 40, 135, { align: 'right' });
-  
-  // Divider
-  doc.setDrawColor(100);
-  doc.line(20, 142, pageWidth - 20, 142);
-  
-  // Total
-  doc.setFont(undefined, 'bold');
-  doc.setFontSize(11);
-  doc.text('Total ER Share', 20, 152);
-  doc.text(masked ? maskedText : formatPeso(getErShare(employee)), pageWidth - 40, 152, { align: 'right' });
-  
+  // Employee Info Table
+  autoTable(doc, {
+    startY: 55,
+    body: [
+      ['Employee ID', masked ? maskedText : (employee.id || '-')],
+      ['Employee Name', masked ? maskedText : (employee.name || '-')],
+    ],
+    theme: 'plain',
+    styles: { fontSize: 10, cellPadding: 2 },
+    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 40 } },
+    margin: { left: 20 },
+  });
+
+  // Totals Table
+  autoTable(doc, {
+    startY: doc.lastAutoTable.finalY + 10,
+    head: [['Description', 'Amount']],
+    body: [
+      ['Employee Total (EE)', masked ? maskedText : formatPdfPhp(getEeShare(employee))],
+      ['Employer Total (ER)', masked ? maskedText : formatPdfPhp(getErShare(employee))],
+    ],
+    foot: [['Grand Total', masked ? maskedText : formatPdfPhp(getEeShare(employee) + getErShare(employee))]],
+    theme: 'striped',
+    headStyles: { fillColor: [188, 118, 118] }, // #bc7676
+    footStyles: { fillColor: [188, 118, 118] },
+    margin: { left: 20, right: 20 },
+  });
+
   // Footer
   doc.setFontSize(9);
-  doc.setFont(undefined, 'normal');
+  doc.setTextColor(150, 150, 150);
   doc.text('This receipt is for contribution records.', pageWidth / 2, pageHeight - 20, { align: 'center' });
   
-  // Open in new window and print
+  // Open in new window
   const pdfUrl = doc.output('bloburi');
   window.open(pdfUrl);
 };
@@ -110,8 +96,8 @@ const EmployeeTable = ({ employees, loading, isViewer, onHistory }) => {
   }
 
   return (
-    <div className="h-full overflow-y-auto overflow-x-auto touch-pan-y overscroll-contain custom-scrollbar border rounded-lg dark:border-gray-700">
-      <table className="w-full text-sm min-w-[800px]">
+    <div className="h-full overflow-y-auto overflow-x-auto touch-pan-x touch-pan-y overscroll-contain custom-scrollbar border rounded-lg dark:border-gray-700">
+      <table className="w-full text-sm min-w-[1000px]">
         <thead>
           <tr className="border-b-2 border-[#e6a891] bg-gray-100 dark:bg-gray-800 dark:border-gray-700">
             <th className="px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">Name</th>

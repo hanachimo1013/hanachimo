@@ -45,7 +45,7 @@ export default function Layout({ children }) {
   };
 
   return (
-    <div className="flex flex-col w-screen h-screen bg-white font-sans text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+    <div className="flex flex-col w-full h-screen bg-white font-sans text-gray-900 dark:bg-gray-900 dark:text-gray-100">
       <ConfirmLogoutModal
         open={logoutOpen}
         onCancel={() => setLogoutOpen(false)}
@@ -84,10 +84,10 @@ export default function Layout({ children }) {
       </header>
 
       <div
-        className="flex-1 w-screen overflow-hidden pt-20 md:pt-0"
+        className="flex-1 w-full overflow-hidden pt-20 md:pt-0"
         style={{ height: 'calc(100vh - 80px)' }}
       >
-        <div className={`h-full overflow-x-hidden md:grid transition-[grid-template-columns] duration-300 ease-in-out ${sidebarVisible ? 'md:grid-cols-[18rem_minmax(0,1fr)]' : 'md:grid-cols-[4rem_minmax(0,1fr)]'}`}>
+        <div className={`h-full md:grid transition-[grid-template-columns] duration-300 ease-in-out ${sidebarVisible ? 'md:grid-cols-[18rem_minmax(0,1fr)]' : 'md:grid-cols-[4rem_minmax(0,1fr)]'}`}>
         {/* Mobile Sidebar Overlay - Glass Effect */}
         {sidebarOpen && (
           <div
