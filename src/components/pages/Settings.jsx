@@ -77,7 +77,6 @@ export default function Settings() {
               aria-checked={theme === 'dark'}
               aria-label="Dark mode toggle"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              onTouchEnd={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className="flex items-center gap-3 select-none"
             >
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Off</span>
