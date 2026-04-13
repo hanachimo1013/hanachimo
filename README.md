@@ -2,27 +2,26 @@
 
 ## 1. Description
 
-Internal admin dashboard for Bato de Luna Art Gallery (BDLAG).
+Internal admin dashboard for Bato de Luna Art Gallery (BDLAG), featuring a state-of-the-art Apple-inspired glassmorphism design system.
 
-This is a modern full-stack application built with React (Vite) on the frontend and a Node.js/Express-based serverless API backend. It features a robust front-end structure utilizing context for state management (Authentication and Theming) and `react-router-dom` for client-side navigation. The project includes role-based access control (JWT) for protected routes, secure CRUD operations for employee data via serverless functions, and is styled with Tailwind CSS. The entire system is backed by Supabase for database and storage.
+This is a modern full-stack application built with React (Vite) on the frontend and a Node.js/Express-based serverless API backend. It features a stunning visual interface with frosted glass effects, refined typography (Inter font), and a cohesive design language that adapts seamlessly between light and dark modes. The project includes role-based access control (JWT) for protected routes, secure CRUD operations for employee data via serverless functions, and optimized PDF reporting. The entire system is backed by Supabase for database and storage.
 
 ## 2. Features
-- JWT login with role-based access (`superadmin`, `employee`, `viewer`)
-- Protected routes and session persistence
-- Client-side routing with `react-router-dom`
-- Role-based access control for specific routes
-- Global state management for Auth and Theming via React Context
-- Employees CRUD via secure serverless API
-- Employee values history (EE/ER totals over time)
-- Supabase-backed data and storage
+- **Apple-inspired UI**: Premium glassmorphism design system with frosted glass effects and refined typography.
+- **Dynamic Theming**: Seamless dark and light mode integration using CSS variables.
+- **Improved Reporting**: Optimized PDF generation using `jspdf-autotable` for precise layouts.
+- **Flexible Management**: Employee CRUD via secure serverless API and value history tracking.
+- **Secure Access**: JWT login with role-based access (`superadmin`, `employee`, `viewer`).
+- **Real-time State**: Global state management for Auth and Theming via React Context.
+- **Supabase Integration**: Robust PostgreSQL data layer and secure storage.
 
 ## 3. Tech Stack
 - **Frontend**: React 19, Vite, React Router DOM v6
-- **UI Components & Charts**: Recharts
-- **PDF Generation**: html2canvas, jsPDF
+- **UI Components & Charts**: Recharts, Custom Glassmorphism UI Components
+- **PDF Generation**: jsPDF, jspdf-autotable
 - **Backend**: Vercel Serverless Functions (Node.js/Express-like), Express, CORS, JSON Web Token (JWT), bcryptjs
 - **Database**: Supabase (PostgreSQL)
-- **Styling**: Tailwind CSS v4, Bootstrap Icons
+- **Styling**: Tailwind CSS v4, Custom CSS variables, Bootstrap Icons, Apple Inter Font
 - **Linting & Code Quality**: ESLint
 
 ## 4. Project Structure

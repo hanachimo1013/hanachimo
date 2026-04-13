@@ -28,11 +28,21 @@ export function ThemeProvider({ children }) {
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
 
+  const triggerTransition = () => {
+    const root = document.documentElement;
+    root.classList.add('theme-transition');
+    // Remove after the animation completes to avoid permanent perf cost
+    setTimeout(() => root.classList.remove('theme-transition'), 500);
+  };
+
   const value = useMemo(
     () => ({
       theme,
       setTheme,
-      toggleTheme: () => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+      toggleTheme: () => {
+        triggerTransition();
+        setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+      }
     }),
     [theme]
   );

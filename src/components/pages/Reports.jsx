@@ -339,56 +339,56 @@ export default function Reports() {
 
             <div className="grid grid-cols-1 gap-3 mb-6 md:grid-cols-3">
               <div className="glass-subtle rounded-xl p-5">
-                <p className="text-gray-500 text-sm mb-1 dark:text-gray-400">SSS</p>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{isViewer ? '***' : formatPeso(maskedTotals.sss)}</p>
-                <div className="w-full bg-gray-200 h-2 rounded-full mt-3 dark:bg-gray-700">
-                  <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${(totals.sss / (totalPayments || 1) * 100)}%` }} />
+                <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>SSS</p>
+                <p className="text-2xl font-bold" style={{ color: 'var(--accent-blue)' }}>{isViewer ? '***' : formatPeso(maskedTotals.sss)}</p>
+                <div className="w-full h-2 rounded-full mt-3" style={{ background: 'var(--border-light)' }}>
+                  <div className="h-2 rounded-full" style={{ width: `${(totals.sss / (totalPayments || 1) * 100)}%`, background: 'var(--accent-blue)' }} />
                 </div>
               </div>
-              <div className="bg-white border border-gray-200 p-6 rounded shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                <p className="text-gray-500 text-sm mb-1 dark:text-gray-400">PAG-IBIG</p>
-                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{isViewer ? '***' : formatPeso(maskedTotals.pagibig)}</p>
-                <div className="w-full bg-gray-200 h-2 rounded-full mt-3 dark:bg-gray-700">
-                  <div className="bg-emerald-600 h-2 rounded-full" style={{ width: `${(totals.pagibig / (totalPayments || 1) * 100)}%` }} />
+              <div className="glass-subtle rounded-xl p-5">
+                <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>PAG-IBIG</p>
+                <p className="text-2xl font-bold" style={{ color: 'var(--accent-green)' }}>{isViewer ? '***' : formatPeso(maskedTotals.pagibig)}</p>
+                <div className="w-full h-2 rounded-full mt-3" style={{ background: 'var(--border-light)' }}>
+                  <div className="h-2 rounded-full" style={{ width: `${(totals.pagibig / (totalPayments || 1) * 100)}%`, background: 'var(--accent-green)' }} />
                 </div>
               </div>
-              <div className="bg-white border border-gray-200 p-6 rounded shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                <p className="text-gray-500 text-sm mb-1 dark:text-gray-400">PhilHealth</p>
-                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{isViewer ? '***' : formatPeso(maskedTotals.philhealth)}</p>
-                <div className="w-full bg-gray-200 h-2 rounded-full mt-3 dark:bg-gray-700">
-                  <div className="bg-purple-600 h-2 rounded-full" style={{ width: `${(totals.philhealth / (totalPayments || 1) * 100)}%` }} />
+              <div className="glass-subtle rounded-xl p-5">
+                <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>PhilHealth</p>
+                <p className="text-2xl font-bold" style={{ color: 'var(--accent-purple)' }}>{isViewer ? '***' : formatPeso(maskedTotals.philhealth)}</p>
+                <div className="w-full h-2 rounded-full mt-3" style={{ background: 'var(--border-light)' }}>
+                  <div className="h-2 rounded-full" style={{ width: `${(totals.philhealth / (totalPayments || 1) * 100)}%`, background: 'var(--accent-purple)' }} />
                 </div>
               </div>
             </div>
 
-            <div className="mb-8 overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className="mb-6 overflow-x-auto">
+              <table className="w-full text-sm apple-table">
                 <thead>
-                  <tr className="border-b-2 border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-                    <th className="px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">Employee</th>
-                    <th className="px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">SSS</th>
-                    <th className="px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">PAG-IBIG</th>
-                    <th className="px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">PhilHealth</th>
-                    <th className="px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">Total</th>
+                  <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
+                    <th className="px-4 py-3 text-left">Employee</th>
+                    <th className="px-4 py-3 text-left">SSS</th>
+                    <th className="px-4 py-3 text-left">PAG-IBIG</th>
+                    <th className="px-4 py-3 text-left">PhilHealth</th>
+                    <th className="px-4 py-3 text-left">Total</th>
                   </tr>
                 </thead>
                 <tbody>
                   {normalizedEmployees.map((emp) => (
-                    <tr key={emp.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors dark:border-gray-800 dark:hover:bg-gray-800/60">
-                      <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{isViewer ? '***' : emp.name}</td>
-                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{isViewer ? '***' : formatPeso(emp.sss_ee)}</td>
-                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{isViewer ? '***' : formatPeso(emp.pagibig_ee)}</td>
-                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{isViewer ? '***' : formatPeso(emp.philhealth_ee)}</td>
-                      <td className="px-4 py-3 font-bold text-blue-600 dark:text-blue-400">{isViewer ? '***' : formatPeso(emp.sss_ee + emp.pagibig_ee + emp.philhealth_ee)}</td>
+                    <tr key={emp.id} className="hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors" style={{ borderBottom: '1px solid var(--border-light)' }}>
+                      <td className="px-4 py-3 font-medium" style={{ color: 'var(--text-primary)' }}>{isViewer ? '***' : emp.name}</td>
+                      <td className="px-4 py-3" style={{ color: 'var(--text-secondary)' }}>{isViewer ? '***' : formatPeso(emp.sss_ee)}</td>
+                      <td className="px-4 py-3" style={{ color: 'var(--text-secondary)' }}>{isViewer ? '***' : formatPeso(emp.pagibig_ee)}</td>
+                      <td className="px-4 py-3" style={{ color: 'var(--text-secondary)' }}>{isViewer ? '***' : formatPeso(emp.philhealth_ee)}</td>
+                      <td className="px-4 py-3 font-bold" style={{ color: 'var(--accent-blue)' }}>{isViewer ? '***' : formatPeso(emp.sss_ee + emp.pagibig_ee + emp.philhealth_ee)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 mb-8">
-              <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700 min-h-[350px]">
-                <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-4">Insurance Distribution</h4>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mb-6">
+              <div className="glass-subtle rounded-2xl p-4 min-h-[350px]">
+                <h4 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Insurance Distribution</h4>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
@@ -401,23 +401,23 @@ export default function Reports() {
                       label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       outerRadius={100} fill="#8884d8" dataKey="value"
                     >
-                      <Cell fill="#3b82f6" /><Cell fill="#10b981" /><Cell fill="#8b5cf6" />
+                      <Cell fill="#007AFF" /><Cell fill="#34C759" /><Cell fill="#AF52DE" />
                     </Pie>
                     <Tooltip formatter={(value) => formatPeso(value)} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700 min-h-[350px]">
-                <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-4">By Employee</h4>
+              <div className="glass-subtle rounded-2xl p-4 min-h-[350px]">
+                <h4 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>By Employee</h4>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={isViewer ? [] : normalizedEmployees}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} tick={{ fontSize: 10 }} />
                     <YAxis tick={{ fontSize: 10 }} />
                     <Tooltip formatter={(value) => formatPeso(value)} />
-                    <Bar dataKey="sss_ee" stackId="a" fill="#3b82f6" name="SSS" />
-                    <Bar dataKey="pagibig_ee" stackId="a" fill="#10b981" name="PAG-IBIG" />
-                    <Bar dataKey="philhealth_ee" stackId="a" fill="#8b5cf6" name="PhilHealth" />
+                    <Bar dataKey="sss_ee" stackId="a" fill="#007AFF" name="SSS" />
+                    <Bar dataKey="pagibig_ee" stackId="a" fill="#34C759" name="PAG-IBIG" />
+                    <Bar dataKey="philhealth_ee" stackId="a" fill="#AF52DE" name="PhilHealth" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -440,51 +440,51 @@ export default function Reports() {
           </button>
           
           <div ref={salaryReportRef}>
-            <h3 className="text-2xl font-bold text-gray-800 mb-6 dark:text-white">Contribution Totals Report</h3>
+            <h3 className="text-xl font-bold mb-5" style={{ color: 'var(--text-primary)' }}>Contribution Totals Report</h3>
             
-            <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 p-6 rounded-lg shadow-sm mb-6 dark:from-gray-800 dark:to-gray-700">
+            <div className="glass-subtle rounded-2xl p-6 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-emerald-700 text-sm mb-1 dark:text-emerald-300">EE Total</p>
-                  <p className="text-3xl font-bold text-emerald-800 dark:text-emerald-100">{isViewer ? '***' : formatPeso(maskedSalaryData.eeTotal)}</p>
+                  <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>EE Total</p>
+                  <p className="text-3xl font-bold" style={{ color: 'var(--accent-green)' }}>{isViewer ? '***' : formatPeso(maskedSalaryData.eeTotal)}</p>
                 </div>
                 <div>
-                  <p className="text-blue-700 text-sm mb-1 dark:text-blue-300">ER Total</p>
-                  <p className="text-3xl font-bold text-blue-800 dark:text-blue-100">{isViewer ? '***' : formatPeso(maskedSalaryData.erTotal)}</p>
+                  <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>ER Total</p>
+                  <p className="text-3xl font-bold" style={{ color: 'var(--accent-blue)' }}>{isViewer ? '***' : formatPeso(maskedSalaryData.erTotal)}</p>
                 </div>
                 <div>
-                  <p className="text-red-700 text-sm mb-1 dark:text-red-300">Grand Total</p>
-                  <p className="text-3xl font-bold text-red-800 dark:text-red-100">{isViewer ? '***' : formatPeso(maskedSalaryData.totalPayments)}</p>
+                  <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Grand Total</p>
+                  <p className="text-3xl font-bold" style={{ color: 'var(--accent-red)' }}>{isViewer ? '***' : formatPeso(maskedSalaryData.totalPayments)}</p>
                 </div>
               </div>
             </div>
 
-            <div className="mb-8 overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className="mb-6 overflow-x-auto">
+              <table className="w-full text-sm apple-table">
                 <thead>
-                  <tr className="border-b-2 border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-                    <th className="px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">Employee</th>
-                    <th className="px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">EE Share</th>
-                    <th className="px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">ER Share</th>
-                    <th className="px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">Total</th>
+                  <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
+                    <th className="px-4 py-3 text-left">Employee</th>
+                    <th className="px-4 py-3 text-left">EE Share</th>
+                    <th className="px-4 py-3 text-left">ER Share</th>
+                    <th className="px-4 py-3 text-left">Total</th>
                   </tr>
                 </thead>
                 <tbody>
                   {normalizedEmployees.map((emp) => (
-                    <tr key={emp.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors dark:border-gray-800 dark:hover:bg-gray-800/60">
-                      <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{isViewer ? '***' : emp.name}</td>
-                      <td className="px-4 py-3 text-emerald-600 dark:text-emerald-400 font-medium">{isViewer ? '***' : formatPeso(emp.eeShare)}</td>
-                      <td className="px-4 py-3 text-blue-600 dark:text-blue-400 font-medium">{isViewer ? '***' : formatPeso(emp.erShare)}</td>
-                      <td className="px-4 py-3 font-bold text-gray-800 dark:text-gray-100">{isViewer ? '***' : formatPeso(emp.eeShare + emp.erShare)}</td>
+                    <tr key={emp.id} className="hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors" style={{ borderBottom: '1px solid var(--border-light)' }}>
+                      <td className="px-4 py-3 font-medium" style={{ color: 'var(--text-primary)' }}>{isViewer ? '***' : emp.name}</td>
+                      <td className="px-4 py-3 font-medium" style={{ color: 'var(--accent-green)' }}>{isViewer ? '***' : formatPeso(emp.eeShare)}</td>
+                      <td className="px-4 py-3 font-medium" style={{ color: 'var(--accent-blue)' }}>{isViewer ? '***' : formatPeso(emp.erShare)}</td>
+                      <td className="px-4 py-3 font-bold" style={{ color: 'var(--text-primary)' }}>{isViewer ? '***' : formatPeso(emp.eeShare + emp.erShare)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 mb-8">
-              <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700 min-h-[350px]">
-                <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-4">EE vs ER Share</h4>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mb-6">
+              <div className="glass-subtle rounded-2xl p-4 min-h-[350px]">
+                <h4 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>EE vs ER Share</h4>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
@@ -496,22 +496,22 @@ export default function Reports() {
                       label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       outerRadius={100} fill="#8884d8" dataKey="value"
                     >
-                      <Cell fill="#10b981" /><Cell fill="#3b82f6" />
+                      <Cell fill="#34C759" /><Cell fill="#007AFF" />
                     </Pie>
                     <Tooltip formatter={(value) => formatPeso(value)} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700 min-h-[350px]">
-                <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-4">By Employee</h4>
+              <div className="glass-subtle rounded-2xl p-4 min-h-[350px]">
+                <h4 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>By Employee</h4>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={isViewer ? [] : normalizedEmployees}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} tick={{ fontSize: 10 }} />
                     <YAxis tick={{ fontSize: 10 }} />
                     <Tooltip formatter={(value) => formatPeso(value)} />
-                    <Bar dataKey="eeShare" fill="#10b981" name="EE Total" />
-                    <Bar dataKey="erShare" fill="#3b82f6" name="ER Total" />
+                    <Bar dataKey="eeShare" fill="#34C759" name="EE Total" />
+                    <Bar dataKey="erShare" fill="#007AFF" name="ER Total" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
