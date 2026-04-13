@@ -199,7 +199,7 @@ export default function Employees() {
   };
 
   return (
-    <section className="bg-white rounded-lg shadow-md flex-1 flex flex-col overflow-hidden p-4 md:p-8 dark:bg-gray-900 dark:text-gray-100">
+    <section className="bg-white rounded-lg shadow-md flex-1 flex flex-col md:overflow-hidden p-4 md:p-8 dark:bg-gray-900 dark:text-gray-100">
       {notification && (
         <Toast
           message={notification.message}

@@ -96,7 +96,7 @@ const EmployeeTable = ({ employees, loading, isViewer, onHistory }) => {
   }
 
   return (
-    <div className="h-full overflow-y-auto overflow-x-auto touch-pan-x touch-pan-y overscroll-contain custom-scrollbar border rounded-lg dark:border-gray-700">
+    <div className="overflow-x-auto md:h-full md:overflow-y-auto touch-pan-x custom-scrollbar border rounded-lg dark:border-gray-700">
       <table className="w-full text-sm min-w-[1000px]">
         <thead>
           <tr className="border-b-2 border-[#e6a891] bg-gray-100 dark:bg-gray-800 dark:border-gray-700">
@@ -249,7 +249,7 @@ export default function Dashboard() {
       </div>
 
       {/* Employee List */}
-      <section className="bg-white p-4 md:p-8 rounded-lg shadow-md dark:bg-gray-900 dark:text-gray-100 flex flex-col max-h-[calc(100vh-260px)] overflow-hidden min-h-0">
+      <section className="bg-white p-4 md:p-8 rounded-lg shadow-md dark:bg-gray-900 dark:text-gray-100 flex flex-col md:max-h-[calc(100vh-260px)] md:overflow-hidden min-h-0">
         <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-1 dark:text-gray-100">Employee Directory</h3>

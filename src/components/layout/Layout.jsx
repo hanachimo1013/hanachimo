@@ -45,7 +45,7 @@ export default function Layout({ children }) {
   };
 
   return (
-    <div className="flex flex-col w-full h-screen bg-white font-sans text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+    <div className="flex flex-col w-full min-h-screen md:h-screen bg-white font-sans text-gray-900 dark:bg-gray-900 dark:text-gray-100">
       <ConfirmLogoutModal
         open={logoutOpen}
         onCancel={() => setLogoutOpen(false)}
@@ -84,10 +84,9 @@ export default function Layout({ children }) {
       </header>
 
       <div
-        className="flex-1 w-full overflow-hidden pt-20 md:pt-0"
-        style={{ height: 'calc(100vh - 80px)' }}
+        className="flex-1 w-full md:overflow-hidden pt-20 md:pt-0"
       >
-        <div className={`h-full md:grid transition-[grid-template-columns] duration-300 ease-in-out ${sidebarVisible ? 'md:grid-cols-[18rem_minmax(0,1fr)]' : 'md:grid-cols-[4rem_minmax(0,1fr)]'}`}>
+        <div className={`flex-1 md:h-[calc(100vh-80px)] md:grid transition-[grid-template-columns] duration-300 ease-in-out ${sidebarVisible ? 'md:grid-cols-[18rem_minmax(0,1fr)]' : 'md:grid-cols-[4rem_minmax(0,1fr)]'}`}>
         {/* Mobile Sidebar Overlay - Glass Effect */}
         {sidebarOpen && (
           <div
@@ -136,7 +135,7 @@ export default function Layout({ children }) {
         )}
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col p-4 md:p-8 gap-4 md:gap-8 bg-gray-50 w-full dark:bg-gray-900 overflow-y-auto">
+        <main className="flex-1 flex flex-col p-4 md:p-8 gap-4 md:gap-8 bg-gray-50 w-full dark:bg-gray-900 md:overflow-y-auto">
           {children}
         </main>
         </div>
