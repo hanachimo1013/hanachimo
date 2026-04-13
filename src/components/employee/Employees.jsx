@@ -115,10 +115,13 @@ export default function Employees() {
     setShowForm(true);
   };
 
-  const handleDelete = (employeeId) => {
+  const handleDelete = async (employeeId) => {
     if (isViewer) return;
     if (confirm('Are you sure you want to delete this employee?')) {
-      deleteEmployee(employeeId);
+      const result = await deleteEmployee(employeeId);
+      if (!result.success) {
+        alert(result.error || 'Failed to delete employee');
+      }
     }
   };
 
