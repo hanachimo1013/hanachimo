@@ -1,5 +1,6 @@
 ﻿import React, { useMemo, useRef, useState } from 'react';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useEmployees } from '../../hooks/useEmployees';
 import { formatPeso, getEeShare, getErShare } from '../../utils/formatters';
@@ -64,6 +65,9 @@ export default function Reports() {
     printWindow.document.close();
     printWindow.print();
   };
+
+  // Helper for PDF to avoid symbol issues
+  const formatPdfPhp = (value) => `PHP ${(Number(value) || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   // Generate Insurance Payment PDF Report
   const generateInsurancePaymentReport = async () => {
