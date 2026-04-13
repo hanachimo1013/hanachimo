@@ -119,6 +119,29 @@ export default async function handler(req, res) {
     if (user.role === 'viewer') {
       return res.status(403).json({ message: 'Viewer role is read-only.' });
     }
+
+    const { data: employee, error: fetchError } = await supabaseAdmin
+      .from('employees')
+      .select('name, designation')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !employee) {
+      console.error('Employees DELETE fetch error:', fetchError);
+      return res.status(404).json({ message: 'Employee not found.' });
+    }
+
+    const { error: valuesError } = await supabaseAdmin
+      .from('employee_values')
+      .delete()
+      .eq('employee_name', employee.name)
+      .eq('employee_designation', employee.designation);
+
+    if (valuesError) {
+      console.error('Employees DELETE values error:', valuesError);
+      return res.status(500).json({ message: 'Failed to delete employee values.' });
+    }
+
     const { error } = await supabaseAdmin
       .from('employees')
       .delete()
