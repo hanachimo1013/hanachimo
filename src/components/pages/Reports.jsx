@@ -265,12 +265,12 @@ export default function Reports() {
 
   if (loading) {
     return (
-      <div className="bg-white p-8 rounded-lg shadow-md flex flex-col relative dark:bg-gray-900 dark:text-gray-100">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2 dark:text-gray-100">Reports</h2>
-          <p className="text-gray-600 dark:text-gray-300">Generate and view insurance and salary distribution reports</p>
+      <div className="glass-card p-6 md:p-8 flex flex-col relative">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Reports</h2>
+          <p style={{ color: 'var(--text-secondary)' }}>Generate and view insurance and salary distribution reports</p>
         </div>
-        <div className="h-64 rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800" />
+        <div className="h-64 rounded-xl" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-light)' }} />
         <LoadingOverlay message="Loading reports..." />
       </div>
     );
@@ -278,67 +278,67 @@ export default function Reports() {
 
   if (!employees || employees.length === 0) {
     return (
-      <div className="bg-white p-8 rounded-lg shadow-md flex flex-col items-center justify-center h-96 dark:bg-gray-900">
+      <div className="glass-card p-8 flex flex-col items-center justify-center h-96">
         <div className="text-center">
-          <p className="text-gray-600 text-lg dark:text-gray-300">No employee data available</p>
+          <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>No employee data available</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white p-4 md:p-8 rounded-lg shadow-md flex flex-col dark:bg-gray-900 dark:text-gray-100">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2 dark:text-gray-100">Reports</h2>
-        <p className="text-gray-600 dark:text-gray-300">Generate and view insurance and salary distribution reports</p>
+    <div className="glass-card p-4 md:p-6 flex flex-col">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Reports</h2>
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Generate and view insurance and salary distribution reports</p>
       </div>
 
       {!selectedReport ? (
-        <div className="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2">
           <div 
             onClick={() => setSelectedReport('insurance')}
-            className="border-2 border-gray-200 rounded-lg p-6 hover:border-[#3b82f6] hover:shadow-lg transition-all cursor-pointer flex flex-col text-center dark:border-gray-700 dark:bg-gray-800"
+            className="glass-subtle rounded-2xl p-6 hover:shadow-lg transition-all cursor-pointer flex flex-col text-center"
           >
             <div className="mb-3 flex justify-center">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600 shadow-sm dark:bg-blue-900/40 dark:text-blue-300">
-                <i className="bi bi-clipboard2-pulse text-xl" aria-hidden="true" />
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full text-xl" style={{ background: 'rgba(0, 122, 255, 0.1)', color: 'var(--accent-blue)' }}>
+                <i className="bi bi-clipboard2-pulse" aria-hidden="true" />
               </span>
             </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2 dark:text-gray-100">Insurance Totals Report</h3>
-            <p className="text-gray-600 text-sm mb-4 flex-1 dark:text-gray-300">Overall total and detailed distribution of SSS, PAG-IBIG, and PhilHealth</p>
-            <button className="bg-[#3b82f6] hover:bg-[#2563eb] text-white px-4 py-2 rounded-lg font-medium transition-all">View Report</button>
+            <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Insurance Totals Report</h3>
+            <p className="text-sm mb-4 flex-1" style={{ color: 'var(--text-secondary)' }}>Overall total and detailed distribution of SSS, PAG-IBIG, and PhilHealth</p>
+            <button className="btn-apple self-center px-5 py-2 text-white text-sm rounded-xl" style={{ background: 'var(--accent-blue)' }}>View Report</button>
           </div>
 
           <div 
             onClick={() => setSelectedReport('salary')}
-            className="border-2 border-gray-200 rounded-lg p-6 hover:border-[#10b981] hover:shadow-lg transition-all cursor-pointer flex flex-col text-center dark:border-gray-700 dark:bg-gray-800"
+            className="glass-subtle rounded-2xl p-6 hover:shadow-lg transition-all cursor-pointer flex flex-col text-center"
           >
             <div className="mb-3 flex justify-center">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 shadow-sm dark:bg-emerald-900/40 dark:text-emerald-300">
-                <i className="bi bi-cash-coin text-xl" aria-hidden="true" />
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full text-xl" style={{ background: 'rgba(52, 199, 89, 0.1)', color: 'var(--accent-green)' }}>
+                <i className="bi bi-cash-coin" aria-hidden="true" />
               </span>
             </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2 dark:text-gray-100">Contribution Totals Report</h3>
-            <p className="text-gray-600 text-sm mb-4 flex-1 dark:text-gray-300">Employee and employer totals breakdown</p>
-            <button className="bg-[#10b981] hover:bg-[#059669] text-white px-4 py-2 rounded-lg font-medium transition-all">View Report</button>
+            <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Contribution Totals Report</h3>
+            <p className="text-sm mb-4 flex-1" style={{ color: 'var(--text-secondary)' }}>Employee and employer totals breakdown</p>
+            <button className="btn-apple self-center px-5 py-2 text-white text-sm rounded-xl" style={{ background: 'var(--accent-green)' }}>View Report</button>
           </div>
         </div>
       ) : selectedReport === 'insurance' ? (
         <div className="mb-8">
-          <button onClick={() => setSelectedReport(null)} className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-all mb-6">
+          <button onClick={() => setSelectedReport(null)} className="btn-apple px-4 py-2 rounded-xl text-sm font-medium mb-6" style={{ background: 'var(--surface-card)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}>
             <i className="bi bi-arrow-left mr-2" aria-hidden="true" /> Back to Reports
           </button>
           
           <div ref={insuranceReportRef}>
-            <h3 className="text-2xl font-bold text-gray-800 mb-6 dark:text-white">Insurance Totals Report</h3>
+            <h3 className="text-xl font-bold mb-5" style={{ color: 'var(--text-primary)' }}>Insurance Totals Report</h3>
             
-            <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-lg shadow-sm mb-6 dark:from-gray-800 dark:to-gray-700">
-              <p className="text-gray-600 text-sm mb-2 dark:text-gray-300">Overall Insurance Totals</p>
-              <p className="text-4xl font-bold text-blue-700 dark:text-blue-300">{isViewer ? '***' : formatPeso(maskedTotals.totalPayments)}</p>
+            <div className="glass-subtle rounded-2xl p-6 mb-6">
+              <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Overall Insurance Totals</p>
+              <p className="text-3xl font-bold" style={{ color: 'var(--accent-blue)' }}>{isViewer ? '***' : formatPeso(maskedTotals.totalPayments)}</p>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 mb-8 md:grid-cols-3">
-              <div className="bg-white border border-gray-200 p-6 rounded shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <div className="grid grid-cols-1 gap-3 mb-6 md:grid-cols-3">
+              <div className="glass-subtle rounded-xl p-5">
                 <p className="text-gray-500 text-sm mb-1 dark:text-gray-400">SSS</p>
                 <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{isViewer ? '***' : formatPeso(maskedTotals.sss)}</p>
                 <div className="w-full bg-gray-200 h-2 rounded-full mt-3 dark:bg-gray-700">
@@ -424,18 +424,18 @@ export default function Reports() {
             </div>
           </div>
 
-          <div className="flex justify-center gap-4">
-            <button onClick={printInsuranceReport} className="bg-white border-2 border-amber-500 text-amber-600 hover:bg-amber-50 px-6 py-2 rounded-lg font-semibold transition-all dark:bg-gray-800">
+          <div className="flex justify-center gap-3">
+            <button onClick={printInsuranceReport} className="btn-apple px-5 py-2 text-sm rounded-xl font-medium" style={{ background: 'var(--surface-card)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}>
               Print Report
             </button>
-            <button onClick={generateInsurancePaymentReport} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-all">
-              Download PDF Report
+            <button onClick={generateInsurancePaymentReport} className="btn-apple px-5 py-2 text-sm text-white rounded-xl font-semibold" style={{ background: 'var(--accent-blue)' }}>
+              Download PDF
             </button>
           </div>
         </div>
       ) : (
         <div className="mb-8">
-          <button onClick={() => setSelectedReport(null)} className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-all mb-6">
+          <button onClick={() => setSelectedReport(null)} className="btn-apple px-4 py-2 rounded-xl text-sm font-medium mb-6" style={{ background: 'var(--surface-card)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}>
             <i className="bi bi-arrow-left mr-2" aria-hidden="true" /> Back to Reports
           </button>
           
@@ -518,12 +518,12 @@ export default function Reports() {
             </div>
           </div>
 
-          <div className="flex justify-center gap-4">
-            <button onClick={printSalaryReport} className="bg-white border-2 border-amber-500 text-amber-600 hover:bg-amber-50 px-6 py-2 rounded-lg font-semibold transition-all dark:bg-gray-800">
+          <div className="flex justify-center gap-3">
+            <button onClick={printSalaryReport} className="btn-apple px-5 py-2 text-sm rounded-xl font-medium" style={{ background: 'var(--surface-card)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}>
               Print Report
             </button>
-            <button onClick={generateSalaryDistributionReport} className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-semibold transition-all">
-              Download PDF Report
+            <button onClick={generateSalaryDistributionReport} className="btn-apple px-5 py-2 text-sm text-white rounded-xl font-semibold" style={{ background: 'var(--accent-green)' }}>
+              Download PDF
             </button>
           </div>
         </div>

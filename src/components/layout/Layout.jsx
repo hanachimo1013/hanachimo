@@ -45,59 +45,60 @@ export default function Layout({ children }) {
   };
 
   return (
-    <div className="flex flex-col w-full min-h-screen md:h-screen bg-white font-sans text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+    <div className="flex flex-col w-full min-h-screen md:h-screen font-sans" style={{ background: 'var(--surface-primary)', color: 'var(--text-primary)' }}>
       <ConfirmLogoutModal
         open={logoutOpen}
         onCancel={() => setLogoutOpen(false)}
         onConfirm={handleLogout}
         busy={loggingOut}
       />
-      {/* Header Section - Floating on Mobile */}
-      <header className="flex justify-between items-center px-4 md:px-8 py-4 bg-[#f2dede] border-b-4 border-[#bc7676] shadow-md fixed md:sticky w-full top-0 z-50 dark:bg-gray-800 dark:border-gray-700">
-        <h1 className="text-2xl md:text-4xl font-black tracking-tight text-gray-900 dark:text-gray-100">
-          <span className="md:hidden">BDLAG Utility</span>
+
+      {/* Header — frosted glass bar */}
+      <header className="glass flex justify-between items-center px-4 md:px-8 py-3 fixed md:sticky w-full top-0 z-50" style={{ borderBottom: '1px solid var(--border-light)' }}>
+        <h1 className="text-lg md:text-xl font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+          <span className="md:hidden">BDLAG</span>
           <span className="hidden md:inline">Bato de Luna Art Gallery</span>
         </h1>
         
-        <div className="flex gap-2 md:gap-6 text-xs md:text-sm font-semibold items-center">
+        <div className="flex gap-1 md:gap-2 text-xs md:text-sm font-medium items-center">
           {/* Hamburger Menu - Mobile Only */}
           <button
             onClick={toggleSidebar}
-            className="md:hidden flex flex-col gap-1.5 p-2 hover:bg-[#e6a891] rounded transition-colors dark:hover:bg-gray-700"
+            className="md:hidden flex flex-col gap-1.5 p-2 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/10"
             aria-label="Toggle menu"
           >
-            <span className={`block w-6 h-0.5 bg-gray-900 dark:bg-gray-100 transition-all duration-300 ${sidebarOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
-            <span className={`block w-6 h-0.5 bg-gray-900 dark:bg-gray-100 transition-all duration-300 ${sidebarOpen ? 'opacity-0' : ''}`}></span>
-            <span className={`block w-6 h-0.5 bg-gray-900 dark:bg-gray-100 transition-all duration-300 ${sidebarOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+            <span className={`block w-5 h-0.5 rounded-full transition-all duration-300 ${sidebarOpen ? 'rotate-45 translate-y-2' : ''}`} style={{ background: 'var(--text-primary)' }}></span>
+            <span className={`block w-5 h-0.5 rounded-full transition-all duration-300 ${sidebarOpen ? 'opacity-0' : ''}`} style={{ background: 'var(--text-primary)' }}></span>
+            <span className={`block w-5 h-0.5 rounded-full transition-all duration-300 ${sidebarOpen ? '-rotate-45 -translate-y-2' : ''}`} style={{ background: 'var(--text-primary)' }}></span>
           </button>
 
           {/* Desktop Menu Items */}
           <button
             onClick={toggleDesktopSidebar}
-            className="hidden md:block px-4 py-2 hover:bg-[#e6a891] rounded transition-colors dark:hover:bg-gray-700"
+            className="hidden md:block px-3 py-1.5 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+            style={{ color: 'var(--text-secondary)' }}
           >
             {sidebarVisible ? 'Hide Sidebar' : 'Show Sidebar'}
           </button>
-          <button className="hidden md:block px-4 py-2 hover:bg-[#e6a891] rounded transition-colors dark:hover:bg-gray-700">Contact</button>
-          <button onClick={openLogout} className="hidden md:block px-4 py-2 hover:bg-[#d59780] rounded transition-colors dark:hover:bg-gray-700">Log-Out</button>
+          <button className="hidden md:block px-3 py-1.5 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/10" style={{ color: 'var(--text-secondary)' }}>Contact</button>
+          <button onClick={openLogout} className="hidden md:block px-3 py-1.5 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/10" style={{ color: 'var(--accent-red)' }}>Log Out</button>
         </div>
       </header>
 
-      <div
-        className="flex-1 w-full md:overflow-hidden pt-20 md:pt-0"
-      >
-        <div className={`flex-1 md:h-[calc(100vh-80px)] md:grid transition-[grid-template-columns] duration-300 ease-in-out ${sidebarVisible ? 'md:grid-cols-[18rem_minmax(0,1fr)]' : 'md:grid-cols-[4rem_minmax(0,1fr)]'}`}>
-        {/* Mobile Sidebar Overlay - Glass Effect */}
+      <div className="flex-1 w-full md:overflow-hidden pt-16 md:pt-0">
+        <div className={`flex-1 md:h-[calc(100vh-56px)] md:grid transition-[grid-template-columns] duration-300 ease-in-out ${sidebarVisible ? 'md:grid-cols-[17rem_minmax(0,1fr)]' : 'md:grid-cols-[4rem_minmax(0,1fr)]'}`}>
+
+        {/* Mobile Sidebar Overlay */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-30 md:hidden"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 md:hidden animate-fade-in"
             onClick={closeSidebar}
           ></div>
         )}
 
         {/* Sidebar Section - Mobile */}
         <aside
-          className={`fixed left-1/2 top-20 -translate-x-1/2 w-80 bg-[#e9dcc9]/90 backdrop-blur-md p-6 flex flex-col items-center rounded-lg shadow-2xl overflow-y-auto border-4 border-[#bc7676] z-40 transition-all duration-300 max-h-[calc(100vh-140px)] dark:bg-gray-800 dark:border-gray-700 md:hidden ${
+          className={`fixed left-1/2 top-16 -translate-x-1/2 w-80 glass p-6 flex flex-col items-center rounded-2xl z-40 transition-all duration-300 max-h-[calc(100vh-100px)] overflow-y-auto md:hidden ${
             sidebarOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
           }`}
         >
@@ -113,7 +114,7 @@ export default function Layout({ children }) {
 
         {/* Sidebar Section - Desktop */}
         {sidebarVisible ? (
-          <aside className="hidden md:flex md:sticky md:top-4 w-72 bg-[#e9dcc9] p-6 flex-col items-center shadow-lg overflow-y-auto border-r-4 border-[#bc7676] dark:bg-gray-800 dark:border-gray-700 max-h-[calc(100vh-120px)] transition-[width,padding] duration-300 ease-in-out">
+          <aside className="hidden md:flex md:sticky md:top-0 w-[17rem] glass p-5 flex-col items-center overflow-y-auto max-h-[calc(100vh-56px)] transition-[width,padding] duration-300 ease-in-out custom-scrollbar" style={{ borderRight: '1px solid var(--border-light)', borderRadius: 0 }}>
             <SidebarContent
               displayName={displayName}
               displayRole={displayRole}
@@ -124,7 +125,7 @@ export default function Layout({ children }) {
             />
           </aside>
         ) : (
-          <aside className="hidden md:flex md:sticky md:top-4 w-16 bg-[#e9dcc9] p-2 flex-col items-center shadow-lg border-r-4 border-[#bc7676] dark:bg-gray-800 dark:border-gray-700 max-h-[calc(100vh-120px)] transition-[width,padding] duration-300 ease-in-out">
+          <aside className="hidden md:flex md:sticky md:top-0 w-16 p-2 flex-col items-center overflow-y-auto max-h-[calc(100vh-56px)] transition-[width,padding] duration-300 ease-in-out" style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(var(--glass-blur))', borderRight: '1px solid var(--border-light)' }}>
             <SidebarCollapsed
               isEmployee={isEmployee}
               isViewer={isViewer}
@@ -135,7 +136,7 @@ export default function Layout({ children }) {
         )}
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col p-4 md:p-8 gap-4 md:gap-8 bg-gray-50 w-full dark:bg-gray-900 md:overflow-y-auto">
+        <main className="flex-1 flex flex-col p-4 md:p-8 gap-4 md:gap-6 w-full md:overflow-y-auto custom-scrollbar" style={{ background: 'var(--surface-primary)' }}>
           {children}
         </main>
         </div>

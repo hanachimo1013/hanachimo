@@ -1,16 +1,17 @@
-﻿import React from 'react';
+import React from 'react';
 
 const DOTS = [
-  { className: 'bg-blue-500', delay: '0ms' },
-  { className: 'bg-red-500', delay: '120ms' },
-  { className: 'bg-yellow-500', delay: '240ms' },
-  { className: 'bg-green-500', delay: '360ms' }
+  { color: 'var(--accent-blue)', delay: '0ms' },
+  { color: 'var(--accent-red)', delay: '120ms' },
+  { color: 'var(--accent-orange)', delay: '240ms' },
+  { color: 'var(--accent-green)', delay: '360ms' }
 ];
 
 export default function LoadingOverlay({ message = 'Loading...', className = '' }) {
   return (
     <div
-      className={`absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm dark:bg-gray-900/70 ${className}`}
+      className={`absolute inset-0 z-10 flex items-center justify-center ${className}`}
+      style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(12px)' }}
       role="status"
       aria-live="polite"
       aria-busy="true"
@@ -20,12 +21,12 @@ export default function LoadingOverlay({ message = 'Loading...', className = '' 
           {DOTS.map((dot, index) => (
             <span
               key={index}
-              className={`h-3 w-3 rounded-full ${dot.className} animate-bounce`}
-              style={{ animationDelay: dot.delay }}
+              className="h-2.5 w-2.5 rounded-full animate-bounce"
+              style={{ background: dot.color, animationDelay: dot.delay }}
             />
           ))}
         </div>
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{message}</span>
+        <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{message}</span>
       </div>
     </div>
   );

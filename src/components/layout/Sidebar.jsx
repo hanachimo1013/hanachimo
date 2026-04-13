@@ -10,7 +10,8 @@ export const SidebarBtn = ({ to, text, icon, onClick, disabled, title }) => {
   if (disabled) {
     return (
       <button
-        className="w-full py-2 px-4 rounded-lg shadow-md transition-all mb-3 font-semibold text-base bg-gray-300 text-gray-600 cursor-not-allowed dark:bg-gray-700 dark:text-gray-300"
+        className="w-full py-2.5 px-4 rounded-xl transition-all mb-2 font-medium text-sm cursor-not-allowed opacity-40"
+        style={{ color: 'var(--text-tertiary)' }}
         title={title}
         disabled
       >
@@ -30,11 +31,12 @@ export const SidebarBtn = ({ to, text, icon, onClick, disabled, title }) => {
     <button
       type="button"
       onClick={handleNavigate}
-      className={`w-full py-2 px-4 rounded-lg shadow-md transition-all mb-3 font-semibold text-base ${
+      className={`w-full py-2.5 px-4 rounded-xl transition-all mb-2 font-medium text-sm text-left ${
         isActive
-          ? 'bg-[#b45309] text-white shadow-lg'
-          : 'bg-[#d97706] hover:bg-[#b45309] text-white hover:shadow-lg'
+          ? 'text-white shadow-md'
+          : 'hover:bg-black/5 dark:hover:bg-white/8'
       }`}
+      style={isActive ? { background: 'var(--accent-blue)', color: '#fff' } : { color: 'var(--text-primary)' }}
     >
       {icon && <span className="mr-2 inline-flex text-sm">{icon}</span>}
       {text}
@@ -43,7 +45,9 @@ export const SidebarBtn = ({ to, text, icon, onClick, disabled, title }) => {
 };
 
 export const SidebarIconBtn = ({ to, icon, onClick, title }) => {
+  const location = useLocation();
   const navigate = useNavigate();
+  const isActive = location.pathname === to;
 
   const handleNavigate = () => {
     if (onClick) onClick();
@@ -55,7 +59,10 @@ export const SidebarIconBtn = ({ to, icon, onClick, title }) => {
       type="button"
       onClick={handleNavigate}
       title={title}
-      className="w-12 h-12 rounded-xl mb-3 inline-flex items-center justify-center bg-[#d97706] hover:bg-[#b45309] text-white shadow-md transition-all"
+      className={`w-10 h-10 rounded-xl mb-2 inline-flex items-center justify-center transition-all text-sm ${
+        isActive ? 'text-white shadow-md' : 'hover:bg-black/5 dark:hover:bg-white/8'
+      }`}
+      style={isActive ? { background: 'var(--accent-blue)', color: '#fff' } : { color: 'var(--text-secondary)' }}
     >
       {icon}
     </button>
@@ -64,15 +71,15 @@ export const SidebarIconBtn = ({ to, icon, onClick, title }) => {
 
 export const SidebarContent = ({ displayName, displayRole, isEmployee, isViewer, onClose, onLogout }) => (
   <>
-    <div className="w-24 h-24 rounded-full mb-4 shadow-lg overflow-hidden flex items-center justify-center flex-shrink-0 border-2 border-white/30">
+    <div className="w-20 h-20 rounded-full mb-3 overflow-hidden flex items-center justify-center flex-shrink-0 shadow-lg" style={{ border: '2px solid var(--glass-border)' }}>
       <img
         src={adminAvatar}
         alt="Admin avatar"
         className="w-full h-full object-cover"
       />
     </div>
-    <h2 className="text-xl font-bold mb-2 text-gray-800 dark:text-gray-100">{displayName}</h2>
-    <p className="text-xs text-gray-600 mb-8 dark:text-gray-300">{displayRole}</p>
+    <h2 className="text-base font-semibold mb-0.5" style={{ color: 'var(--text-primary)' }}>{displayName}</h2>
+    <p className="text-[11px] font-medium mb-6 tracking-wide" style={{ color: 'var(--text-secondary)' }}>{displayRole}</p>
 
     <div className="w-full flex-1">
       <SidebarBtn to="/dashboard" text="Dashboard" icon={<i className="bi bi-speedometer2" />} onClick={onClose} />
@@ -95,16 +102,20 @@ export const SidebarContent = ({ displayName, displayRole, isEmployee, isViewer,
           onClick={onClose}
         />
       )}
-      <button
-        onClick={onLogout}
-        className="w-full py-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded-lg shadow-md mt-auto flex-shrink-0 font-semibold transition-all hover:shadow-lg"
-      >
-        <i className="bi bi-box-arrow-right mr-2" aria-hidden="true" />
-        Logout
-      </button>
+
+      <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--border-light)' }}>
+        <button
+          onClick={onLogout}
+          className="w-full py-2.5 px-4 rounded-xl font-medium text-sm transition-all hover:opacity-80 text-left"
+          style={{ color: 'var(--accent-red)' }}
+        >
+          <i className="bi bi-box-arrow-right mr-2" aria-hidden="true" />
+          Log Out
+        </button>
+      </div>
     </div>
 
-    <div className="mt-6 w-full rounded-lg border border-[#bc7676]/40 bg-white/70 p-3 text-center text-[10px] leading-relaxed text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-900/60 dark:text-gray-300">
+    <div className="mt-6 w-full glass-subtle rounded-xl p-3 text-center text-[10px] leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
       Built by hanachimo using React, Vite, Tailwind CSS, and Supabase.
       c.2026
     </div>
@@ -134,7 +145,8 @@ export const SidebarCollapsed = ({ isEmployee, isViewer, onClose, onLogout }) =>
     <button
       onClick={onLogout}
       title="Logout"
-      className="w-12 h-12 rounded-xl mt-auto flex items-center justify-center bg-[#dc2626] hover:bg-[#b91c1c] text-white shadow-md transition-all"
+      className="w-10 h-10 rounded-xl mt-auto flex items-center justify-center transition-all hover:opacity-80 text-sm"
+      style={{ color: 'var(--accent-red)' }}
     >
       <i className="bi bi-box-arrow-right" aria-hidden="true" />
     </button>

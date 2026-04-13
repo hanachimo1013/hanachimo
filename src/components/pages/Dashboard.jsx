@@ -7,10 +7,10 @@ import { formatPeso, getEeShare, getErShare } from '../../utils/formatters';
 import LoadingOverlay from '../ui/LoadingOverlay';
 import { useAuth } from '../../context/AuthContext';
 
-const StatusCard = ({ title, value }) => (
-  <div className="bg-[#f2dede] p-4 md:p-6 rounded shadow-md flex flex-col items-center justify-center min-h-32 md:h-40 hover:shadow-lg transition-shadow dark:bg-gray-800">
-    <span className="text-xs md:text-sm font-semibold text-gray-600 mb-2 dark:text-gray-300">{title}</span>
-    <span className="text-2xl md:text-4xl font-bold text-[#bc7676] mb-1 break-words text-center dark:text-emerald-300">{value}</span>
+const StatusCard = ({ title, value, color }) => (
+  <div className="glass-card p-5 md:p-6 flex flex-col items-center justify-center min-h-28 md:h-36 hover:shadow-lg transition-shadow">
+    <span className="text-[11px] md:text-xs font-medium uppercase tracking-wider mb-2" style={{ color: 'var(--text-secondary)' }}>{title}</span>
+    <span className="text-2xl md:text-3xl font-bold break-words text-center" style={{ color: color || 'var(--accent-blue)' }}>{value}</span>
   </div>
 );
 
@@ -62,8 +62,8 @@ const generateEmployerReceipt = (employee, masked) => {
     ],
     foot: [['Grand Total', masked ? maskedText : formatPdfPhp(getEeShare(employee) + getErShare(employee))]],
     theme: 'striped',
-    headStyles: { fillColor: [188, 118, 118] }, // #bc7676
-    footStyles: { fillColor: [188, 118, 118] },
+    headStyles: { fillColor: [0, 122, 255] },
+    footStyles: { fillColor: [0, 122, 255] },
     margin: { left: 20, right: 20 },
   });
 
@@ -88,40 +88,41 @@ const maskNumber = () => '***';
 // Employee Table Component
 const EmployeeTable = ({ employees, loading, isViewer, onHistory }) => {
   if (loading) {
-    return <div className="text-center py-8 text-gray-500 dark:text-gray-300">Loading employee data...</div>;
+    return <div className="text-center py-8" style={{ color: 'var(--text-secondary)' }}>Loading employee data…</div>;
   }
 
   if (!employees || employees.length === 0) {
-    return <div className="text-center py-8 text-gray-500 dark:text-gray-300">No employee data available</div>;
+    return <div className="text-center py-8" style={{ color: 'var(--text-secondary)' }}>No employee data available</div>;
   }
 
   return (
-    <div className="overflow-x-auto md:h-full md:overflow-y-auto touch-pan-x custom-scrollbar border rounded-lg dark:border-gray-700">
-      <table className="w-full text-sm min-w-[1000px]">
+    <div className="overflow-x-auto md:h-full md:overflow-y-auto touch-pan-x custom-scrollbar glass-card" style={{ borderRadius: '14px' }}>
+      <table className="w-full text-sm min-w-[1000px] apple-table">
         <thead>
-          <tr className="border-b-2 border-[#e6a891] bg-gray-100 dark:bg-gray-800 dark:border-gray-700">
-            <th className="px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">Name</th>
-            <th className="px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">EE Total</th>
-            <th className="px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">ER Total</th>
-            <th className="px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">Total Payments</th>
-            <th className="px-4 py-3 text-center font-bold text-gray-700 dark:text-gray-200">History</th>
-            <th className="px-4 py-3 text-center font-bold text-gray-700 dark:text-gray-200">Action</th>
+          <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
+            <th className="px-4 py-3 text-left">Name</th>
+            <th className="px-4 py-3 text-left">EE Total</th>
+            <th className="px-4 py-3 text-left">ER Total</th>
+            <th className="px-4 py-3 text-left">Total Payments</th>
+            <th className="px-4 py-3 text-center">History</th>
+            <th className="px-4 py-3 text-center">Action</th>
           </tr>
         </thead>
         <tbody>
           {employees.map((emp) => (
-            <tr key={emp.id} className="border-b border-gray-200 hover:bg-[#fce4ec] transition-colors dark:border-gray-700 dark:hover:bg-gray-800/60">
-              <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">
+            <tr key={emp.id} className="hover:bg-black/[0.03] dark:hover:bg-white/[0.04]" style={{ borderBottom: '1px solid var(--border-light)' }}>
+              <td className="px-4 py-3 font-medium" style={{ color: 'var(--text-primary)' }}>
                 {isViewer ? '***' : emp.name}
               </td>
-              <td className="px-4 py-3 font-semibold text-[#10b981]">{isViewer ? '***' : formatPeso(getEeShare(emp))}</td>
-              <td className="px-4 py-3 font-semibold text-[#3b82f6]">{isViewer ? '***' : formatPeso(getErShare(emp))}</td>
-              <td className="px-4 py-3 font-bold text-[#dc2626]">{isViewer ? '***' : formatPeso(getEeShare(emp) + getErShare(emp))}</td>
+              <td className="px-4 py-3 font-semibold" style={{ color: 'var(--accent-green)' }}>{isViewer ? '***' : formatPeso(getEeShare(emp))}</td>
+              <td className="px-4 py-3 font-semibold" style={{ color: 'var(--accent-blue)' }}>{isViewer ? '***' : formatPeso(getErShare(emp))}</td>
+              <td className="px-4 py-3 font-bold" style={{ color: 'var(--accent-red)' }}>{isViewer ? '***' : formatPeso(getEeShare(emp) + getErShare(emp))}</td>
               <td className="px-4 py-3 text-center">
                 <button
                   type="button"
                   onClick={() => onHistory?.(emp)}
-                  className="bg-[#0ea5e9] hover:bg-[#0284c7] text-white px-3 py-1 rounded font-semibold transition-colors text-xs"
+                  className="btn-apple px-3 py-1.5 text-xs text-white rounded-lg"
+                  style={{ background: 'var(--accent-teal)' }}
                 >
                   <i className="bi bi-clock-history mr-1" aria-hidden="true" />
                   History
@@ -132,7 +133,8 @@ const EmployeeTable = ({ employees, loading, isViewer, onHistory }) => {
                   onClick={() => generateEmployerReceipt(emp, isViewer)}
                   disabled={isViewer}
                   title={isViewer ? 'You are in viewing mode' : undefined}
-                  className="bg-[#10b981] hover:bg-[#059669] text-white px-3 py-1 rounded font-semibold transition-colors text-xs disabled:cursor-not-allowed disabled:opacity-50"
+                  className="btn-apple px-3 py-1.5 text-xs text-white rounded-lg disabled:cursor-not-allowed disabled:opacity-40"
+                  style={{ background: 'var(--accent-green)' }}
                 >
                   <i className="bi bi-receipt mr-1" aria-hidden="true" />
                   Receipt
@@ -237,23 +239,23 @@ export default function Dashboard() {
 
   return (
     <>
-        <div>
-            <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-800 mb-2 dark:text-gray-100">Total Payments</h2>
-            <p className="text-center text-sm md:text-base text-gray-600 dark:text-gray-300">(to be paid)</p>
-        </div>
+      <div>
+        <h2 className="text-center text-2xl md:text-3xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Total Payments</h2>
+        <p className="text-center text-sm" style={{ color: 'var(--text-secondary)' }}>(to be paid)</p>
+      </div>
 
       {/* Status Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-        <StatusCard title="Total EE Share" value={isViewer ? '***' : formatPeso(totals.eeShare)}/>
-        <StatusCard title="Total ER Share" value={isViewer ? '***' : formatPeso(totals.erShare)}/>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <StatusCard title="Total EE Share" value={isViewer ? '***' : formatPeso(totals.eeShare)} color="var(--accent-green)" />
+        <StatusCard title="Total ER Share" value={isViewer ? '***' : formatPeso(totals.erShare)} color="var(--accent-blue)" />
       </div>
 
       {/* Employee List */}
-      <section className="bg-white p-4 md:p-8 rounded-lg shadow-md dark:bg-gray-900 dark:text-gray-100 flex flex-col md:max-h-[calc(100vh-260px)] md:overflow-hidden min-h-0">
-        <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <section className="glass-card p-4 md:p-6 flex flex-col md:max-h-[calc(100vh-260px)] md:overflow-hidden min-h-0">
+        <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
-            <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-1 dark:text-gray-100">Employee Directory</h3>
-            <p className="text-gray-600 text-xs md:text-sm dark:text-gray-300">Recently active employees</p>
+            <h3 className="text-lg md:text-xl font-semibold mb-0.5" style={{ color: 'var(--text-primary)' }}>Employee Directory</h3>
+            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Recently active employees</p>
           </div>
         </div>
 
@@ -270,20 +272,21 @@ export default function Dashboard() {
       </section>
 
       {selectedEmployee && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto overscroll-contain touch-pan-y pt-6 pb-24 md:items-center animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto overscroll-contain touch-pan-y pt-6 pb-24 md:items-center animate-fade-in px-4">
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in"
+            className="absolute inset-0 bg-black/30 backdrop-blur-md animate-fade-in"
             onClick={() => setSelectedEmployee(null)}
             aria-hidden="true"
           />
-          <div className="relative w-full max-w-lg px-4 animate-fade-scale">
-            <div className="bg-white rounded-xl border-2 border-[#e6a891] shadow-xl p-4 dark:bg-gray-900 dark:border-gray-700">
+          <div className="relative w-full max-w-lg animate-fade-scale">
+            <div className="glass-card p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Employee Details</h3>
+                <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Employee Details</h3>
                 <button
                   type="button"
                   onClick={() => setSelectedEmployee(null)}
-                  className="px-3 py-1 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-200"
+                  className="btn-apple px-3 py-1.5 text-xs rounded-lg"
+                  style={{ background: 'var(--surface-card)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
                 >
                   Close
                 </button>
@@ -295,30 +298,30 @@ export default function Dashboard() {
                 maskNumber={maskNumber}
               />
 
-              <div className="mt-6">
-                <h4 className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-2">Values History</h4>
+              <div className="mt-5">
+                <h4 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Values History</h4>
                 {valuesLoading && (
-                  <p className="text-xs text-gray-500 dark:text-gray-300">Loading values...</p>
+                  <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Loading values…</p>
                 )}
                 {valuesError && (
-                  <p className="text-xs text-red-600 dark:text-red-300">{valuesError}</p>
+                  <p className="text-xs" style={{ color: 'var(--accent-red)' }}>{valuesError}</p>
                 )}
                 {!valuesLoading && !valuesError && valuesHistory.length === 0 && (
-                  <p className="text-xs text-gray-500 dark:text-gray-300">No values history yet.</p>
+                  <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>No values history yet.</p>
                 )}
                 {!valuesLoading && valuesHistory.length > 0 && (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs">
+                    <table className="w-full text-xs apple-table">
                       <thead>
-                        <tr className="text-left text-gray-500 dark:text-gray-300">
-                          <th className="py-2">Date</th>
-                          <th className="py-2">EE Total</th>
-                          <th className="py-2">ER Total</th>
+                        <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
+                          <th className="py-2 text-left">Date</th>
+                          <th className="py-2 text-left">EE Total</th>
+                          <th className="py-2 text-left">ER Total</th>
                         </tr>
                       </thead>
                       <tbody>
                         {valuesHistory.map((row) => (
-                          <tr key={row.id} className="border-t border-gray-200 dark:border-gray-700">
+                          <tr key={row.id} style={{ borderTop: '1px solid var(--border-light)' }}>
                             <td className="py-2">{row.effective_date || '-'}</td>
                             <td className="py-2">{isViewer ? '***' : formatPeso(row.ee_total)}</td>
                             <td className="py-2">{isViewer ? '***' : formatPeso(row.er_total)}</td>
@@ -333,7 +336,8 @@ export default function Dashboard() {
                     <button
                       type="button"
                       onClick={handleLoadMoreValues}
-                      className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-200"
+                      className="btn-apple px-3 py-1.5 text-xs font-medium rounded-lg"
+                      style={{ background: 'var(--surface-card)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
                     >
                       Load more
                     </button>

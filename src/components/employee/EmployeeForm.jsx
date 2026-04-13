@@ -3,20 +3,22 @@ import React, { useState } from 'react';
 // A small reusable component for form fields to reduce repetition.
 const FormField = ({ label, ...props }) => (
   <div>
-    <label className="block text-sm font-semibold text-black mb-2 dark:text-gray-200">{label}{props.required && ' *'}</label>
+    <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{label}{props.required && ' *'}</label>
     <input
       {...props}
-      className={`w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#d97706] focus:outline-none text-black bg-white dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 ${props.readOnly ? 'cursor-not-allowed' : ''}`}
+      className={`w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all ${props.readOnly ? 'cursor-not-allowed opacity-60' : ''}`}
+      style={{ background: 'var(--surface-card)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)' }}
     />
   </div>
 );
 
 const SelectField = ({ label, children, ...props }) => (
   <div>
-    <label className="block text-sm font-semibold text-black mb-2 dark:text-gray-200">{label}{props.required && ' *'}</label>
+    <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{label}{props.required && ' *'}</label>
     <select
       {...props}
-      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#d97706] focus:outline-none text-black bg-white dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700"
+      className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all"
+      style={{ background: 'var(--surface-card)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)' }}
     >
       {children}
     </select>
@@ -104,12 +106,12 @@ export default function EmployeeForm({ onSubmit, onCancel, initialData = null, i
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-gray-50 p-6 rounded-lg border-2 border-[#e6a891] dark:bg-gray-800 dark:border-gray-700">
-      <h3 className="text-xl font-bold text-gray-800 mb-6 dark:text-gray-100">
+    <form onSubmit={handleSubmit} className="glass-card p-6">
+      <h3 className="text-lg font-semibold mb-6" style={{ color: 'var(--text-primary)' }}>
         {initialData ? 'Edit Employee' : 'Add New Employee'}
       </h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField label="Name" name="name" value={formData.name} onChange={handleInputChange} required placeholder="Employee name" />
         <FormField label="Designation (Work)" name="designation" value={formData.designation} onChange={handleInputChange} required placeholder="e.g., Software Engineer" />
         <FormField label="SSS Number" name="sssNumber" value={formData.sssNumber} onChange={handleInputChange} placeholder="SSS number" />
@@ -131,24 +133,22 @@ export default function EmployeeForm({ onSubmit, onCancel, initialData = null, i
         <FormField label="ER Share (Auto) (PHP)" type="number" name="erTotal" value={derivedErTotal} required readOnly placeholder="Auto-calculated" />
 
         <div className="md:col-span-2">
-          <label className="block text-sm font-semibold text-black mb-2 dark:text-gray-200">Profile Photo</label>
-          <input type="file" accept="image/*" onChange={handlePhotoChange} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#d97706] focus:outline-none text-black bg-white dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700" />
+          <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>Profile Photo</label>
+          <input type="file" accept="image/*" onChange={handlePhotoChange} className="w-full px-4 py-2.5 rounded-xl text-sm" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)' }} />
           {photoPreview && (
             <div className="mt-4 flex justify-center">
-              <img src={photoPreview} alt="Preview" className="w-32 h-32 rounded-lg object-cover border-2 border-[#bc7676]" />
+              <img src={photoPreview} alt="Preview" className="w-28 h-28 rounded-xl object-cover shadow-md" style={{ border: '2px solid var(--glass-border)' }} />
             </div>
           )}
         </div>
       </div>
 
-      <div className="flex gap-4 mt-8 justify-end">
-        <button type="button" onClick={onCancel} className="px-6 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded-lg font-semibold transition-all" disabled={isLoading}>
-          <i className="bi bi-x-circle mr-2" aria-hidden="true" />
+      <div className="flex gap-3 mt-8 justify-end">
+        <button type="button" onClick={onCancel} className="btn-apple px-5 py-2.5 text-sm font-medium rounded-xl" style={{ background: 'var(--surface-card)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }} disabled={isLoading}>
           Cancel
         </button>
-        <button type="submit" className="px-6 py-2 bg-[#10b981] hover:bg-[#059669] text-white rounded-lg font-semibold transition-all disabled:opacity-50" disabled={isLoading}>
-          <i className="bi bi-save mr-2" aria-hidden="true" />
-          {isLoading ? 'Saving...' : (initialData ? 'Update Employee' : 'Add Employee')}
+        <button type="submit" className="btn-apple px-5 py-2.5 text-sm font-semibold text-white rounded-xl disabled:opacity-50" style={{ background: 'var(--accent-green)' }} disabled={isLoading}>
+          {isLoading ? 'Saving…' : (initialData ? 'Update Employee' : 'Add Employee')}
         </button>
       </div>
     </form>
