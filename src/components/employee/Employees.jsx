@@ -4,6 +4,7 @@ import EmployeeCard from './EmployeeCard';
 import EmployeeForm from './EmployeeForm';
 import EmployeeTable from './EmployeeTable';
 import LoadingOverlay from '../ui/LoadingOverlay';
+import Toast from '../ui/Toast';
 import { useAuth } from '../../context/AuthContext';
 import { formatPeso } from '../../utils/formatters';
 
@@ -29,6 +30,7 @@ export default function Employees() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [notification, setNotification] = useState(null);
   const [valuesHistory, setValuesHistory] = useState([]);
   const [valuesError, setValuesError] = useState(null);
   const [valuesOffset, setValuesOffset] = useState(0);
@@ -85,9 +87,16 @@ export default function Employees() {
 
       setShowForm(false);
       setEditingEmployee(null);
+      setNotification({
+        message: editingEmployee ? 'Employee updated successfully!' : 'Employee added successfully!',
+        type: 'success'
+      });
     } catch (err) {
       console.error('Error saving employee:', err);
-      setError(err.message || 'An error occurred while saving');
+      setNotification({
+        message: err.message || 'An error occurred while saving',
+        type: 'error'
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -120,7 +129,15 @@ export default function Employees() {
     if (confirm('Are you sure you want to delete this employee?')) {
       const result = await deleteEmployee(employeeId);
       if (!result.success) {
-        alert(result.error || 'Failed to delete employee');
+        setNotification({
+          message: result.error || 'Failed to delete employee',
+          type: 'error'
+        });
+      } else {
+        setNotification({
+          message: 'Employee deleted successfully!',
+          type: 'success'
+        });
       }
     }
   };
@@ -183,6 +200,13 @@ export default function Employees() {
 
   return (
     <section className="bg-white rounded-lg shadow-md flex-1 flex flex-col overflow-hidden p-4 md:p-8 dark:bg-gray-900 dark:text-gray-100">
+      {notification && (
+        <Toast
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
       <div className="mb-6">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-1 dark:text-gray-100">Employee Management</h2>
         <p className="text-xs md:text-base text-gray-600 dark:text-gray-300">Manage and view all employees in the system</p>
