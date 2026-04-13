@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import jsPDF from 'jsPDF';
+import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useEmployees } from '../../hooks/useEmployees';
