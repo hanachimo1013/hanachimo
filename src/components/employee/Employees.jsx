@@ -266,17 +266,15 @@ export default function Employees() {
         </div>
       )}
 
-      <div className="relative max-h-[calc(100vh-320px)] overflow-auto touch-pan-y overscroll-contain">
-        {loading && <LoadingOverlay message="Loading employees..." />}
-        <EmployeeTable
-          employees={displayEmployees}
-          loading={loading}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onSelect={(emp) => setSelectedEmployee(emp)}
-          onHistory={(emp) => setSelectedEmployee(emp)}
-        />
-      </div>
+      {loading && <LoadingOverlay message="Loading employees..." />}
+      <EmployeeTable
+        employees={displayEmployees}
+        loading={loading}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onSelect={(emp) => setSelectedEmployee(emp)}
+        onHistory={(emp) => setSelectedEmployee(emp)}
+      />
 
       {selectedEmployee && (
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto overscroll-contain touch-pan-y pt-6 pb-24 md:items-center animate-fade-in">

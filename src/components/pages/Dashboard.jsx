@@ -110,8 +110,8 @@ const EmployeeTable = ({ employees, loading, isViewer, onHistory }) => {
   }
 
   return (
-    <div className="max-h-[calc(100vh-320px)] overflow-auto touch-pan-y overscroll-contain">
-      <table className="w-full text-sm">
+    <div className="max-h-[calc(100vh-320px)] overflow-y-auto overflow-x-auto touch-pan-y overscroll-contain custom-scrollbar border rounded-lg">
+      <table className="w-full text-sm min-w-[800px]">
         <thead>
           <tr className="border-b-2 border-[#e6a891] bg-gray-100 dark:bg-gray-800 dark:border-gray-700">
             <th className="px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">Name</th>
@@ -271,7 +271,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="relative flex-1 overflow-hidden min-h-0">
+        <div className="relative flex-1 min-h-0">
           {loading && <LoadingOverlay message="Loading employees..." />}
 
           <EmployeeTable

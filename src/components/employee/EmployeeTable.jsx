@@ -19,8 +19,8 @@ const EmployeeTable = ({ employees, loading, onEdit, onDelete, onHistory }) => {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+    <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-320px)] custom-scrollbar border rounded-lg">
+      <table className="w-full text-sm min-w-[1000px]">
         <thead>
           <tr className="border-b-2 border-[#e6a891] bg-gray-50 dark:bg-gray-800">
             <th className="px-2 md:px-4 py-3 text-left font-bold text-gray-700 dark:text-gray-200">Photo</th>
