@@ -196,9 +196,11 @@ export default function MangaReader() {
       // Mobile: full width with small margins, Desktop: capped at 800px
       return { width: mobile ? window.innerWidth - 16 : Math.min(window.innerWidth - 64, 800), height: undefined };
     }
-    // Manga mode: Desktop gets padding so the page is centered with breathing room
-    // Mobile: fill viewport height with tiny margin
-    const h = mobile ? window.innerHeight : window.innerHeight - 48;
+    // Manga mode: Mobile explicitly bounds width so content stretches don't clip. Desktop: bound height.
+    if (mobile) {
+      return { width: window.innerWidth - 16, height: undefined };
+    }
+    const h = window.innerHeight - 48;
     return { width: undefined, height: h };
   }, [viewMode]);
 
@@ -206,14 +208,14 @@ export default function MangaReader() {
   const handleNextPage = useCallback(() => {
     if (numPages && currentPage < numPages) {
       if (viewMode === 'manga') setVisiblePage(currentPage + 1);
-      navigate(`/m/${encodeURIComponent(slug)}/${currentPage + 1}`);
+      navigate(`/m/${encodeURIComponent(slug)}/${currentPage + 1}`, { replace: true });
     }
   }, [numPages, currentPage, slug, navigate, viewMode]);
 
   const handlePrevPage = useCallback(() => {
     if (currentPage > 1) {
       if (viewMode === 'manga') setVisiblePage(currentPage - 1);
-      navigate(`/m/${encodeURIComponent(slug)}/${currentPage - 1}`);
+      navigate(`/m/${encodeURIComponent(slug)}/${currentPage - 1}`, { replace: true });
     }
   }, [currentPage, slug, navigate, viewMode]);
 
@@ -221,6 +223,25 @@ export default function MangaReader() {
   useEffect(() => {
     if (viewMode === 'manga') setVisiblePage(currentPage);
   }, [currentPage, viewMode]);
+
+  // ── 9. Keyboard Navigation ─────────────────────────────────────────
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ignore if typing in an input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      if (e.key === 'ArrowLeft') {
+        // Manga reads RTL (Left = Next), Manhwa reads standard (Left = Prev)
+        viewMode === 'manga' ? handleNextPage() : handlePrevPage();
+      } else if (e.key === 'ArrowRight') {
+        // Manga reads RTL (Right = Prev), Manhwa reads standard (Right = Next)
+        viewMode === 'manga' ? handlePrevPage() : handleNextPage();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleNextPage, handlePrevPage, viewMode]);
 
   // ── Loading state with progress bar ───────────────────────────────
   if (loading) {
@@ -265,12 +286,11 @@ export default function MangaReader() {
   return (
     <div className="relative h-screen w-full overflow-hidden bg-black text-white">
       {/* ── Floating Bottom Pill (Safari-style) ── */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 glass-subtle px-4 py-2 rounded-full flex gap-3 items-center shadow-2xl transition-opacity duration-300 hover:opacity-100 opacity-40 md:opacity-90"
+      <div className="fixed bottom-28 md:bottom-8 left-1/2 -translate-x-1/2 z-50 glass-subtle px-4 py-2 rounded-full flex gap-3 items-center shadow-2xl transition-opacity duration-300 hover:opacity-100 opacity-60 md:opacity-90"
            style={{
              backdropFilter: 'blur(20px)',
              WebkitBackdropFilter: 'blur(20px)',
              fontSize: '12px',
-             paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
            }}
       >
         <button
@@ -314,11 +334,11 @@ export default function MangaReader() {
         ref={containerRef}
         className={
           viewMode === 'manga'
-            ? 'flex items-center justify-center h-screen w-full overflow-hidden'
+            ? 'flex flex-col items-center justify-start h-screen w-full overflow-y-auto custom-scrollbar relative'
             : 'flex flex-col overflow-y-auto h-screen w-full custom-scrollbar items-center'
         }
         style={{
-          padding: viewMode === 'manga' ? (isMobile ? '0' : '24px 0') : '0',
+          padding: viewMode === 'manga' ? (isMobile ? '16px 0 120px 0' : '24px 0') : '0',
         }}
       >
         <Document

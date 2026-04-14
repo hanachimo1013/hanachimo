@@ -34,11 +34,28 @@ export default function MangaList() {
   const [mangaList, setMangaList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortField, setSortField] = useState('name');
-  const [sortDir, setSortDir] = useState('asc');
+  
+  // Initialize sorting from localStorage or defaults
+  const [sortField, setSortField] = useState(() => localStorage.getItem('mangaSortField') || 'name');
+  const [sortDir, setSortDir] = useState(() => localStorage.getItem('mangaSortDir') || 'asc');
+  
   const [showSortMenu, setShowSortMenu] = useState(false);
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+
+  // Handle document title
+  useEffect(() => {
+    document.title = "Manga Library | from hanachimo's Doujin Archives";
+  }, []);
+
+  // Persist sorting changes
+  useEffect(() => {
+    localStorage.setItem('mangaSortField', sortField);
+  }, [sortField]);
+
+  useEffect(() => {
+    localStorage.setItem('mangaSortDir', sortDir);
+  }, [sortDir]);
 
   useEffect(() => {
     fetch('/api/fetch-manga')
