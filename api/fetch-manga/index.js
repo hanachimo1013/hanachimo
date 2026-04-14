@@ -21,22 +21,37 @@ export default async function handler(req, res) {
   });
 
   const drive = google.drive({ version: 'v3', auth });
-  const { fileId } = req.query;
+  const { fileId, fileName } = req.query;
 
   try {
-    // If no fileId, list the contents of the folder
-    if (!fileId) {
+    // If no fileId and no fileName, list the contents of the folder
+    if (!fileId && !fileName) {
       const response = await drive.files.list({
         q: `'${FOLDER_ID}' in parents and mimeType = 'application/pdf' and trashed = false`,
-        fields: 'files(id, name, thumbnailLink)',
+        fields: 'files(id, name, thumbnailLink, createdTime, modifiedTime, size)',
         orderBy: 'name',
       });
       return res.status(200).json(response.data.files);
     }
 
-    // If fileId exists, stream the PDF media
+    let targetFileId = fileId;
+    
+    if (fileName) {
+      // Escape single quotes for drive query
+      const safeName = fileName.replace(/'/g, "\\'");
+      const listRes = await drive.files.list({
+        q: `'${FOLDER_ID}' in parents and name = '${safeName}' and mimeType = 'application/pdf' and trashed = false`,
+        fields: 'files(id)'
+      });
+      if (!listRes.data.files || listRes.data.files.length === 0) {
+        return res.status(404).json({ error: 'File not found on drive' });
+      }
+      targetFileId = listRes.data.files[0].id;
+    }
+
+    // If targetFileId exists, stream the PDF media
     const file = await drive.files.get(
-      { fileId, alt: 'media' },
+      { fileId: targetFileId, alt: 'media' },
       { responseType: 'stream' }
     );
 

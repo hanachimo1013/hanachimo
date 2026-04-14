@@ -30,7 +30,7 @@ function PageSkeleton({ height, width }) {
 }
 
 export default function MangaReader() {
-  const { fileId, pageNum } = useParams();
+  const { slug, pageNum } = useParams();
   const navigate = useNavigate();
   const currentPage = parseInt(pageNum || '1', 10);
 
@@ -53,8 +53,8 @@ export default function MangaReader() {
 
     const fetchPdf = async () => {
       // Check cache first
-      if (blobCache.has(fileId)) {
-        setPdfBlobUrl(blobCache.get(fileId));
+      if (blobCache.has(slug)) {
+        setPdfBlobUrl(blobCache.get(slug));
         setLoading(false);
         return;
       }
@@ -63,7 +63,7 @@ export default function MangaReader() {
         setLoading(true);
         setDownloadProgress(0);
 
-        const res = await fetch(`/api/fetch-manga?fileId=${fileId}`);
+        const res = await fetch(`/api/fetch-manga?fileName=${encodeURIComponent(slug + '.pdf')}`);
         if (!res.ok) throw new Error('Failed to load PDF.');
 
         const contentLength = res.headers.get('content-length');
@@ -86,7 +86,7 @@ export default function MangaReader() {
           const blob = new Blob(chunks, { type: 'application/pdf' });
           if (active) {
             const url = URL.createObjectURL(blob);
-            blobCache.set(fileId, url);
+            blobCache.set(slug, url);
             setPdfBlobUrl(url);
           }
         } else {
@@ -94,7 +94,7 @@ export default function MangaReader() {
           const blob = await res.blob();
           if (active) {
             const url = URL.createObjectURL(blob);
-            blobCache.set(fileId, url);
+            blobCache.set(slug, url);
             setPdfBlobUrl(url);
           }
         }
@@ -107,7 +107,7 @@ export default function MangaReader() {
 
     fetchPdf();
     return () => { active = false; };
-  }, [fileId]);
+  }, [slug]);
 
   // ── 2. Document loaded → set page count ───────────────────────────
   const onDocumentLoadSuccess = useCallback(({ numPages: n }) => {
@@ -156,7 +156,7 @@ export default function MangaReader() {
             clearTimeout(scrollTimeoutRef.current);
             scrollTimeoutRef.current = setTimeout(() => {
               if (pageNumber.toString() !== (pageNum || '1')) {
-                window.history.replaceState(null, '', `/m/${fileId}/${pageNumber}`);
+                window.history.replaceState(null, '', `/m/${encodeURIComponent(slug)}/${pageNumber}`);
               }
             }, 150);
           }
@@ -178,28 +178,34 @@ export default function MangaReader() {
       observer.disconnect();
       clearTimeout(scrollTimeoutRef.current);
     };
-  }, [numPages, fileId, pageNum, viewMode]);
+  }, [numPages, slug, pageNum, viewMode]);
 
-  // ── 6. Compute page dimensions once ───────────────────────────────
+  // ── 6. Compute page dimensions (responsive) ──────────────────────
+  const isMobile = window.innerWidth < 768;
   const pageDimensions = useMemo(() => {
+    const mobile = window.innerWidth < 768;
     if (viewMode === 'manhwa') {
-      return { width: Math.min(window.innerWidth - 32, 800), height: undefined };
+      // Mobile: full width with small margins, Desktop: capped at 800px
+      return { width: mobile ? window.innerWidth - 16 : Math.min(window.innerWidth - 64, 800), height: undefined };
     }
-    return { width: undefined, height: window.innerHeight };
+    // Manga mode: Desktop gets padding so the page is centered with breathing room
+    // Mobile: fill viewport height with tiny margin
+    const h = mobile ? window.innerHeight : window.innerHeight - 48;
+    return { width: undefined, height: h };
   }, [viewMode]);
 
   // ── 7. Navigation handlers ────────────────────────────────────────
   const handleNextPage = useCallback(() => {
     if (numPages && currentPage < numPages) {
-      navigate(`/m/${fileId}/${currentPage + 1}`);
+      navigate(`/m/${encodeURIComponent(slug)}/${currentPage + 1}`);
     }
-  }, [numPages, currentPage, fileId, navigate]);
+  }, [numPages, currentPage, slug, navigate]);
 
   const handlePrevPage = useCallback(() => {
     if (currentPage > 1) {
-      navigate(`/m/${fileId}/${currentPage - 1}`);
+      navigate(`/m/${encodeURIComponent(slug)}/${currentPage - 1}`);
     }
-  }, [currentPage, fileId, navigate]);
+  }, [currentPage, slug, navigate]);
 
   // ── Loading state with progress bar ───────────────────────────────
   if (loading) {
@@ -243,42 +249,47 @@ export default function MangaReader() {
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-black text-white">
-      {/* ── Floating Controls (glassmorphism) ── */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 glass-subtle px-6 py-3 rounded-full flex gap-4 items-center animate-slide-up shadow-xl transition-opacity duration-300 hover:opacity-100 opacity-30 md:opacity-100"
-           style={{ backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
+      {/* ── Floating Bottom Pill (Safari-style) ── */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 glass-subtle px-4 py-2 rounded-full flex gap-3 items-center shadow-2xl transition-opacity duration-300 hover:opacity-100 opacity-40 md:opacity-90"
+           style={{
+             backdropFilter: 'blur(20px)',
+             WebkitBackdropFilter: 'blur(20px)',
+             fontSize: '12px',
+             paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
+           }}
       >
         <button
           onClick={() => navigate('/m')}
-          className="text-white hover:text-[var(--accent-blue)] transition-colors mr-2"
+          className="text-white/80 hover:text-[var(--accent-blue)] transition-colors"
           title="Back to Gallery"
         >
-          <i className="bi bi-arrow-left"></i>
+          <i className="bi bi-arrow-left text-xs"></i>
         </button>
 
-        {/* View mode toggle */}
-        <div className="flex bg-black/40 rounded-lg p-1 mr-4">
+        {/* Compact view mode toggle */}
+        <div className="flex bg-white/10 rounded-md p-0.5">
           <button
             onClick={() => setViewMode('manga')}
-            className={`px-3 py-1 text-sm rounded-md transition-all ${viewMode === 'manga' ? 'bg-white text-black font-semibold' : 'text-gray-300 hover:text-white'}`}
+            className={`px-2 py-0.5 text-[11px] rounded transition-all ${viewMode === 'manga' ? 'bg-white text-black font-semibold' : 'text-white/60 hover:text-white'}`}
           >
             Manga
           </button>
           <button
             onClick={() => setViewMode('manhwa')}
-            className={`px-3 py-1 text-sm rounded-md transition-all ${viewMode === 'manhwa' ? 'bg-white text-black font-semibold' : 'text-gray-300 hover:text-white'}`}
+            className={`px-2 py-0.5 text-[11px] rounded transition-all ${viewMode === 'manhwa' ? 'bg-white text-black font-semibold' : 'text-white/60 hover:text-white'}`}
           >
             Manhwa
           </button>
         </div>
 
-        {/* Page nav */}
-        <div className="flex items-center gap-3 font-mono text-sm">
-          <button onClick={handlePrevPage} disabled={currentPage <= 1} className="disabled:opacity-30 hover:text-[var(--accent-blue)] transition-colors">
-            <i className="bi bi-chevron-left"></i>
+        {/* Compact page nav */}
+        <div className="flex items-center gap-2 font-mono text-white/70">
+          <button onClick={handlePrevPage} disabled={currentPage <= 1} className="disabled:opacity-30 hover:text-white transition-colors">
+            <i className="bi bi-chevron-left text-[10px]"></i>
           </button>
-          <span>{visiblePage} / {numPages || '…'}</span>
-          <button onClick={handleNextPage} disabled={numPages && currentPage >= numPages} className="disabled:opacity-30 hover:text-[var(--accent-blue)] transition-colors">
-            <i className="bi bi-chevron-right"></i>
+          <span className="tabular-nums">{visiblePage}<span className="text-white/30 mx-0.5">/</span>{numPages || '…'}</span>
+          <button onClick={handleNextPage} disabled={numPages && currentPage >= numPages} className="disabled:opacity-30 hover:text-white transition-colors">
+            <i className="bi bi-chevron-right text-[10px]"></i>
           </button>
         </div>
       </div>
@@ -288,10 +299,13 @@ export default function MangaReader() {
         ref={containerRef}
         className={
           viewMode === 'manga'
-            ? 'flex flex-row-reverse overflow-x-auto h-screen w-full custom-scrollbar'
+            ? 'flex flex-row-reverse overflow-x-auto h-screen w-full custom-scrollbar items-center justify-center'
             : 'flex flex-col overflow-y-auto h-screen w-full custom-scrollbar items-center'
         }
-        style={{ scrollSnapType: viewMode === 'manga' ? 'x mandatory' : 'none' }}
+        style={{
+          scrollSnapType: viewMode === 'manga' ? 'x mandatory' : 'none',
+          padding: viewMode === 'manga' ? (isMobile ? '0' : '24px 0') : '0',
+        }}
       >
         <Document
           file={pdfBlobUrl}
@@ -303,8 +317,8 @@ export default function MangaReader() {
           }
           className={
             viewMode === 'manga'
-              ? 'flex flex-row-reverse h-full'
-              : 'flex flex-col items-center w-full mt-20 mb-10'
+              ? 'flex flex-row-reverse h-full items-center'
+              : 'flex flex-col items-center w-full mt-20 mb-10 gap-2'
           }
         >
           {numPages && Array.from({ length: numPages }, (_, index) => (
@@ -314,10 +328,13 @@ export default function MangaReader() {
               data-page-index={index}
               className={
                 viewMode === 'manga'
-                  ? 'shrink-0 h-full flex justify-center items-center min-w-full'
-                  : 'shrink-0 w-full max-w-3xl flex justify-center mb-1'
+                  ? 'shrink-0 flex justify-center items-center min-w-full'
+                  : 'shrink-0 w-full max-w-3xl flex justify-center px-2 md:px-0'
               }
-              style={{ scrollSnapAlign: viewMode === 'manga' ? 'start' : undefined }}
+              style={{
+                scrollSnapAlign: viewMode === 'manga' ? 'start' : undefined,
+                minHeight: viewMode === 'manga' ? '100%' : undefined,
+              }}
             >
               {renderedPages.has(index) ? (
                 <Page
