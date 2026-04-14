@@ -5,6 +5,7 @@ import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Toolti
 import { useEmployees } from '../../hooks/useEmployees';
 import { formatPeso, getEeShare, getErShare } from '../../utils/formatters';
 import LoadingOverlay from '../ui/LoadingOverlay';
+import ConfirmModal from '../ui/ConfirmModal';
 import { useAuth } from '../../context/AuthContext';
 
 const ACTION_COLORS = {
@@ -31,7 +32,7 @@ export default function Reports() {
   const [selectedReport, setSelectedReport] = useState(null);
   const insuranceReportRef = useRef(null);
   const salaryReportRef = useRef(null);
-  const { employees, loading, fetchSystemLogs, fetchEmployeeValues } = useEmployees();
+  const { employees, loading, fetchSystemLogs } = useEmployees();
   const { user } = useAuth();
   const isViewer = user?.role === 'viewer';
 
@@ -40,6 +41,8 @@ export default function Reports() {
   const [logsLoading, setLogsLoading] = useState(false);
   const [logsOffset, setLogsOffset] = useState(0);
   const [hasMoreLogs, setHasMoreLogs] = useState(true);
+  const [pdfGenerating, setPdfGenerating] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
   const LOGS_LIMIT = 20;
 
   const loadLogs = useCallback(async (offset = 0, append = false) => {
@@ -94,54 +97,65 @@ export default function Reports() {
   const formatPdfPhp = (value) => `PHP ${(Number(value) || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   // ──────────────────────────────────────────────
-  // Helper: append Values History pages to a jsPDF doc
+  // Generate PDF (Insurance) — summary only
   // ──────────────────────────────────────────────
-  const appendValuesHistory = async (doc) => {
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
+  const generateInsurancePdf = async () => {
+    if (isViewer) return;
+    setPdfGenerating(true);
+    // Yield to let React render the loading overlay
+    await new Promise(r => setTimeout(r, 50));
+    try {
+      const { totals, totalPayments } = calculateInsuranceReport();
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
 
-    doc.addPage();
-    doc.setFontSize(18);
-    doc.setTextColor(40, 40, 40);
-    doc.setFont(undefined, 'bold');
-    doc.text('Values History', pageWidth / 2, 20, { align: 'center' });
-    doc.setFontSize(9);
-    doc.setTextColor(150, 150, 150);
-    doc.text('Past contribution records per employee', pageWidth / 2, 28, { align: 'center' });
-
-    let currentY = 38;
-
-    for (const emp of normalizedEmployees) {
-      const result = await fetchEmployeeValues(emp, { limit: 50 });
-      const history = result.success ? (result.data || []) : [];
-      if (history.length === 0) continue;
-
-      // Check if we need a new page
-      if (currentY > pageHeight - 60) {
-        doc.addPage();
-        currentY = 20;
-      }
-
-      doc.setFontSize(11);
+      doc.setFontSize(22);
       doc.setTextColor(40, 40, 40);
       doc.setFont(undefined, 'bold');
-      doc.text(`${emp.name}  (${emp.designation || '—'})`, 20, currentY);
-      currentY += 3;
+      doc.text('BDLAG UTILITY', pageWidth / 2, 20, { align: 'center' });
+
+      doc.setFontSize(14);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Insurance Totals Report', pageWidth / 2, 30, { align: 'center' });
+
+      doc.setFontSize(9);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Generated: ${new Date().toLocaleDateString('en-PH')} ${new Date().toLocaleTimeString()}`, 20, 38);
 
       autoTable(doc, {
-        startY: currentY,
-        head: [['Date', 'EE Total', 'ER Total', 'SSS (EE)', 'PAG-IBIG (EE)', 'PhilHealth (EE)']],
-        body: history.map(row => [
-          row.effective_date || '—',
-          formatPdfPhp(row.ee_total),
-          formatPdfPhp(row.er_total),
-          formatPdfPhp(row.sss_ee),
-          formatPdfPhp(row.pagibig_ee),
-          formatPdfPhp(row.philhealth_ee),
+        startY: 45,
+        head: [['Insurance Type', 'Total Amount', 'Percentage']],
+        body: [
+          ['SSS', formatPdfPhp(totals.sss), `${((totals.sss / (totalPayments || 1)) * 100).toFixed(1)}%`],
+          ['PAG-IBIG', formatPdfPhp(totals.pagibig), `${((totals.pagibig / (totalPayments || 1)) * 100).toFixed(1)}%`],
+          ['PhilHealth', formatPdfPhp(totals.philhealth), `${((totals.philhealth / (totalPayments || 1)) * 100).toFixed(1)}%`],
+        ],
+        foot: [['Grand Total', formatPdfPhp(totalPayments), '100%']],
+        theme: 'striped',
+        headStyles: { fillColor: [0, 122, 255] },
+        footStyles: { fillColor: [0, 122, 255] },
+        margin: { left: 20, right: 20 },
+      });
+
+      const finalY = doc.lastAutoTable.finalY + 15;
+      doc.setFontSize(13);
+      doc.setTextColor(40, 40, 40);
+      doc.text('Employee-wise Breakdown', 20, finalY);
+
+      autoTable(doc, {
+        startY: finalY + 5,
+        head: [['Employee Name', 'SSS', 'PAG-IBIG', 'PhilHealth', 'Total']],
+        body: normalizedEmployees.map(emp => [
+          emp.name,
+          formatPdfPhp(emp.sss_ee),
+          formatPdfPhp(emp.pagibig_ee),
+          formatPdfPhp(emp.philhealth_ee),
+          formatPdfPhp(emp.sss_ee + emp.pagibig_ee + emp.philhealth_ee)
         ]),
         theme: 'grid',
-        headStyles: { fillColor: [100, 100, 110], fontSize: 7 },
-        bodyStyles: { fontSize: 7 },
+        headStyles: { fillColor: [75, 85, 99], fontSize: 9 },
+        bodyStyles: { fontSize: 8 },
         margin: { left: 20, right: 20 },
         didDrawPage: () => {
           doc.setFontSize(9);
@@ -150,148 +164,83 @@ export default function Reports() {
         }
       });
 
-      currentY = doc.lastAutoTable.finalY + 12;
+      const pdfUrl = doc.output('bloburi');
+      window.open(pdfUrl);
+    } finally {
+      setPdfGenerating(false);
     }
   };
 
   // ──────────────────────────────────────────────
-  // UNIFIED: Generate PDF (Insurance)
-  // ──────────────────────────────────────────────
-  const generateInsurancePdf = async () => {
-    if (isViewer) return;
-    const { totals, totalPayments } = calculateInsuranceReport();
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-
-    doc.setFontSize(22);
-    doc.setTextColor(40, 40, 40);
-    doc.setFont(undefined, 'bold');
-    doc.text('BDLAG UTILITY', pageWidth / 2, 20, { align: 'center' });
-
-    doc.setFontSize(14);
-    doc.setTextColor(100, 100, 100);
-    doc.text('Insurance Totals Report', pageWidth / 2, 30, { align: 'center' });
-
-    doc.setFontSize(9);
-    doc.setTextColor(150, 150, 150);
-    doc.text(`Generated: ${new Date().toLocaleDateString('en-PH')} ${new Date().toLocaleTimeString()}`, 20, 38);
-
-    autoTable(doc, {
-      startY: 45,
-      head: [['Insurance Type', 'Total Amount', 'Percentage']],
-      body: [
-        ['SSS', formatPdfPhp(totals.sss), `${((totals.sss / (totalPayments || 1)) * 100).toFixed(1)}%`],
-        ['PAG-IBIG', formatPdfPhp(totals.pagibig), `${((totals.pagibig / (totalPayments || 1)) * 100).toFixed(1)}%`],
-        ['PhilHealth', formatPdfPhp(totals.philhealth), `${((totals.philhealth / (totalPayments || 1)) * 100).toFixed(1)}%`],
-      ],
-      foot: [['Grand Total', formatPdfPhp(totalPayments), '100%']],
-      theme: 'striped',
-      headStyles: { fillColor: [0, 122, 255] },
-      footStyles: { fillColor: [0, 122, 255] },
-      margin: { left: 20, right: 20 },
-    });
-
-    const finalY = doc.lastAutoTable.finalY + 15;
-    doc.setFontSize(13);
-    doc.setTextColor(40, 40, 40);
-    doc.text('Employee-wise Breakdown', 20, finalY);
-
-    autoTable(doc, {
-      startY: finalY + 5,
-      head: [['Employee Name', 'SSS', 'PAG-IBIG', 'PhilHealth', 'Total']],
-      body: normalizedEmployees.map(emp => [
-        emp.name,
-        formatPdfPhp(emp.sss_ee),
-        formatPdfPhp(emp.pagibig_ee),
-        formatPdfPhp(emp.philhealth_ee),
-        formatPdfPhp(emp.sss_ee + emp.pagibig_ee + emp.philhealth_ee)
-      ]),
-      theme: 'grid',
-      headStyles: { fillColor: [75, 85, 99], fontSize: 9 },
-      bodyStyles: { fontSize: 8 },
-      margin: { left: 20, right: 20 },
-      didDrawPage: () => {
-        doc.setFontSize(9);
-        doc.setTextColor(150, 150, 150);
-        doc.text(`Page ${doc.internal.getNumberOfPages()}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
-      }
-    });
-
-    // Append values history
-    await appendValuesHistory(doc);
-
-    const pdfUrl = doc.output('bloburi');
-    window.open(pdfUrl);
-  };
-
-  // ──────────────────────────────────────────────
-  // UNIFIED: Generate PDF (Contribution Totals)
+  // Generate PDF (Contribution Totals) — summary only
   // ──────────────────────────────────────────────
   const generateContributionPdf = async () => {
     if (isViewer) return;
-    const { eeTotal, erTotal, totalPayments } = calculateSalaryReport();
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
+    setPdfGenerating(true);
+    await new Promise(r => setTimeout(r, 50));
+    try {
+      const { eeTotal, erTotal, totalPayments } = calculateSalaryReport();
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
 
-    doc.setFontSize(22);
-    doc.setTextColor(40, 40, 40);
-    doc.setFont(undefined, 'bold');
-    doc.text('BDLAG UTILITY', pageWidth / 2, 20, { align: 'center' });
+      doc.setFontSize(22);
+      doc.setTextColor(40, 40, 40);
+      doc.setFont(undefined, 'bold');
+      doc.text('BDLAG UTILITY', pageWidth / 2, 20, { align: 'center' });
 
-    doc.setFontSize(14);
-    doc.setTextColor(100, 100, 100);
-    doc.text('Contribution Totals Distribution Report', pageWidth / 2, 30, { align: 'center' });
+      doc.setFontSize(14);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Contribution Totals Distribution Report', pageWidth / 2, 30, { align: 'center' });
 
-    doc.setFontSize(9);
-    doc.setTextColor(150, 150, 150);
-    doc.text(`Generated: ${new Date().toLocaleDateString('en-PH')} ${new Date().toLocaleTimeString()}`, 20, 38);
+      doc.setFontSize(9);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Generated: ${new Date().toLocaleDateString('en-PH')} ${new Date().toLocaleTimeString()}`, 20, 38);
 
-    autoTable(doc, {
-      startY: 45,
-      head: [['Category', 'Total Amount', 'Share %']],
-      body: [
-        ['Employee Total (EE)', formatPdfPhp(eeTotal), `${((eeTotal / (totalPayments || 1)) * 100).toFixed(1)}%`],
-        ['Employer Total (ER)', formatPdfPhp(erTotal), `${((erTotal / (totalPayments || 1)) * 100).toFixed(1)}%`],
-      ],
-      foot: [['Grand Total', formatPdfPhp(totalPayments), '100%']],
-      theme: 'striped',
-      headStyles: { fillColor: [52, 199, 89] },
-      footStyles: { fillColor: [52, 199, 89] },
-      margin: { left: 20, right: 20 },
-    });
+      autoTable(doc, {
+        startY: 45,
+        head: [['Category', 'Total Amount', 'Share %']],
+        body: [
+          ['Employee Total (EE)', formatPdfPhp(eeTotal), `${((eeTotal / (totalPayments || 1)) * 100).toFixed(1)}%`],
+          ['Employer Total (ER)', formatPdfPhp(erTotal), `${((erTotal / (totalPayments || 1)) * 100).toFixed(1)}%`],
+        ],
+        foot: [['Grand Total', formatPdfPhp(totalPayments), '100%']],
+        theme: 'striped',
+        headStyles: { fillColor: [52, 199, 89] },
+        footStyles: { fillColor: [52, 199, 89] },
+        margin: { left: 20, right: 20 },
+      });
 
-    const finalY = doc.lastAutoTable.finalY + 15;
-    doc.setFontSize(13);
-    doc.setTextColor(40, 40, 40);
-    doc.text('Employee Breakdown', 20, finalY);
+      const finalY = doc.lastAutoTable.finalY + 15;
+      doc.setFontSize(13);
+      doc.setTextColor(40, 40, 40);
+      doc.text('Employee Breakdown', 20, finalY);
 
-    autoTable(doc, {
-      startY: finalY + 5,
-      head: [['Employee Name', 'EE Total', 'ER Total', 'Grand Total']],
-      body: normalizedEmployees.map(emp => [
-        emp.name,
-        formatPdfPhp(emp.eeShare),
-        formatPdfPhp(emp.erShare),
-        formatPdfPhp(emp.eeShare + emp.erShare)
-      ]),
-      theme: 'grid',
-      headStyles: { fillColor: [75, 85, 99], fontSize: 9 },
-      bodyStyles: { fontSize: 8 },
-      margin: { left: 20, right: 20 },
-      didDrawPage: () => {
-        doc.setFontSize(9);
-        doc.setTextColor(150, 150, 150);
-        doc.text(`Page ${doc.internal.getNumberOfPages()}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
-      }
-    });
+      autoTable(doc, {
+        startY: finalY + 5,
+        head: [['Employee Name', 'EE Total', 'ER Total', 'Grand Total']],
+        body: normalizedEmployees.map(emp => [
+          emp.name,
+          formatPdfPhp(emp.eeShare),
+          formatPdfPhp(emp.erShare),
+          formatPdfPhp(emp.eeShare + emp.erShare)
+        ]),
+        theme: 'grid',
+        headStyles: { fillColor: [75, 85, 99], fontSize: 9 },
+        bodyStyles: { fontSize: 8 },
+        margin: { left: 20, right: 20 },
+        didDrawPage: () => {
+          doc.setFontSize(9);
+          doc.setTextColor(150, 150, 150);
+          doc.text(`Page ${doc.internal.getNumberOfPages()}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+        }
+      });
 
-    // Append values history
-    await appendValuesHistory(doc);
-
-    const pdfUrl = doc.output('bloburi');
-    window.open(pdfUrl);
+      const pdfUrl = doc.output('bloburi');
+      window.open(pdfUrl);
+    } finally {
+      setPdfGenerating(false);
+    }
   };
 
   const { totals, totalPayments } = calculateInsuranceReport();
@@ -572,9 +521,9 @@ export default function Reports() {
             </div>
           </div>
 
-          {/* Single Generate PDF button */}
+          {/* Single Generate PDF button — with confirm */}
           <div className="flex justify-center">
-            <button onClick={generateInsurancePdf} className="btn-apple px-6 py-2.5 text-sm text-white rounded-xl font-semibold" style={{ background: 'var(--accent-blue)' }}>
+            <button onClick={() => setConfirmAction({ title: 'Generate Insurance PDF', message: 'This will generate a summary PDF of the Insurance Totals report. Proceed?', confirmText: 'Generate', confirmColor: 'var(--accent-blue)', action: generateInsurancePdf })} className="btn-apple px-6 py-2.5 text-sm text-white rounded-xl font-semibold" style={{ background: 'var(--accent-blue)' }}>
               <i className="bi bi-file-earmark-pdf mr-2" aria-hidden="true" />
               Generate PDF
             </button>
@@ -665,14 +614,33 @@ export default function Reports() {
             </div>
           </div>
 
-          {/* Single Generate PDF button */}
+          {/* Single Generate PDF button — with confirm */}
           <div className="flex justify-center">
-            <button onClick={generateContributionPdf} className="btn-apple px-6 py-2.5 text-sm text-white rounded-xl font-semibold" style={{ background: 'var(--accent-green)' }}>
+            <button onClick={() => setConfirmAction({ title: 'Generate Contribution PDF', message: 'This will generate a summary PDF of the Contribution Totals report. Proceed?', confirmText: 'Generate', confirmColor: 'var(--accent-green)', action: generateContributionPdf })} className="btn-apple px-6 py-2.5 text-sm text-white rounded-xl font-semibold" style={{ background: 'var(--accent-green)' }}>
               <i className="bi bi-file-earmark-pdf mr-2" aria-hidden="true" />
               Generate PDF
             </button>
           </div>
         </div>
+      )}
+
+      {/* PDF generating overlay */}
+      {pdfGenerating && <LoadingOverlay message="Generating PDF…" />}
+
+      {/* Confirm modal for PDF generation */}
+      {confirmAction && (
+        <ConfirmModal
+          title={confirmAction.title}
+          message={confirmAction.message}
+          confirmText={confirmAction.confirmText}
+          confirmColor={confirmAction.confirmColor}
+          onCancel={() => setConfirmAction(null)}
+          onConfirm={async () => {
+            const action = confirmAction.action;
+            setConfirmAction(null);
+            await action();
+          }}
+        />
       )}
     </div>
   );
