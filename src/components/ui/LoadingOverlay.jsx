@@ -1,11 +1,5 @@
 import React from 'react';
-
-const DOTS = [
-  { color: 'var(--accent-blue)', delay: '0ms' },
-  { color: 'var(--accent-red)', delay: '120ms' },
-  { color: 'var(--accent-orange)', delay: '240ms' },
-  { color: 'var(--accent-green)', delay: '360ms' }
-];
+import AppleSpinner from './AppleSpinner';
 
 export default function LoadingOverlay({ message = 'Loading...', className = '' }) {
   return (
@@ -17,15 +11,7 @@ export default function LoadingOverlay({ message = 'Loading...', className = '' 
       aria-busy="true"
     >
       <div className="flex flex-col items-center gap-3">
-        <div className="flex items-center gap-2">
-          {DOTS.map((dot, index) => (
-            <span
-              key={index}
-              className="h-2.5 w-2.5 rounded-full animate-bounce"
-              style={{ background: dot.color, animationDelay: dot.delay }}
-            />
-          ))}
-        </div>
+        <AppleSpinner size="lg" />
         <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{message}</span>
       </div>
     </div>

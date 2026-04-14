@@ -5,6 +5,7 @@ import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Toolti
 import { useEmployees } from '../../hooks/useEmployees';
 import { formatPeso, getEeShare, getErShare } from '../../utils/formatters';
 import LoadingOverlay from '../ui/LoadingOverlay';
+import AppleSpinner from '../ui/AppleSpinner';
 import ConfirmModal from '../ui/ConfirmModal';
 import { useAuth } from '../../context/AuthContext';
 
@@ -291,9 +292,7 @@ export default function Reports() {
 
       {logsLoading && logs.length === 0 ? (
         <div className="flex items-center justify-center py-16">
-          <div className="google-dots">
-            <span /><span /><span /><span />
-          </div>
+          <AppleSpinner size="lg" />
         </div>
       ) : logs.length === 0 ? (
         <div className="glass-subtle rounded-2xl p-10 text-center">
@@ -352,7 +351,7 @@ export default function Reports() {
                 style={{ background: 'var(--surface-card)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
               >
                 {logsLoading ? (
-                  <span className="google-dots google-dots--button"><span /><span /><span /><span /></span>
+                  <AppleSpinner size="sm" />
                 ) : 'Load More'}
               </button>
             </div>

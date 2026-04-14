@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import AppleSpinner from '../ui/AppleSpinner';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -94,9 +95,7 @@ export default function Login() {
               style={{ background: 'var(--accent-blue)' }}
             >
               {submitting ? (
-                <div className="google-dots google-dots--button" aria-label="Signing in">
-                  <span /><span /><span /><span />
-                </div>
+                <AppleSpinner size="sm" white />
               ) : (
                 'Sign In'
               )}

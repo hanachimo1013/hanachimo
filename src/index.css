@@ -125,38 +125,54 @@ html.dark .glass-subtle {
 }
 
 /* ======= Animations ======= */
-.google-dots {
-  display: flex;
-  gap: 6px;
-  align-items: center;
+
+/* ── Apple-style Radial Spinner ── */
+.apple-spinner {
+  --spinner-size: 24px;
+  --bar-color: var(--text-secondary);
+  position: relative;
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+  display: inline-block;
 }
 
-.google-dots span {
-  width: 8px;
-  height: 8px;
-  border-radius: 9999px;
-  animation: google-bounce 1.2s infinite ease-in-out;
-  opacity: 0.7;
+.apple-spinner--sm {
+  --spinner-size: 16px;
 }
 
-.google-dots--button {
-  transform: translateY(1px);
+.apple-spinner--lg {
+  --spinner-size: 36px;
 }
 
-.google-dots span:nth-child(1) { background: var(--accent-blue); animation-delay: 0s; }
-.google-dots span:nth-child(2) { background: var(--accent-red); animation-delay: 0.15s; }
-.google-dots span:nth-child(3) { background: var(--accent-orange); animation-delay: 0.3s; }
-.google-dots span:nth-child(4) { background: var(--accent-green); animation-delay: 0.45s; }
+.apple-spinner--white {
+  --bar-color: rgba(255, 255, 255, 0.85);
+}
 
-@keyframes google-bounce {
-  0%, 80%, 100% {
-    transform: scale(0.6);
-    opacity: 0.5;
-  }
-  40% {
-    transform: scale(1);
-    opacity: 1;
-  }
+.apple-spinner span {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 28%;
+  margin-left: -1px;
+  background: var(--bar-color);
+  border-radius: 2px;
+  transform-origin: center calc(var(--spinner-size) / 2);
+  animation: apple-spinner-fade 1s infinite linear;
+}
+
+.apple-spinner span:nth-child(1)  { transform: rotate(0deg);   animation-delay: -0.875s; }
+.apple-spinner span:nth-child(2)  { transform: rotate(45deg);  animation-delay: -0.75s;  }
+.apple-spinner span:nth-child(3)  { transform: rotate(90deg);  animation-delay: -0.625s; }
+.apple-spinner span:nth-child(4)  { transform: rotate(135deg); animation-delay: -0.5s;   }
+.apple-spinner span:nth-child(5)  { transform: rotate(180deg); animation-delay: -0.375s; }
+.apple-spinner span:nth-child(6)  { transform: rotate(225deg); animation-delay: -0.25s;  }
+.apple-spinner span:nth-child(7)  { transform: rotate(270deg); animation-delay: -0.125s; }
+.apple-spinner span:nth-child(8)  { transform: rotate(315deg); animation-delay: 0s;      }
+
+@keyframes apple-spinner-fade {
+  0%   { opacity: 1;    }
+  100% { opacity: 0.15; }
 }
 
 @keyframes fade-in {

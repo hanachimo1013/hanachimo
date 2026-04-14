@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
+import AppleSpinner from '../ui/AppleSpinner';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -22,9 +23,7 @@ function PageSkeleton({ height, width }) {
       className="flex items-center justify-center animate-pulse"
       style={{ height: height || '100vh', width: width || '100%', background: 'rgba(255,255,255,0.04)' }}
     >
-      <div className="google-dots">
-        <span></span><span></span><span></span><span></span>
-      </div>
+      <AppleSpinner white />
     </div>
   );
 }
@@ -249,29 +248,20 @@ export default function MangaReader() {
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-black">
-        <div className="glass-card p-8 flex flex-col items-center gap-4 min-w-[280px]">
-          <div className="google-dots">
-            <span></span><span></span><span></span><span></span>
-          </div>
+        <div className="glass-card p-8 flex flex-col items-center gap-5 min-w-[280px]">
+          <AppleSpinner size="lg" white />
           <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-            Downloading PDF…
+            Initializing PDF… {downloadProgress > 0 ? `${downloadProgress}%` : ''}
           </p>
-          {downloadProgress > 0 && (
-            <div className="w-full bg-black/20 rounded-full h-2 overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-300"
-                style={{
-                  width: `${downloadProgress}%`,
-                  background: 'var(--accent-blue)',
-                }}
-              />
-            </div>
-          )}
-          {downloadProgress > 0 && (
-            <span className="text-xs font-mono" style={{ color: 'var(--text-tertiary)' }}>
-              {downloadProgress}%
-            </span>
-          )}
+          <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-300 ease-out"
+              style={{
+                width: `${downloadProgress}%`,
+                background: 'rgba(255, 255, 255, 0.7)',
+              }}
+            />
+          </div>
         </div>
       </div>
     );
@@ -351,7 +341,7 @@ export default function MangaReader() {
           onLoadSuccess={onDocumentLoadSuccess}
           loading={
             <div className="flex items-center justify-center h-screen w-full">
-              <div className="google-dots"><span></span><span></span><span></span><span></span></div>
+              <AppleSpinner size="lg" white />
             </div>
           }
           className={

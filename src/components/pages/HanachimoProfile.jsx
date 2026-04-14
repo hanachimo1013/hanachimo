@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import AppleSpinner from '../ui/AppleSpinner';
 
 const GITHUB_USER_URL = 'https://api.github.com/users/hanachimo1013';
 const GITHUB_REPOS_URL = 'https://api.github.com/users/hanachimo1013/repos?sort=pushed&per_page=6';
@@ -213,9 +214,7 @@ export default function HanachimoProfile() {
 
               {loading ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="google-dots">
-                    <span /><span /><span /><span />
-                  </div>
+                  <AppleSpinner size="lg" />
                 </div>
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2">
