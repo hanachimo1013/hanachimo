@@ -88,8 +88,30 @@ export default function MangaReader() {
             blobCache.set(slug, url);
             setPdfBlobUrl(url);
           }
+        } else if (res.body) {
+          // Fallback: stream without content-length — indeterminate progress
+          const reader = res.body.getReader();
+          const chunks = [];
+          let received = 0;
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+            received += value.length;
+            // Asymptotic progress: ramps up but never reaches 100 until done
+            if (active) setDownloadProgress(Math.min(95, Math.round(100 * (1 - Math.exp(-received / 500000)))));
+          }
+
+          if (active) setDownloadProgress(100);
+          const blob = new Blob(chunks, { type: 'application/pdf' });
+          if (active) {
+            const url = URL.createObjectURL(blob);
+            blobCache.set(slug, url);
+            setPdfBlobUrl(url);
+          }
         } else {
-          // Fallback: no content-length header
+          // Final fallback: no streaming support at all
           const blob = await res.blob();
           if (active) {
             const url = URL.createObjectURL(blob);

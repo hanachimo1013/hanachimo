@@ -68,12 +68,21 @@ export default async function handler(req, res) {
     }
 
     // If targetFileId exists, stream the PDF media
+    // Fetch metadata first to get file size for Content-Length
+    const meta = await drive.files.get({
+      fileId: targetFileId,
+      fields: 'size',
+    });
+
     const file = await drive.files.get(
       { fileId: targetFileId, alt: 'media' },
       { responseType: 'stream' }
     );
 
     res.setHeader('Content-Type', 'application/pdf');
+    if (meta.data.size) {
+      res.setHeader('Content-Length', meta.data.size);
+    }
     file.data.pipe(res);
   } catch (err) {
     console.error('Drive API Error:', err);
