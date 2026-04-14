@@ -5,6 +5,7 @@ import EmployeeForm from './EmployeeForm';
 import EmployeeTable from './EmployeeTable';
 import LoadingOverlay from '../ui/LoadingOverlay';
 import Toast from '../ui/Toast';
+import ConfirmModal from '../ui/ConfirmModal';
 import { useAuth } from '../../context/AuthContext';
 import { formatPeso } from '../../utils/formatters';
 
@@ -38,6 +39,7 @@ export default function Employees() {
   const valuesPageSize = 10;
   const [sortMode, setSortMode] = useState('alpha');
   const [sortDir, setSortDir] = useState('asc');
+  const [confirmAction, setConfirmAction] = useState(null); // { title, message, confirmText, confirmColor, action }
 
   const sortedEmployees = useMemo(() => {
     const list = Array.isArray(employees) ? [...employees] : [];
@@ -69,37 +71,52 @@ export default function Employees() {
     }));
   }, [isViewer, sortedEmployees]);
 
-  const handleFormSubmit = async (formData) => {
-    setIsSubmitting(true);
-    setError(null);
-    try {
-      let result;
-      if (editingEmployee) {
-        result = await updateEmployee(editingEmployee.id, formData);
-      } else {
-        result = await addEmployee(formData);
-      }
+  // Called when the user clicks submit on the form — shows confirmation first
+  const [pendingFormData, setPendingFormData] = useState(null);
 
-      if (!result.success) {
-        setError(result.error || 'Failed to save employee');
-        return;
-      }
+  const handleFormSubmit = (formData) => {
+    setPendingFormData(formData);
+    setConfirmAction({
+      title: editingEmployee ? 'Update Employee' : 'Add Employee',
+      message: editingEmployee
+        ? `Are you sure you want to update ${editingEmployee.name || 'this employee'}?`
+        : 'Are you sure you want to add this employee?',
+      confirmText: editingEmployee ? 'Update' : 'Add',
+      confirmColor: editingEmployee ? 'var(--accent-blue)' : 'var(--accent-green)',
+      action: async () => {
+        setIsSubmitting(true);
+        setError(null);
+        try {
+          let result;
+          if (editingEmployee) {
+            result = await updateEmployee(editingEmployee.id, formData);
+          } else {
+            result = await addEmployee(formData);
+          }
 
-      setShowForm(false);
-      setEditingEmployee(null);
-      setNotification({
-        message: editingEmployee ? 'Employee updated successfully!' : 'Employee added successfully!',
-        type: 'success'
-      });
-    } catch (err) {
-      console.error('Error saving employee:', err);
-      setNotification({
-        message: err.message || 'An error occurred while saving',
-        type: 'error'
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+          if (!result.success) {
+            setError(result.error || 'Failed to save employee');
+            return;
+          }
+
+          setShowForm(false);
+          setEditingEmployee(null);
+          setPendingFormData(null);
+          setNotification({
+            message: editingEmployee ? 'Employee updated successfully!' : 'Employee added successfully!',
+            type: 'success'
+          });
+        } catch (err) {
+          console.error('Error saving employee:', err);
+          setNotification({
+            message: err.message || 'An error occurred while saving',
+            type: 'error'
+          });
+        } finally {
+          setIsSubmitting(false);
+        }
+      },
+    });
   };
 
   const handleEdit = async (employee) => {
@@ -124,22 +141,29 @@ export default function Employees() {
     setShowForm(true);
   };
 
-  const handleDelete = async (employeeId) => {
+  const handleDelete = (employeeId) => {
     if (isViewer) return;
-    if (confirm('Are you sure you want to delete this employee?')) {
-      const result = await deleteEmployee(employeeId);
-      if (!result.success) {
-        setNotification({
-          message: result.error || 'Failed to delete employee',
-          type: 'error'
-        });
-      } else {
-        setNotification({
-          message: 'Employee deleted successfully!',
-          type: 'success'
-        });
-      }
-    }
+    const emp = employees.find(e => e.id === employeeId);
+    setConfirmAction({
+      title: 'Delete Employee',
+      message: `Are you sure you want to permanently delete ${emp?.name || 'this employee'}? This action cannot be undone.`,
+      confirmText: 'Delete',
+      confirmColor: 'var(--accent-red)',
+      action: async () => {
+        const result = await deleteEmployee(employeeId);
+        if (!result.success) {
+          setNotification({
+            message: result.error || 'Failed to delete employee',
+            type: 'error'
+          });
+        } else {
+          setNotification({
+            message: 'Employee deleted successfully!',
+            type: 'success'
+          });
+        }
+      },
+    });
   };
 
   const handleFormCancel = () => {
@@ -370,6 +394,21 @@ export default function Employees() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {confirmAction && (
+        <ConfirmModal
+          title={confirmAction.title}
+          message={confirmAction.message}
+          confirmText={confirmAction.confirmText}
+          confirmColor={confirmAction.confirmColor}
+          onCancel={() => { setConfirmAction(null); setPendingFormData(null); }}
+          onConfirm={async () => {
+            setConfirmAction(null);
+            await confirmAction.action();
+          }}
+        />
       )}
     </section>
   );

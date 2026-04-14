@@ -31,7 +31,7 @@ export default function Reports() {
   const [selectedReport, setSelectedReport] = useState(null);
   const insuranceReportRef = useRef(null);
   const salaryReportRef = useRef(null);
-  const { employees, loading, fetchSystemLogs } = useEmployees();
+  const { employees, loading, fetchSystemLogs, fetchEmployeeValues } = useEmployees();
   const { user } = useAuth();
   const isViewer = user?.role === 'viewer';
 
@@ -94,8 +94,68 @@ export default function Reports() {
   const formatPdfPhp = (value) => `PHP ${(Number(value) || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   // ──────────────────────────────────────────────
+  // Helper: append Values History pages to a jsPDF doc
+  // ──────────────────────────────────────────────
+  const appendValuesHistory = async (doc) => {
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    doc.addPage();
+    doc.setFontSize(18);
+    doc.setTextColor(40, 40, 40);
+    doc.setFont(undefined, 'bold');
+    doc.text('Values History', pageWidth / 2, 20, { align: 'center' });
+    doc.setFontSize(9);
+    doc.setTextColor(150, 150, 150);
+    doc.text('Past contribution records per employee', pageWidth / 2, 28, { align: 'center' });
+
+    let currentY = 38;
+
+    for (const emp of normalizedEmployees) {
+      const result = await fetchEmployeeValues(emp, { limit: 50 });
+      const history = result.success ? (result.data || []) : [];
+      if (history.length === 0) continue;
+
+      // Check if we need a new page
+      if (currentY > pageHeight - 60) {
+        doc.addPage();
+        currentY = 20;
+      }
+
+      doc.setFontSize(11);
+      doc.setTextColor(40, 40, 40);
+      doc.setFont(undefined, 'bold');
+      doc.text(`${emp.name}  (${emp.designation || '—'})`, 20, currentY);
+      currentY += 3;
+
+      autoTable(doc, {
+        startY: currentY,
+        head: [['Date', 'EE Total', 'ER Total', 'SSS (EE)', 'PAG-IBIG (EE)', 'PhilHealth (EE)']],
+        body: history.map(row => [
+          row.effective_date || '—',
+          formatPdfPhp(row.ee_total),
+          formatPdfPhp(row.er_total),
+          formatPdfPhp(row.sss_ee),
+          formatPdfPhp(row.pagibig_ee),
+          formatPdfPhp(row.philhealth_ee),
+        ]),
+        theme: 'grid',
+        headStyles: { fillColor: [100, 100, 110], fontSize: 7 },
+        bodyStyles: { fontSize: 7 },
+        margin: { left: 20, right: 20 },
+        didDrawPage: () => {
+          doc.setFontSize(9);
+          doc.setTextColor(150, 150, 150);
+          doc.text(`Page ${doc.internal.getNumberOfPages()}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+        }
+      });
+
+      currentY = doc.lastAutoTable.finalY + 12;
+    }
+  };
+
+  // ──────────────────────────────────────────────
   // UNIFIED: Generate PDF (Insurance)
-  // Combines print/download into one action
   // ──────────────────────────────────────────────
   const generateInsurancePdf = async () => {
     if (isViewer) return;
@@ -158,6 +218,9 @@ export default function Reports() {
       }
     });
 
+    // Append values history
+    await appendValuesHistory(doc);
+
     const pdfUrl = doc.output('bloburi');
     window.open(pdfUrl);
   };
@@ -165,7 +228,7 @@ export default function Reports() {
   // ──────────────────────────────────────────────
   // UNIFIED: Generate PDF (Contribution Totals)
   // ──────────────────────────────────────────────
-  const generateContributionPdf = () => {
+  const generateContributionPdf = async () => {
     if (isViewer) return;
     const { eeTotal, erTotal, totalPayments } = calculateSalaryReport();
     const doc = new jsPDF();
@@ -223,6 +286,9 @@ export default function Reports() {
         doc.text(`Page ${doc.internal.getNumberOfPages()}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
       }
     });
+
+    // Append values history
+    await appendValuesHistory(doc);
 
     const pdfUrl = doc.output('bloburi');
     window.open(pdfUrl);
