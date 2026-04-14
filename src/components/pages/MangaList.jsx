@@ -1,16 +1,7 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import LoadingOverlay from '../ui/LoadingOverlay';
-import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
-
-// Initialize PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url,
-).toString();
 
 const SORT_FIELDS = [
   { value: 'name',         label: 'Name' },
@@ -37,48 +28,6 @@ function compareFn(a, b, field, direction) {
   if (valA < valB) return direction === 'asc' ? -1 : 1;
   if (valA > valB) return direction === 'asc' ? 1 : -1;
   return 0;
-}
-
-// A lazy-loaded component to render the first page of a PDF as its cover
-function PdfCover({ fileName }) {
-  const [inView, setInView] = useState(false);
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setInView(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '300px' }
-    );
-    if (containerRef.current) observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div ref={containerRef} className="w-full h-full flex items-center justify-center bg-gray-100/5 overflow-hidden">
-      {inView ? (
-        <Document
-          file={`/api/fetch-manga?fileName=${encodeURIComponent(fileName)}`}
-          loading={<i className="bi bi-file-pdf text-5xl text-gray-500 animate-pulse"></i>}
-          error={<i className="bi bi-file-earmark-break text-5xl text-red-500"></i>}
-          className="w-full h-full flex flex-col items-center justify-center transition-transform duration-500 group-hover:scale-105"
-        >
-          <Page 
-            pageNumber={1} 
-            width={300} 
-            renderAnnotationLayer={false} 
-            renderTextLayer={false} 
-          />
-        </Document>
-      ) : (
-        <i className="bi bi-file-pdf text-5xl text-gray-500"></i>
-      )}
-    </div>
-  );
 }
 
 export default function MangaList() {
@@ -269,10 +218,18 @@ export default function MangaList() {
                       New
                     </div>
                   )}
-                  
-                  {/* Generated PDF Thumbnail replacing standard google drive response images */}
-                  <PdfCover fileName={manga.name} />
-
+                  {manga.thumbnailLink ? (
+                    <img
+                      src={manga.thumbnailLink}
+                      alt={manga.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--text-tertiary)' }}>
+                      <i className="bi bi-file-pdf text-5xl"></i>
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </div>
                 <div className="p-3 md:p-4 flex-1 flex items-center justify-center text-center">
