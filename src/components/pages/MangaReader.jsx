@@ -288,8 +288,11 @@ export default function MangaReader() {
   return (
     <div className="relative h-screen w-full overflow-hidden bg-black text-white">
       {/* ── Floating Bottom Pill (Safari-style) ── */}
-      <div className="fixed bottom-28 md:bottom-8 left-1/2 -translate-x-1/2 z-50 glass-subtle px-4 py-2 rounded-full flex gap-3 items-center shadow-2xl transition-opacity duration-300 hover:opacity-100 opacity-60 md:opacity-90"
+      <div className="fixed left-1/2 -translate-x-1/2 z-50 glass-subtle px-4 py-2 rounded-full flex gap-3 items-center shadow-2xl transition-opacity duration-300 hover:opacity-100 opacity-60 md:opacity-90"
            style={{
+             bottom: window.innerWidth < 768
+               ? 'calc(12px + env(safe-area-inset-bottom, 0px))'
+               : '32px',
              backdropFilter: 'blur(20px)',
              WebkitBackdropFilter: 'blur(20px)',
              fontSize: '12px',
