@@ -1,4 +1,5 @@
 import { getBearerToken, getSupabaseAdmin, parseJsonBody, verifyJwt } from '../_lib/auth.js';
+import { logSystemEvent } from '../_lib/logger.js';
 
 function getAuthenticatedUser(req, res) {
   const token = getBearerToken(req);
@@ -112,6 +113,15 @@ export default async function handler(req, res) {
       }
     }
 
+    // Log the update
+    logSystemEvent({
+      action: 'UPDATE',
+      entity_type: 'employee',
+      entity_name: data.name,
+      details: { id, designation: data.designation, salary_per_day: data.salary_per_day, status: data.status, values_updated: !!valuesPayload },
+      performed_by: user.name || user.username,
+    });
+
     return res.status(200).json({ data });
   }
 
@@ -151,6 +161,15 @@ export default async function handler(req, res) {
       console.error('Employees DELETE error:', error);
       return res.status(500).json({ message: 'Failed to delete employee.' });
     }
+
+    // Log the deletion
+    logSystemEvent({
+      action: 'DELETE',
+      entity_type: 'employee',
+      entity_name: employee.name,
+      details: { id, designation: employee.designation },
+      performed_by: user.name || user.username,
+    });
 
     return res.status(200).json({ success: true });
   }

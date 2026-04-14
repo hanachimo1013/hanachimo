@@ -1,4 +1,5 @@
 import { getBearerToken, getSupabaseAdmin, parseJsonBody, verifyJwt } from '../_lib/auth.js';
+import { logSystemEvent } from '../_lib/logger.js';
 
 function getAuthenticatedUser(req, res) {
   const token = getBearerToken(req);
@@ -208,6 +209,15 @@ export default async function handler(req, res) {
         return res.status(500).json({ message: 'Failed to create employee values.' });
       }
     }
+
+    // Log the creation
+    logSystemEvent({
+      action: 'CREATE',
+      entity_type: 'employee',
+      entity_name: data.name,
+      details: { designation: data.designation, salary_per_day: data.salary_per_day, status: data.status },
+      performed_by: user.name || user.username,
+    });
 
     return res.status(201).json({ data });
   }

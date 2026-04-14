@@ -159,6 +159,25 @@ export const useEmployees = () => {
     }
   }, [request]);
 
+  const fetchSystemLogs = useCallback(async (options = {}) => {
+    const limit = Number(options.limit || 50);
+    const offset = Number(options.offset || 0);
+    const entityType = options.entity_type || '';
+
+    try {
+      const query = new URLSearchParams({
+        limit: String(limit),
+        offset: String(offset),
+        ...(entityType ? { entity_type: entityType } : {}),
+      });
+      const payload = await request(`/api/system-logs?${query.toString()}`);
+      return { success: true, data: payload?.data || [] };
+    } catch (err) {
+      console.error('Error fetching system logs:', err);
+      return { success: false, error: err.message };
+    }
+  }, [request]);
+
   return {
     employees,
     loading,
@@ -167,6 +186,7 @@ export const useEmployees = () => {
     updateEmployee,
     deleteEmployee,
     fetchEmployeeValues,
+    fetchSystemLogs,
     refetch: fetchEmployees,
   };
 };
