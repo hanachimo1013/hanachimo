@@ -23,11 +23,7 @@ export default async function handler(req, res) {
   const drive = google.drive({ version: 'v3', auth });
   const { fileId, fileName } = req.query;
 
-  // Prevent Vercel / CDN from caching stale responses
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  res.setHeader('Surrogate-Control', 'no-store');
+  // Caching headers are set per-route below to optimize Vercel bandwidth
 
   try {
     // If no fileId and no fileName, list ALL contents of the folder (paginated)
@@ -39,7 +35,7 @@ export default async function handler(req, res) {
       do {
         const response = await drive.files.list({
           q: `'${FOLDER_ID}' in parents and mimeType = 'application/pdf' and trashed = false`,
-          fields: 'nextPageToken, files(id, name, thumbnailLink, createdTime, modifiedTime, size)',
+          fields: 'nextPageToken, files(id, name, thumbnailLink, modifiedTime)',
           orderBy: 'name',
           pageSize: 1000, // Maximum allowed per request
           pageToken,
@@ -49,6 +45,8 @@ export default async function handler(req, res) {
         pageToken = response.data.nextPageToken;
       } while (pageToken);
 
+      // Cache on CDN for 1 hour, serve stale for 10 min while revalidating
+      res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=600');
       return res.status(200).json(allFiles);
     }
 
@@ -79,6 +77,8 @@ export default async function handler(req, res) {
       { responseType: 'stream' }
     );
 
+    // Cache PDFs on CDN for 7 days — file content doesn't change
+    res.setHeader('Cache-Control', 'public, s-maxage=604800, stale-while-revalidate=86400');
     res.setHeader('Content-Type', 'application/pdf');
     if (meta.data.size) {
       res.setHeader('Content-Length', meta.data.size);

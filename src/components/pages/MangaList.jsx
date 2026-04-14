@@ -5,19 +5,14 @@ import LoadingOverlay from '../ui/LoadingOverlay';
 
 const SORT_FIELDS = [
   { value: 'name',         label: 'Name' },
-  { value: 'createdTime',  label: 'Date Created' },
   { value: 'modifiedTime', label: 'Date Modified' },
-  { value: 'size',         label: 'File Size' },
 ];
 
 function compareFn(a, b, field, direction) {
   let valA = a[field];
   let valB = b[field];
 
-  if (field === 'size') {
-    valA = Number(valA || 0);
-    valB = Number(valB || 0);
-  } else if (field === 'createdTime' || field === 'modifiedTime') {
+  if (field === 'modifiedTime') {
     valA = valA ? new Date(valA).getTime() : 0;
     valB = valB ? new Date(valB).getTime() : 0;
   } else {
@@ -58,13 +53,32 @@ export default function MangaList() {
   }, [sortDir]);
 
   useEffect(() => {
+    const CACHE_KEY = 'mangaListCache';
+    const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+
+    // Try loading from localStorage cache first
+    try {
+      const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+      if (cached && Date.now() - cached.ts < CACHE_TTL) {
+        setMangaList(cached.data);
+        setLoading(false);
+        return;
+      }
+    } catch { /* cache miss / corrupt */ }
+
     fetch('/api/fetch-manga')
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch manga list');
         return res.json();
       })
       .then((data) => {
-        setMangaList(data || []);
+        // Keep only the fields the UI needs
+        const slim = (data || []).map(({ id, name, thumbnailLink, modifiedTime }) => ({
+          id, name, thumbnailLink, modifiedTime,
+        }));
+        setMangaList(slim);
+        // Persist to localStorage cache
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: slim })); } catch { /* quota */ }
       })
       .catch((err) => {
         setError(err.message);
@@ -194,7 +208,7 @@ export default function MangaList() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
             {sorted.map((manga, i) => {
-              const fileDate = manga.modifiedTime || manga.createdTime;
+              const fileDate = manga.modifiedTime;
               const isNew = fileDate
                 ? (Date.now() - new Date(fileDate).getTime()) <= (2 * 24 * 60 * 60 * 1000)
                 : false;
