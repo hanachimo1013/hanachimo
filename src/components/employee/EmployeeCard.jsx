@@ -63,37 +63,28 @@ export default function EmployeeCard({ employee, onEdit, onDelete, isViewer, mas
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => onEdit(employee)}
-          disabled={isViewer}
-          className="btn-apple flex-1 py-2 text-white text-sm rounded-xl disabled:cursor-not-allowed disabled:opacity-40"
-          style={{ background: 'var(--accent-blue)' }}
-        >
-          <i className="bi bi-pencil-square mr-2" aria-hidden="true" />
-          Edit
-        </button>
-        <button
-          type="button"
-          onClick={() => onDelete(employee.id)}
-          disabled={isViewer}
-          className="btn-apple flex-1 py-2 text-white text-sm rounded-xl disabled:cursor-not-allowed disabled:opacity-40"
-          style={{ background: 'var(--accent-red)' }}
-        >
-          <i className="bi bi-trash mr-2" aria-hidden="true" />
-          Delete
-        </button>
-        <button
-          type="button"
-          onClick={() => onHistory?.(employee)}
-          className="btn-apple w-full py-2 text-white text-sm rounded-xl mt-1"
-          style={{ background: 'var(--accent-teal)' }}
-        >
-          <i className="bi bi-clock-history mr-2" aria-hidden="true" />
-          History
-        </button>
-      </div>
+      {onEdit && onDelete && (
+        <div className="flex gap-2">
+          <button
+            onClick={() => onEdit(employee)}
+            disabled={isViewer}
+            className="btn-apple flex-1 py-2 text-white text-sm rounded-xl disabled:cursor-not-allowed disabled:opacity-40"
+            style={{ background: 'var(--accent-blue)' }}
+          >
+            <i className="bi bi-pencil-square mr-2" aria-hidden="true" />
+            Edit
+          </button>
+          <button
+            onClick={() => onDelete(employee.id)}
+            disabled={isViewer}
+            className="btn-apple flex-1 py-2 text-white text-sm rounded-xl disabled:cursor-not-allowed disabled:opacity-40"
+            style={{ background: 'var(--accent-red)' }}
+          >
+            <i className="bi bi-trash mr-2" aria-hidden="true" />
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   );
 }

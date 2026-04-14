@@ -294,59 +294,34 @@ export default function Employees() {
 
       <div className="relative flex-1 min-h-0">
         {loading && <LoadingOverlay message="Loading employees..." />}
-        
-        {/* Desktop View: Table */}
-        <div className="hidden md:block h-full">
-          <EmployeeTable
-            employees={displayEmployees}
-            loading={loading}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onSelect={(emp) => setSelectedEmployee(emp)}
-            onHistory={(emp) => setSelectedEmployee(emp)}
-          />
-        </div>
-
-        {/* Mobile View: Cards */}
-        <div className="md:hidden space-y-4">
-          {displayEmployees.map(emp => (
-            <EmployeeCard
-              key={emp.id}
-              employee={emp}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onHistory={() => setSelectedEmployee(emp)}
-              isViewer={isViewer}
-              maskText={maskText}
-              maskNumber={maskNumber}
-            />
-          ))}
-          {!loading && displayEmployees.length === 0 && (
-            <div className="text-center py-12">
-              <p style={{ color: 'var(--text-secondary)' }}>No employees found</p>
-            </div>
-          )}
-        </div>
+        <EmployeeTable
+          employees={displayEmployees}
+          loading={loading}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onSelect={(emp) => setSelectedEmployee(emp)}
+          onHistory={(emp) => setSelectedEmployee(emp)}
+        />
       </div>
 
       {selectedEmployee && (
-        <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto overscroll-contain touch-pan-y pt-6 pb-24 md:items-center animate-fade-in px-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto overscroll-contain touch-pan-y pt-6 pb-24 md:items-center animate-fade-in px-4">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-md animate-fade-in"
+            className="absolute inset-0 bg-black/30 backdrop-blur-md animate-fade-in"
             onClick={() => setSelectedEmployee(null)}
             aria-hidden="true"
           />
           <div className="relative w-full max-w-lg animate-fade-scale">
-            <div className="glass-card p-5 bg-white dark:bg-[#1c1c1e] shadow-2xl">
-              <div className="flex items-center justify-between mb-5">
+            <div className="glass-card p-5">
+              <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Employee Details</h3>
                 <button
                   type="button"
                   onClick={() => setSelectedEmployee(null)}
-                  className="btn-apple h-8 w-8 flex items-center justify-center rounded-full"
+                  className="btn-apple px-3 py-1.5 text-xs rounded-lg"
                   style={{ background: 'var(--surface-card)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
                 >
-                  <i className="bi bi-x-lg" />
+                  Close
                 </button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -370,8 +345,8 @@ export default function Employees() {
                 ))}
               </div>
 
-              <div className="mt-6">
-                <h4 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Values History</h4>
+              <div className="mt-5">
+                <h4 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Values History</h4>
                 {valuesLoading && (
                   <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Loading values…</p>
                 )}
@@ -382,42 +357,26 @@ export default function Employees() {
                   <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>No values history yet.</p>
                 )}
                 {!valuesLoading && valuesHistory.length > 0 && (
-                  <>
-                    {/* Desktop Table View */}
-                    <div className="hidden sm:block overflow-x-auto">
-                      <table className="w-full text-xs apple-table">
-                        <thead>
-                          <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
-                            <th className="py-2 text-left">Date</th>
-                            <th className="py-2 text-left">EE Total</th>
-                            <th className="py-2 text-left">ER Total</th>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs apple-table">
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
+                          <th className="py-2 text-left">Date</th>
+                          <th className="py-2 text-left">EE Total</th>
+                          <th className="py-2 text-left">ER Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {valuesHistory.map((row) => (
+                          <tr key={row.id} style={{ borderTop: '1px solid var(--border-light)' }}>
+                            <td className="py-2">{row.effective_date || '-'}</td>
+                            <td className="py-2">{isViewer ? '***' : formatPeso(row.ee_total)}</td>
+                            <td className="py-2">{isViewer ? '***' : formatPeso(row.er_total)}</td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          {valuesHistory.map((row) => (
-                            <tr key={row.id} style={{ borderTop: '1px solid var(--border-light)' }}>
-                              <td className="py-2">{row.effective_date || '-'}</td>
-                              <td className="py-2">{isViewer ? '***' : formatPeso(row.ee_total)}</td>
-                              <td className="py-2">{isViewer ? '***' : formatPeso(row.er_total)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    
-                    {/* Mobile List View */}
-                    <div className="sm:hidden space-y-2">
-                      {valuesHistory.map((row) => (
-                        <div key={row.id} className="glass-subtle p-3 rounded-xl flex justify-between items-center text-xs">
-                          <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{row.effective_date || '-'}</span>
-                          <div className="text-right">
-                            <p style={{ color: 'var(--accent-green)' }}>EE: {isViewer ? '***' : formatPeso(row.ee_total)}</p>
-                            <p style={{ color: 'var(--accent-blue)' }}>ER: {isViewer ? '***' : formatPeso(row.er_total)}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 )}
                 {!valuesLoading && valuesHasMore && (
                   <div className="mt-3">
