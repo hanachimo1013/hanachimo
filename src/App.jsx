@@ -10,6 +10,8 @@ import Login from './components/auth/Login';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import PublicOnlyRoute from './components/auth/PublicOnlyRoute';
 import HanachimoProfile from './components/pages/HanachimoProfile';
+import MangaList from './components/pages/MangaList';
+import MangaReader from './components/pages/MangaReader';
 
 const routeTitles = {
   '/dashboard': 'Dashboard',
@@ -92,6 +94,9 @@ export default function App() {
           }
         />
         <Route path="/hanachimo" element={<HanachimoProfile />} />
+        <Route path="/m" element={<MangaList />} />
+        <Route path="/m/:fileId" element={<MangaReader />} />
+        <Route path="/m/:fileId/:pageNum" element={<MangaReader />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

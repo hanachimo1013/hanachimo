@@ -12,6 +12,7 @@
     { "src": "/api/employees/([^/]+)", "dest": "/api/employees/[id].js?id=$1" },
     { "src": "/api/employee-values", "dest": "/api/employee-values/index.js" },
     { "src": "/api/system-logs", "dest": "/api/system-logs/index.js" },
+    { "src": "/api/fetch-manga", "dest": "/api/fetch-manga/index.js" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "methods": ["GET", "HEAD"], "dest": "/index.html" }
   ]

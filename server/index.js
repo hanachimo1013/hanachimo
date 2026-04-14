@@ -5,6 +5,7 @@ import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createClient } from '@supabase/supabase-js';
+import fetchMangaHandler from '../api/fetch-manga/index.js';
 
 dotenv.config({ path: '.env' });
 dotenv.config({ path: '.env.server' });
@@ -180,6 +181,8 @@ function mergeEmployeeValues(employee, values) {
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
+
+app.get('/api/fetch-manga', fetchMangaHandler);
 
 app.get('/api/employee-values', requireAuth, async (req, res) => {
   const name = String(req.query?.name || '').trim();
