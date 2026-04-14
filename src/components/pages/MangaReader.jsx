@@ -114,7 +114,15 @@ export default function MangaReader() {
     setNumPages(n);
   }, []);
 
-  // ── 3. Determine which pages to actually render (virtualization) ──
+  // ── 3. Handle document title ────────────────────────────────────────
+  useEffect(() => {
+    if (slug) {
+      const cleanName = slug.replace(/_/g, ' ');
+      document.title = `Manga Mode | ${cleanName}`;
+    }
+  }, [slug]);
+
+  // ── 4. Determine which pages to actually render (virtualization) ──
   const renderedPages = useMemo(() => {
     if (!numPages) return new Set();
     const center = visiblePage - 1; // 0-indexed
@@ -125,9 +133,9 @@ export default function MangaReader() {
     return pages;
   }, [numPages, visiblePage]);
 
-  // ── 4. Scroll to the requested page after document load ───────────
+  // ── 5. Scroll to the requested page after document load (Manhwa) ──
   useEffect(() => {
-    if (!numPages) return;
+    if (!numPages || viewMode === 'manga') return;
     const idx = currentPage - 1;
     const el = pageRefs.current[idx];
     if (el) {
@@ -137,9 +145,9 @@ export default function MangaReader() {
     }
   }, [numPages, currentPage, viewMode]);
 
-  // ── 5. IntersectionObserver to track visible page ─────────────────
+  // ── 6. IntersectionObserver to track visible page (Manhwa) ────────
   useEffect(() => {
-    if (!numPages || !containerRef.current) return;
+    if (!numPages || !containerRef.current || viewMode === 'manga') return;
 
     if (observerRef.current) observerRef.current.disconnect();
 
@@ -180,7 +188,7 @@ export default function MangaReader() {
     };
   }, [numPages, slug, pageNum, viewMode]);
 
-  // ── 6. Compute page dimensions (responsive) ──────────────────────
+  // ── 7. Compute page dimensions (responsive) ──────────────────────
   const isMobile = window.innerWidth < 768;
   const pageDimensions = useMemo(() => {
     const mobile = window.innerWidth < 768;
@@ -194,18 +202,25 @@ export default function MangaReader() {
     return { width: undefined, height: h };
   }, [viewMode]);
 
-  // ── 7. Navigation handlers ────────────────────────────────────────
+  // ── 8. Navigation handlers (Also sync visiblePage in Manga mode) ─
   const handleNextPage = useCallback(() => {
     if (numPages && currentPage < numPages) {
+      if (viewMode === 'manga') setVisiblePage(currentPage + 1);
       navigate(`/m/${encodeURIComponent(slug)}/${currentPage + 1}`);
     }
-  }, [numPages, currentPage, slug, navigate]);
+  }, [numPages, currentPage, slug, navigate, viewMode]);
 
   const handlePrevPage = useCallback(() => {
     if (currentPage > 1) {
+      if (viewMode === 'manga') setVisiblePage(currentPage - 1);
       navigate(`/m/${encodeURIComponent(slug)}/${currentPage - 1}`);
     }
-  }, [currentPage, slug, navigate]);
+  }, [currentPage, slug, navigate, viewMode]);
+
+  // Ensure visiblePage stays in sync with URL if user changes via URL directly in Manga mode
+  useEffect(() => {
+    if (viewMode === 'manga') setVisiblePage(currentPage);
+  }, [currentPage, viewMode]);
 
   // ── Loading state with progress bar ───────────────────────────────
   if (loading) {
@@ -299,11 +314,10 @@ export default function MangaReader() {
         ref={containerRef}
         className={
           viewMode === 'manga'
-            ? 'flex flex-row-reverse overflow-x-auto h-screen w-full custom-scrollbar items-center justify-center'
+            ? 'flex items-center justify-center h-screen w-full overflow-hidden'
             : 'flex flex-col overflow-y-auto h-screen w-full custom-scrollbar items-center'
         }
         style={{
-          scrollSnapType: viewMode === 'manga' ? 'x mandatory' : 'none',
           padding: viewMode === 'manga' ? (isMobile ? '0' : '24px 0') : '0',
         }}
       >
@@ -317,11 +331,26 @@ export default function MangaReader() {
           }
           className={
             viewMode === 'manga'
-              ? 'flex flex-row-reverse h-full items-center'
+              ? 'flex items-center justify-center w-full h-full'
               : 'flex flex-col items-center w-full mt-20 mb-10 gap-2'
           }
         >
-          {numPages && Array.from({ length: numPages }, (_, index) => (
+          {numPages && (viewMode === 'manga' ? (
+            <div className="flex justify-center items-center">
+              {currentPage >= 1 && currentPage <= numPages && (
+                <Page
+                  pageNumber={currentPage}
+                  width={pageDimensions.width}
+                  height={pageDimensions.height}
+                  renderAnnotationLayer={false}
+                  renderTextLayer={false}
+                  loading={<PageSkeleton height={pageDimensions.height} width={pageDimensions.width} />}
+                  className="shadow-2xl"
+                />
+              )}
+            </div>
+          ) : (
+            Array.from({ length: numPages }, (_, index) => (
             <div
               key={`page_${index + 1}`}
               ref={(el) => { pageRefs.current[index] = el; }}
@@ -349,10 +378,10 @@ export default function MangaReader() {
               ) : (
                 <PageSkeleton
                   height={pageDimensions.height || window.innerHeight}
-                  width={pageDimensions.width || '100%'}
                 />
               )}
             </div>
+          ))
           ))}
         </Document>
       </div>
