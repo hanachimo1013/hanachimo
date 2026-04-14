@@ -193,17 +193,31 @@ export default function MangaList() {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-            {sorted.map((manga, i) => (
+            {sorted.map((manga, i) => {
+              const fileDate = manga.modifiedTime || manga.createdTime;
+              const isNew = fileDate
+                ? (Date.now() - new Date(fileDate).getTime()) <= (2 * 24 * 60 * 60 * 1000)
+                : false;
+
+              return (
               <div
                 key={manga.id}
                 className="glass-card flex flex-col overflow-hidden cursor-pointer transition-all duration-300 group hover:scale-[1.02] hover:shadow-lg"
                 onClick={() => {
                   const slug = manga.name.replace(/\.pdf$/i, '');
-                  navigate(`/m/${encodeURIComponent(slug)}/1`);
+                  navigate(`/doujin/${encodeURIComponent(slug)}/1`);
                 }}
                 style={{ animationDelay: `${i * 40}ms`, animation: 'slide-up 350ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both' }}
               >
                 <div className="aspect-[3/4] w-full relative overflow-hidden" style={{ background: 'var(--border-light)' }}>
+                  {isNew && (
+                    <div 
+                      className="absolute top-2 right-2 z-10 px-2 py-0.5 text-white text-[10px] font-bold uppercase rounded shadow-lg pointer-events-none"
+                      style={{ background: 'var(--accent-red, #ef4444)' }}
+                    >
+                      New
+                    </div>
+                  )}
                   {manga.thumbnailLink ? (
                     <img
                       src={manga.thumbnailLink}
@@ -224,7 +238,7 @@ export default function MangaList() {
                   </h3>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
       </div>

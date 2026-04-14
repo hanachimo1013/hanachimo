@@ -164,7 +164,7 @@ export default function MangaReader() {
             clearTimeout(scrollTimeoutRef.current);
             scrollTimeoutRef.current = setTimeout(() => {
               if (pageNumber.toString() !== (pageNum || '1')) {
-                window.history.replaceState(null, '', `/m/${encodeURIComponent(slug)}/${pageNumber}`);
+                window.history.replaceState(null, '', `/doujin/${encodeURIComponent(slug)}/${pageNumber}`);
               }
             }, 150);
           }
@@ -208,14 +208,14 @@ export default function MangaReader() {
   const handleNextPage = useCallback(() => {
     if (numPages && currentPage < numPages) {
       if (viewMode === 'manga') setVisiblePage(currentPage + 1);
-      navigate(`/m/${encodeURIComponent(slug)}/${currentPage + 1}`, { replace: true });
+      navigate(`/doujin/${encodeURIComponent(slug)}/${currentPage + 1}`, { replace: true });
     }
   }, [numPages, currentPage, slug, navigate, viewMode]);
 
   const handlePrevPage = useCallback(() => {
     if (currentPage > 1) {
       if (viewMode === 'manga') setVisiblePage(currentPage - 1);
-      navigate(`/m/${encodeURIComponent(slug)}/${currentPage - 1}`, { replace: true });
+      navigate(`/doujin/${encodeURIComponent(slug)}/${currentPage - 1}`, { replace: true });
     }
   }, [currentPage, slug, navigate, viewMode]);
 
@@ -236,12 +236,14 @@ export default function MangaReader() {
       } else if (e.key === 'ArrowRight') {
         // Manga reads RTL (Right = Prev), Manhwa reads standard (Right = Next)
         viewMode === 'manga' ? handlePrevPage() : handleNextPage();
+      } else if (e.key === 'Escape') {
+        navigate('/doujin');
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNextPage, handlePrevPage, viewMode]);
+  }, [handleNextPage, handlePrevPage, viewMode, navigate]);
 
   // ── Loading state with progress bar ───────────────────────────────
   if (loading) {
@@ -294,7 +296,7 @@ export default function MangaReader() {
            }}
       >
         <button
-          onClick={() => navigate('/m')}
+          onClick={() => navigate('/doujin')}
           className="text-white/80 hover:text-[var(--accent-blue)] transition-colors"
           title="Back to Gallery"
         >

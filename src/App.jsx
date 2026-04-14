@@ -94,9 +94,9 @@ export default function App() {
           }
         />
         <Route path="/hanachimo" element={<HanachimoProfile />} />
-        <Route path="/m" element={<MangaList />} />
-        <Route path="/m/:slug" element={<MangaReader />} />
-        <Route path="/m/:slug/:pageNum" element={<MangaReader />} />
+        <Route path="/doujin" element={<MangaList />} />
+        <Route path="/doujin/:slug" element={<MangaReader />} />
+        <Route path="/doujin/:slug/:pageNum" element={<MangaReader />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
