@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { SpeedInsights } from "@vercel/speed-insights/react"
 import Layout from './components/layout/Layout';
 import Dashboard from './components/pages/Dashboard';
 import Employees from './components/employee/Employees';
