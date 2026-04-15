@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import AppleSpinner from '../ui/AppleSpinner';
 
 const GITHUB_USER_URL = 'https://api.github.com/users/hanachimo1013';
@@ -169,14 +168,14 @@ export default function HanachimoProfile() {
                 <i className="bi bi-twitter-x mr-2" aria-hidden="true" />
                 Follow on X
               </a>
-              <Link
-                to="/login"
+              <a
+                href="https://bldlag.batodeluna-lu.online/login"
                 className="btn-apple px-5 py-2.5 text-sm rounded-full font-medium"
                 style={{ background: 'var(--surface-card)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
               >
                 <i className="bi bi-box-arrow-in-right mr-2" aria-hidden="true" />
                 Dashboard
-              </Link>
+              </a>
             </div>
 
             {/* Stats */}

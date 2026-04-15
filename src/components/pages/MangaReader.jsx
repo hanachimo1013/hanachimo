@@ -185,7 +185,7 @@ export default function MangaReader() {
             clearTimeout(scrollTimeoutRef.current);
             scrollTimeoutRef.current = setTimeout(() => {
               if (pageNumber.toString() !== (pageNum || '1')) {
-                window.history.replaceState(null, '', `/doujin/${encodeURIComponent(slug)}/${pageNumber}`);
+                window.history.replaceState(null, '', `/${encodeURIComponent(slug)}/${pageNumber}`);
               }
             }, 150);
           }
@@ -229,14 +229,14 @@ export default function MangaReader() {
   const handleNextPage = useCallback(() => {
     if (numPages && currentPage < numPages) {
       if (viewMode === 'manga') setVisiblePage(currentPage + 1);
-      navigate(`/doujin/${encodeURIComponent(slug)}/${currentPage + 1}`, { replace: true });
+      navigate(`/${encodeURIComponent(slug)}/${currentPage + 1}`, { replace: true });
     }
   }, [numPages, currentPage, slug, navigate, viewMode]);
 
   const handlePrevPage = useCallback(() => {
     if (currentPage > 1) {
       if (viewMode === 'manga') setVisiblePage(currentPage - 1);
-      navigate(`/doujin/${encodeURIComponent(slug)}/${currentPage - 1}`, { replace: true });
+      navigate(`/${encodeURIComponent(slug)}/${currentPage - 1}`, { replace: true });
     }
   }, [currentPage, slug, navigate, viewMode]);
 
@@ -258,7 +258,7 @@ export default function MangaReader() {
         // Manga reads RTL (Right = Prev), Manhwa reads standard (Right = Next)
         viewMode === 'manga' ? handlePrevPage() : handleNextPage();
       } else if (e.key === 'Escape') {
-        navigate('/doujin');
+        navigate('/');
       }
     };
 
@@ -311,7 +311,7 @@ export default function MangaReader() {
            }}
       >
         <button
-          onClick={() => navigate('/doujin')}
+          onClick={() => navigate('/')}
           className="text-white/80 hover:text-[var(--accent-blue)] transition-colors"
           title="Back to Gallery"
         >
