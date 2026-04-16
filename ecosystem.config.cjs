@@ -1,14 +1,16 @@
 module.exports = {
   apps : [
     {
-      name: "bdl-ui",
-      // Target the vite binary directly inside node_modules
-      script: "./node_modules/vite/bin/vite.js",
-      args: "preview",
-      // We use the node interpreter because vite.js is a javascript file
-      interpreter: "node", 
+      name: "bdl-server",
+      // Express server serves both API routes and static dist/ files
+      script: "server/index.js",
+      // Use node interpreter for ES modules
+      interpreter: "node",
+      // Required for ES module support
+      node_args: "--experimental-specifier-resolution=node",
       env: {
         NODE_ENV: "production",
+        PORT: 4173,
       }
     },
     {

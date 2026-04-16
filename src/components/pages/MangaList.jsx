@@ -59,19 +59,6 @@ export default function MangaList() {
   }, [sortDir]);
 
   useEffect(() => {
-    const CACHE_KEY = 'mangaListCache';
-    const CACHE_TTL = 60 * 60 * 1000; // 1 hour
-
-    // Try loading from localStorage cache first
-    try {
-      const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
-      if (cached && Date.now() - cached.ts < CACHE_TTL) {
-        setMangaList(cached.data);
-        setLoading(false);
-        return;
-      }
-    } catch { /* cache miss / corrupt */ }
-
     fetch('/api/fetch-manga')
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch manga list');
@@ -83,8 +70,6 @@ export default function MangaList() {
           id, name, thumbnailLink, modifiedTime,
         }));
         setMangaList(slim);
-        // Persist to localStorage cache
-        try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: slim })); } catch { /* quota */ }
       })
       .catch((err) => {
         setError(err.message);

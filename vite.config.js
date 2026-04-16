@@ -9,7 +9,12 @@ export default defineConfig({
     react(),
   ],
   preview: {
-    allowedHosts: ['batodeluna-lu.art'],
+    allowedHosts: [
+      'batodeluna-lu.art',
+      'doujin.batodeluna-lu.art',
+      'bdlag.batodeluna-lu.art',
+      'www.batodeluna-lu.art',
+    ],
     port: 4173,
   },
   server: {
@@ -19,6 +24,11 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
-    allowedHosts: ['batodeluna-lu.art']
+    allowedHosts: [
+      'batodeluna-lu.art',
+      'doujin.batodeluna-lu.art',
+      'bdlag.batodeluna-lu.art',
+      'www.batodeluna-lu.art',
+    ],
   },
 })

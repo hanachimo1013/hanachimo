@@ -169,7 +169,7 @@ export default function HanachimoProfile() {
                 Follow on X
               </a>
               <a
-                href="https://bldlag.batodeluna-lu.online/login"
+                href="https://bdlag.batodeluna-lu.art/login"
                 className="btn-apple px-5 py-2.5 text-sm rounded-full font-medium"
                 style={{ background: 'var(--surface-card)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
               >

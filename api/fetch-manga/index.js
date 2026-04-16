@@ -48,8 +48,8 @@ export default async function handler(req, res) {
         pageToken = response.data.nextPageToken;
       } while (pageToken);
 
-      // Cache on CDN for 1 hour, serve stale for 10 min while revalidating
-      res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=600');
+      // No cache for listing — always fetch fresh to pick up newly added files
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       return res.status(200).json(allFiles);
     }
 

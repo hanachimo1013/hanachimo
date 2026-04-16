@@ -15,245 +15,114 @@ import MangaList from './components/pages/MangaList';
 import MangaReader from './components/pages/MangaReader';
 
 /* ──────────────────────────────────────────────
-   Subdomain detection
+   Context Detection helpers
    ────────────────────────────────────────────── */
-function isLocalDevHost(hostname) {
-  return hostname === 'localhost' || hostname === '127.0.0.1';
-}
+function getAppContext() {
+  const hostname = window.location.hostname;
+  const pathname = window.location.pathname.toLowerCase();
 
-function isLocalBdlagPath(pathname) {
-  return pathname === '/bdlag' || pathname.startsWith('/bdlag/');
-}
-
-function getSubdomain() {
-  const hostname = window.location.hostname; // e.g. "doujin.batodeluna-lu.online"
-  const pathname = window.location.pathname;
-
-  // Local dev only: allow path-based switching for testing.
-  if (isLocalDevHost(hostname)) {
-    if (pathname === '/doujin' || pathname.startsWith('/doujin/')) return 'doujin';
-    if (isLocalBdlagPath(pathname)) return 'bldlag';
-    return 'www';
-  }
+  if (pathname.startsWith('/doujin')) return 'doujin';
+  if (pathname.startsWith('/bdlag')) return 'bdlag';
 
   const parts = hostname.split('.');
-  // hostname like "doujin.batodeluna-lu.online" → parts = ["doujin", "batodeluna-lu", "online"]
-  // hostname like "bldlag.batodeluna-lu.online" → parts = ["bldlag", "batodeluna-lu", "online"]
-  // hostname like "batodeluna-lu.online"        → parts = ["batodeluna-lu", "online"]
-  // hostname like "www.batodeluna-lu.online"    → parts = ["www", "batodeluna-lu", "online"]
   if (parts.length >= 3) {
     const sub = parts[0].toLowerCase();
-    if (sub === 'www') return 'www';
-    return sub; // "doujin", "bldlag", etc.
+    if (sub === 'doujin') return 'doujin';
+    if (sub === 'bdlag') return 'bdlag';
   }
-  return 'www'; // bare domain, treat as www
+  return 'www';
 }
 
 const routeTitles = {
-  '/dashboard': 'Dashboard',
-  '/employees': 'Employees',
-  '/settings': 'Settings',
-  '/reports': 'Reports',
-  '/login': 'Login',
+  'dashboard': 'Dashboard',
+  'employees': 'Employees',
+  'settings': 'Settings',
+  'reports': 'Reports',
+  'login': 'Login',
 };
 
 function TitleUpdater() {
-  const location = useLocation();
+  const { pathname } = useLocation();
 
   useEffect(() => {
-    const sub = getSubdomain();
-    if (sub === 'doujin') {
+    const ctx = getAppContext();
+    if (ctx === 'doujin') {
       document.title = 'Doujin | Batodeluna';
-    } else if (sub === 'www') {
-      document.title = 'Hanachimo';
-    } else {
-      const normalizedPath = isLocalDevHost(window.location.hostname) && isLocalBdlagPath(location.pathname)
-        ? location.pathname.replace(/^\/bdlag/, '') || '/'
-        : location.pathname;
-      const title = routeTitles[normalizedPath] || 'Page';
+    } else if (ctx === 'bdlag') {
+      const parts = pathname.split('/').filter(Boolean);
+      // If path is /bdlag/dashboard, basename is dashboard
+      const basename = parts[parts.length - 1] || 'dashboard';
+      const title = routeTitles[basename] || 'Admin';
       document.title = `BDLAG | ${title}`;
+    } else {
+      document.title = 'Hanachimo';
     }
-  }, [location.pathname]);
+  }, [pathname]);
 
   return null;
 }
 
-/* ──────────────────────────────────────────────
-   Route sets per subdomain
-   ────────────────────────────────────────────── */
-function DoujinRoutes() {
-  const isLocalTesting = isLocalDevHost(window.location.hostname);
-
-  return (
-    <Routes>
-      {isLocalTesting ? (
-        <>
-          <Route path="/doujin" element={<MangaList />} />
-          <Route path="/doujin/:slug" element={<MangaReader />} />
-          <Route path="/doujin/:slug/:pageNum" element={<MangaReader />} />
-        </>
-      ) : (
-        <>
-          <Route path="/" element={<MangaList />} />
-          <Route path="/:slug" element={<MangaReader />} />
-          <Route path="/:slug/:pageNum" element={<MangaReader />} />
-        </>
-      )}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
-}
-
-function BdlagRoutes() {
-  const isLocalTesting = isLocalDevHost(window.location.hostname);
-
-  return (
-    <Routes>
-      {isLocalTesting ? (
-        <>
-          <Route
-            path="/bdlag"
-            element={<Navigate to="/bdlag/login" replace />}
-          />
-          <Route
-            path="/bdlag/dashboard"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/bdlag/employees"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Employees />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/bdlag/settings"
-            element={
-              <ProtectedRoute allowedRoles={['superadmin', 'viewer']}>
-                <Layout>
-                  <Settings />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/bdlag/reports"
-            element={
-              <ProtectedRoute allowedRoles={['superadmin', 'viewer']}>
-                <Layout>
-                  <Reports />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/bdlag/report"
-            element={<Navigate to="/bdlag/reports" replace />}
-          />
-          <Route
-            path="/bdlag/login"
-            element={
-              <PublicOnlyRoute>
-                <Login />
-              </PublicOnlyRoute>
-            }
-          />
-        </>
-      ) : (
-        <>
-          <Route
-            path="/"
-            element={<Navigate to="/login" replace />}
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/employees"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Employees />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute allowedRoles={['superadmin', 'viewer']}>
-                <Layout>
-                  <Settings />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/reports"
-            element={
-              <ProtectedRoute allowedRoles={['superadmin', 'viewer']}>
-                <Layout>
-                  <Reports />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/report"
-            element={<Navigate to="/reports" replace />}
-          />
-          <Route
-            path="/login"
-            element={
-              <PublicOnlyRoute>
-                <Login />
-              </PublicOnlyRoute>
-            }
-          />
-        </>
-      )}
-      <Route path="/hanachimo" element={<HanachimoProfile />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
-}
-
-function WwwRoutes() {
-  return (
-    <Routes>
-      <Route path="/" element={<HanachimoProfile />} />
-      <Route path="/hanachimo" element={<HanachimoProfile />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
+/**
+ * Subdomain Redirector
+ * If a user hits doujin.domain.art/ (no path), redirect them to /doujin
+ * This preserves legacy subdomain access while using path-based routing.
+ */
+function SubdomainRedirector() {
+  const { pathname } = useLocation();
+  const hostname = window.location.hostname;
+  
+  // Only redirect if at the root path of a subdomain
+  if (pathname === '/') {
+    const parts = hostname.split('.');
+    if (parts.length >= 3) {
+      const sub = parts[0].toLowerCase();
+      if (sub === 'doujin') return <Navigate to="/doujin" replace />;
+      if (sub === 'bdlag') return <Navigate to="/bdlag" replace />;
+    }
+  }
+  return null;
 }
 
 export default function App() {
-  const subdomain = getSubdomain();
-
   return (
     <Router>
       <TitleUpdater />
-      {subdomain === 'doujin' && <DoujinRoutes />}
-      {subdomain === 'bldlag' && <BdlagRoutes />}
-      {subdomain === 'www' && <WwwRoutes />}
-      {!['doujin', 'bldlag', 'www'].includes(subdomain) && <BdlagRoutes />}
+      <SubdomainRedirector />
+      <main className="flex flex-col min-h-screen">
+        <Routes>
+          {/* ──────────────────────────────────────────────
+             Doujin Manga Section
+             ────────────────────────────────────────────── */}
+          <Route path="/doujin">
+            <Route index element={<MangaList />} />
+            <Route path=":slug" element={<MangaReader />} />
+            <Route path=":slug/:pageNum" element={<MangaReader />} />
+          </Route>
+
+          {/* ──────────────────────────────────────────────
+             BDLAG Admin Section
+             ────────────────────────────────────────────── */ }
+          <Route path="/bdlag">
+            <Route index element={<Navigate to="login" replace />} />
+            <Route path="login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
+            <Route path="dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
+            <Route path="employees" element={<ProtectedRoute><Layout><Employees /></Layout></ProtectedRoute>} />
+            <Route path="settings" element={<ProtectedRoute allowedRoles={['superadmin', 'viewer']}><Layout><Settings /></Layout></ProtectedRoute>} />
+            <Route path="reports" element={<ProtectedRoute allowedRoles={['superadmin', 'viewer']}><Layout><Reports /></Layout></ProtectedRoute>} />
+            <Route path="report" element={<Navigate to="../reports" replace />} />
+          </Route>
+
+          {/* ──────────────────────────────────────────────
+             Public Profile / Home
+             ────────────────────────────────────────────── */}
+          <Route path="/" element={<HanachimoProfile />} />
+          <Route path="/hanachimo" element={<HanachimoProfile />} />
+
+          {/* Catch-all */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <SpeedInsights />
+      </main>
     </Router>
   );
 }

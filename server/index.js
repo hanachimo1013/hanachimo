@@ -4,11 +4,16 @@ import express from 'express';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
 import fetchMangaHandler from '../api/fetch-manga/index.js';
 
 dotenv.config({ path: '.env' });
 dotenv.config({ path: '.env.server' });
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = Number(process.env.PORT || 4000);
@@ -29,7 +34,23 @@ const supabaseAdmin = createClient(
   { auth: { persistSession: false, autoRefreshToken: false } }
 );
 
-app.use(cors({ origin: FRONTEND_URL }));
+// Allow all subdomains of batodeluna-lu.art + localhost for dev
+app.use(cors({
+  origin: (origin, cb) => {
+    // Allow requests with no origin (e.g. curl, server-to-server)
+    if (!origin) return cb(null, true);
+    const allowed = [
+      FRONTEND_URL,
+      /^https?:\/\/(.+\.)?batodeluna-lu\.art$/,
+      /^http:\/\/localhost(:\d+)?$/,
+      /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+    ];
+    const isAllowed = allowed.some((a) =>
+      a instanceof RegExp ? a.test(origin) : a === origin
+    );
+    cb(null, isAllowed);
+  },
+}));
 app.use(express.json());
 
 function createToken(user) {
@@ -459,6 +480,30 @@ app.delete('/api/employees/:id', requireAuth, async (req, res) => {
   return res.json({ success: true });
 });
 
+/* ──────────────────────────────────────────────
+   Static file serving for production
+   Serves the Vite-built files from dist/ so that
+   the Express server handles both API and frontend.
+   ────────────────────────────────────────────── */
+const distPath = path.resolve(__dirname, '..', 'dist');
+const indexHtml = path.resolve(distPath, 'index.html');
+console.log('[static] Serving from:', distPath);
+console.log('[static] index.html at:', indexHtml);
+
+app.use(express.static(distPath));
+
+// SPA fallback — serve index.html for any non-API request
+// so that React Router handles client-side routing
+app.use((req, res) => {
+  console.log('[fallback] Serving index.html for:', req.method, req.url);
+  res.sendFile(indexHtml, (err) => {
+    if (err) {
+      console.error('[fallback] sendFile error:', err);
+      res.status(500).send('Server error');
+    }
+  });
+});
+
 app.listen(PORT, () => {
-  console.log(`Auth API running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT} (API + static)`);
 });
