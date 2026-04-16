@@ -4,6 +4,12 @@ import { useAuth } from '../../context/AuthContext';
 import ConfirmLogoutModal from '../auth/ConfirmLogoutModal';
 import { SidebarContent, SidebarCollapsed } from './Sidebar';
 
+function getBdlagPath(path) {
+  const hostname = window.location.hostname;
+  const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
+  return isLocalDev ? `/bdlag${path}` : path;
+}
+
 export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarVisible, setSidebarVisible] = useState(true);
@@ -36,7 +42,7 @@ export default function Layout({ children }) {
       closeSidebar();
       setLogoutOpen(false);
       setLoggingOut(false);
-      navigate('/', { replace: true, state: { loggedOut: true } });
+      navigate(getBdlagPath('/login'), { replace: true, state: { loggedOut: true } });
     }, 350);
   };
 

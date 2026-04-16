@@ -25,6 +25,12 @@ function compareFn(a, b, field, direction) {
   return 0;
 }
 
+function getDoujinPath(path) {
+  const hostname = window.location.hostname;
+  const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
+  return isLocalDev ? `/doujin${path}` : path;
+}
+
 export default function MangaList() {
   const [mangaList, setMangaList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -219,7 +225,7 @@ export default function MangaList() {
                 className="glass-card flex flex-col overflow-hidden cursor-pointer transition-all duration-300 group hover:scale-[1.02] hover:shadow-lg"
                 onClick={() => {
                   const slug = manga.name.replace(/\.pdf$/i, '');
-                  navigate(`/${encodeURIComponent(slug)}/1`);
+                  navigate(getDoujinPath(`/${encodeURIComponent(slug)}/1`));
                 }}
                 style={{ animationDelay: `${i * 40}ms`, animation: 'slide-up 350ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both' }}
               >

@@ -8,6 +8,10 @@ export default defineConfig({
     tailwindcss(),
     react(),
   ],
+  preview: {
+    allowedHosts: ['batodeluna-lu.art'],
+    port: 4173,
+  },
   server: {
     proxy: {
       '/api': {
@@ -15,5 +19,6 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+    allowedHosts: ['batodeluna-lu.art']
   },
 })

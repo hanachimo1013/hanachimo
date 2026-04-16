@@ -11,6 +11,9 @@ export default async function handler(req, res) {
   let credentials;
   try {
     credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+    if (typeof credentials.private_key === 'string') {
+      credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
+    }
   } catch (err) {
     return res.status(500).json({ error: 'Failed to parse Google Credentials.' });
   }

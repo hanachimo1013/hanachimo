@@ -17,10 +17,24 @@ import MangaReader from './components/pages/MangaReader';
 /* ──────────────────────────────────────────────
    Subdomain detection
    ────────────────────────────────────────────── */
+function isLocalDevHost(hostname) {
+  return hostname === 'localhost' || hostname === '127.0.0.1';
+}
+
+function isLocalBdlagPath(pathname) {
+  return pathname === '/bdlag' || pathname.startsWith('/bdlag/');
+}
+
 function getSubdomain() {
   const hostname = window.location.hostname; // e.g. "doujin.batodeluna-lu.online"
-  // Local dev: treat as "bldlag" (BDLAG app) by default
-  if (hostname === 'localhost' || hostname === '127.0.0.1') return 'bldlag';
+  const pathname = window.location.pathname;
+
+  // Local dev only: allow path-based switching for testing.
+  if (isLocalDevHost(hostname)) {
+    if (pathname === '/doujin' || pathname.startsWith('/doujin/')) return 'doujin';
+    if (isLocalBdlagPath(pathname)) return 'bldlag';
+    return 'www';
+  }
 
   const parts = hostname.split('.');
   // hostname like "doujin.batodeluna-lu.online" → parts = ["doujin", "batodeluna-lu", "online"]
@@ -50,8 +64,13 @@ function TitleUpdater() {
     const sub = getSubdomain();
     if (sub === 'doujin') {
       document.title = 'Doujin | Batodeluna';
+    } else if (sub === 'www') {
+      document.title = 'Hanachimo';
     } else {
-      const title = routeTitles[location.pathname] || 'Page';
+      const normalizedPath = isLocalDevHost(window.location.hostname) && isLocalBdlagPath(location.pathname)
+        ? location.pathname.replace(/^\/bdlag/, '') || '/'
+        : location.pathname;
+      const title = routeTitles[normalizedPath] || 'Page';
       document.title = `BDLAG | ${title}`;
     }
   }, [location.pathname]);
@@ -63,75 +82,152 @@ function TitleUpdater() {
    Route sets per subdomain
    ────────────────────────────────────────────── */
 function DoujinRoutes() {
+  const isLocalTesting = isLocalDevHost(window.location.hostname);
+
   return (
     <Routes>
-      <Route path="/" element={<MangaList />} />
-      <Route path="/:slug" element={<MangaReader />} />
-      <Route path="/:slug/:pageNum" element={<MangaReader />} />
+      {isLocalTesting ? (
+        <>
+          <Route path="/doujin" element={<MangaList />} />
+          <Route path="/doujin/:slug" element={<MangaReader />} />
+          <Route path="/doujin/:slug/:pageNum" element={<MangaReader />} />
+        </>
+      ) : (
+        <>
+          <Route path="/" element={<MangaList />} />
+          <Route path="/:slug" element={<MangaReader />} />
+          <Route path="/:slug/:pageNum" element={<MangaReader />} />
+        </>
+      )}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
 
 function BdlagRoutes() {
+  const isLocalTesting = isLocalDevHost(window.location.hostname);
+
   return (
     <Routes>
-      <Route
-        path="/"
-        element={<Navigate to="/login" replace />}
-      />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Dashboard />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/employees"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Employees />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/settings"
-        element={
-          <ProtectedRoute allowedRoles={['superadmin', 'viewer']}>
-            <Layout>
-              <Settings />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/reports"
-        element={
-          <ProtectedRoute allowedRoles={['superadmin', 'viewer']}>
-            <Layout>
-              <Reports />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/report"
-        element={<Navigate to="/reports" replace />}
-      />
-      <Route
-        path="/login"
-        element={
-          <PublicOnlyRoute>
-            <Login />
-          </PublicOnlyRoute>
-        }
-      />
+      {isLocalTesting ? (
+        <>
+          <Route
+            path="/bdlag"
+            element={<Navigate to="/bdlag/login" replace />}
+          />
+          <Route
+            path="/bdlag/dashboard"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bdlag/employees"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Employees />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bdlag/settings"
+            element={
+              <ProtectedRoute allowedRoles={['superadmin', 'viewer']}>
+                <Layout>
+                  <Settings />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bdlag/reports"
+            element={
+              <ProtectedRoute allowedRoles={['superadmin', 'viewer']}>
+                <Layout>
+                  <Reports />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bdlag/report"
+            element={<Navigate to="/bdlag/reports" replace />}
+          />
+          <Route
+            path="/bdlag/login"
+            element={
+              <PublicOnlyRoute>
+                <Login />
+              </PublicOnlyRoute>
+            }
+          />
+        </>
+      ) : (
+        <>
+          <Route
+            path="/"
+            element={<Navigate to="/login" replace />}
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employees"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Employees />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute allowedRoles={['superadmin', 'viewer']}>
+                <Layout>
+                  <Settings />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute allowedRoles={['superadmin', 'viewer']}>
+                <Layout>
+                  <Reports />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/report"
+            element={<Navigate to="/reports" replace />}
+          />
+          <Route
+            path="/login"
+            element={
+              <PublicOnlyRoute>
+                <Login />
+              </PublicOnlyRoute>
+            }
+          />
+        </>
+      )}
       <Route path="/hanachimo" element={<HanachimoProfile />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

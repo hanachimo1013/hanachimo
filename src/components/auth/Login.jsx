@@ -3,6 +3,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AppleSpinner from '../ui/AppleSpinner';
 
+function getBdlagPath(path) {
+  const hostname = window.location.hostname;
+  const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
+  return isLocalDev ? `/bdlag${path}` : path;
+}
+
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -12,7 +18,7 @@ export default function Login() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const fromPath = location.state?.from?.pathname || '/dashboard';
+  const fromPath = location.state?.from?.pathname || getBdlagPath('/dashboard');
   const showAccessWarning = Boolean(location.state?.from) && !location.state?.loggedOut;
 
   const handleSubmit = async (event) => {

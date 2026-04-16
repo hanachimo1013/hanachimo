@@ -2,10 +2,17 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import adminAvatar from '../../assets/admin-avatar.png';
 
+function getBdlagPath(path) {
+  const hostname = window.location.hostname;
+  const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
+  return isLocalDev ? `/bdlag${path}` : path;
+}
+
 export const SidebarBtn = ({ to, text, icon, onClick, disabled, title }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const isActive = location.pathname === to;
+  const targetPath = getBdlagPath(to);
+  const isActive = location.pathname === targetPath;
 
   if (disabled) {
     return (
@@ -24,7 +31,7 @@ export const SidebarBtn = ({ to, text, icon, onClick, disabled, title }) => {
   const handleNavigate = () => {
     if (disabled) return;
     if (onClick) onClick();
-    navigate(to);
+    navigate(targetPath);
   };
 
   return (
@@ -47,11 +54,12 @@ export const SidebarBtn = ({ to, text, icon, onClick, disabled, title }) => {
 export const SidebarIconBtn = ({ to, icon, onClick, title }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const isActive = location.pathname === to;
+  const targetPath = getBdlagPath(to);
+  const isActive = location.pathname === targetPath;
 
   const handleNavigate = () => {
     if (onClick) onClick();
-    navigate(to);
+    navigate(targetPath);
   };
 
   return (

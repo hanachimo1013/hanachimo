@@ -17,6 +17,12 @@ const BUFFER_PAGES = 2;
 // Simple in-memory cache so navigating back doesn't re-download
 const blobCache = new Map();
 
+function getDoujinPath(path) {
+  const hostname = window.location.hostname;
+  const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
+  return isLocalDev ? `/doujin${path}` : path;
+}
+
 function PageSkeleton({ height, width }) {
   return (
     <div
@@ -185,7 +191,11 @@ export default function MangaReader() {
             clearTimeout(scrollTimeoutRef.current);
             scrollTimeoutRef.current = setTimeout(() => {
               if (pageNumber.toString() !== (pageNum || '1')) {
-                window.history.replaceState(null, '', `/${encodeURIComponent(slug)}/${pageNumber}`);
+                window.history.replaceState(
+                  null,
+                  '',
+                  getDoujinPath(`/${encodeURIComponent(slug)}/${pageNumber}`)
+                );
               }
             }, 150);
           }
@@ -229,14 +239,14 @@ export default function MangaReader() {
   const handleNextPage = useCallback(() => {
     if (numPages && currentPage < numPages) {
       if (viewMode === 'manga') setVisiblePage(currentPage + 1);
-      navigate(`/${encodeURIComponent(slug)}/${currentPage + 1}`, { replace: true });
+      navigate(getDoujinPath(`/${encodeURIComponent(slug)}/${currentPage + 1}`), { replace: true });
     }
   }, [numPages, currentPage, slug, navigate, viewMode]);
 
   const handlePrevPage = useCallback(() => {
     if (currentPage > 1) {
       if (viewMode === 'manga') setVisiblePage(currentPage - 1);
-      navigate(`/${encodeURIComponent(slug)}/${currentPage - 1}`, { replace: true });
+      navigate(getDoujinPath(`/${encodeURIComponent(slug)}/${currentPage - 1}`), { replace: true });
     }
   }, [currentPage, slug, navigate, viewMode]);
 
@@ -258,7 +268,7 @@ export default function MangaReader() {
         // Manga reads RTL (Right = Prev), Manhwa reads standard (Right = Next)
         viewMode === 'manga' ? handlePrevPage() : handleNextPage();
       } else if (e.key === 'Escape') {
-        navigate('/');
+        navigate(getDoujinPath('/'));
       }
     };
 
@@ -311,7 +321,7 @@ export default function MangaReader() {
            }}
       >
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate(getDoujinPath('/'))}
           className="text-white/80 hover:text-[var(--accent-blue)] transition-colors"
           title="Back to Gallery"
         >
