@@ -1,0 +1,33 @@
+# Version Control
+.git
+.gitignore
+
+# Dependencies (Install these inside the container instead)
+node_modules/
+vendor/
+vh/
+.venv/
+__pycache__/
+
+# Build Artifacts & Logs
+dist/
+build/
+*.log
+npm-debug.log*
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Docker Files (Not needed inside the image)
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# OS/IDE Files
+.vscode/
+.idea/
+.DS_Store

@@ -26,9 +26,7 @@ function compareFn(a, b, field, direction) {
 }
 
 function getDoujinPath(path) {
-  const hostname = window.location.hostname;
-  const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
-  return isLocalDev ? `/doujin${path}` : path;
+  return `/doujin${path}`;
 }
 
 export default function MangaList() {

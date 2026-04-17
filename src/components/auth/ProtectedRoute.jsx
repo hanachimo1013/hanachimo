@@ -3,9 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 function getBdlagPath(path) {
-  const hostname = window.location.hostname;
-  const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
-  return isLocalDev ? `/bdlag${path}` : path;
+  return `/bdlag${path}`;
 }
 
 export default function ProtectedRoute({ children, allowedRoles }) {

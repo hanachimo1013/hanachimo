@@ -3,9 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import adminAvatar from '../../assets/admin-avatar.png';
 
 function getBdlagPath(path) {
-  const hostname = window.location.hostname;
-  const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
-  return isLocalDev ? `/bdlag${path}` : path;
+  return `/bdlag${path}`;
 }
 
 export const SidebarBtn = ({ to, text, icon, onClick, disabled, title }) => {
