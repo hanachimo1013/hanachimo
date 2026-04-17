@@ -1,29 +1,26 @@
 services:
-  # The Frontend/Main Application
   web-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: hanachimo-web-app
-    restart: unless-stopped
-    # Internal port only; no need to expose to the host if using a tunnel
+    build: .
+    container_name: web-app
+    restart: always
+    env_file:
+      - .env
+      - .env.server
     expose:
-      - "80"
+      - "4000"
     networks:
-      - app-network
+      - app-bridge
 
-  # Cloudflare Tunnel Sidecar
   tunnel:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared-tunnel
     restart: unless-stopped
-    # Replace <YOUR_TOKEN> with your actual Cloudflare Tunnel Token
-    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate run --token eyJhIjoiMzA3YjE4ZmJmN2Y3OGFiMjFjNTM1YTRiMDMxZDhhZGQiLCJ0IjoiNGE5YjI1OGUtN2Y0MS00MmZhLWEwZWUtZWNjYmY4NjY3M2U3IiwicyI6Ill6QTVNalppWkRZdE5ESXlOeTAwTlRSakxXRTNOVGN0TVRaak4ySXdPVEV6TlRWaCJ9
     depends_on:
       - web-app
     networks:
-      - app-network
+      - app-bridge
 
 networks:
-  app-network:
+  app-bridge:
     driver: bridge
