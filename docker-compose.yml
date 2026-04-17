@@ -18,7 +18,7 @@ services:
     container_name: cloudflared-tunnel
     restart: unless-stopped
     # Replace <YOUR_TOKEN> with your actual Cloudflare Tunnel Token
-    command: tunnel --no-autoupdate run --token 4a9b258e-7f41-42fa-a0ee-eccbf86673e7
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     depends_on:
       - web-app
     networks:
