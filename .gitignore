@@ -1,4 +1,4 @@
-# Logs
+# Logs 
 logs
 *.log
 npm-debug.log*
@@ -7,21 +7,30 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Dependencies and Build Artifacts 
+node_modules/
+dist/
+dist-ssr/
+.vercel/
+
+# Environment and Local Secrets 
+.env
+.env.local
+.env.server
+.env.vercel
 *.local
 
-# Editor directories and files
+# Editor and Workspace files 
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-.env.vercel
-.env
-.env.server
+*.code-workspace
+
+# OS Files 
+.DS_Store
+Thumbs.db

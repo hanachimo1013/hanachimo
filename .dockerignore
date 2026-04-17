@@ -1,33 +1,42 @@
-# Version Control
+# Dependencies & Build Outputs
+node_modules/
+dist/
+dist-ssr/
+.vercel/
+.turbo/
+
+# Environment Secrets
+# Use Docker secrets or Env vars at runtime
+.env
+.env.local
+.env.server
+.env.vercel
+!.env.example
+
+# Version Control & IDE
 .git
 .gitignore
+.vscode/
+*.code-workspace
 
-# Dependencies (Install these inside the container instead)
-node_modules/
-vendor/
-vh/
-.venv/
-__pycache__/
+# Documentation & Local Config (Bloat)
+*.md
+CHANGELOG.md
+ecosystem.config.cjs
+eslint.config.js
+postcss.config.js
+tailwind.config.js
+test-static.js
+vercel.json
 
-# Build Artifacts & Logs
-dist/
-build/
-*.log
-npm-debug.log*
+# Supabase Local Config
+supabase/
 
-# Environment & Secrets
-.env
-.env.*
-!.env.example
-*.pem
-*.key
-
-# Docker Files (Not needed inside the image)
-Dockerfile*
-docker-compose*
+# Docker Files
+Dockerfile
+docker-compose.yml
 .dockerignore
 
-# OS/IDE Files
-.vscode/
-.idea/
+# OS Junk
 .DS_Store
+Thumbs.db
