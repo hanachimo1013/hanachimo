@@ -4,7 +4,7 @@ import { useTheme } from '../../context/ThemeContext';
 import LoadingOverlay from '../ui/LoadingOverlay';
 
 const SORT_FIELDS = [
-  { value: 'name',         label: 'Name' },
+  { value: 'name', label: 'Name' },
   { value: 'modifiedTime', label: 'Date Modified' },
 ];
 
@@ -35,13 +35,11 @@ function formatTitleCase(str) {
 }
 
 // ── Unslugify: extract artist (in []) and title from filename ──
-// Handles both underscored and space-separated filenames from Google Drive
 function unslugify(filename) {
   const stripped = filename.replace(/\.pdf$/i, '');
 
-  // Pattern: optional_digits + separator, then [artist] + separator, then title
-  // Separator can be underscore or space
-  const regex = /^(?:\d+[\s_])?\[(.*?)\][\s_](.*)$/;
+  // Pattern: optional_digits_[artist]_Title_Words
+  const regex = /^(?:\d+_)?\[(.*?)\]_(.*)$/;
   const match = stripped.match(regex);
 
   if (match) {
@@ -50,15 +48,10 @@ function unslugify(filename) {
     return { artist: rawArtist, title: formatTitleCase(rawTitle) };
   }
 
-  // Fallback: strip leading numeric ID (with underscore or space), mark artist as "Unknown"
-  const withoutId = stripped.replace(/^\d+[\s_]/, '');
+  // Fallback: strip leading numeric ID, mark artist as "Unknown"
+  const withoutId = stripped.replace(/^\d+_/, '');
   const fallbackTitle = withoutId.replace(/_/g, ' ');
   return { artist: 'Unknown', title: formatTitleCase(fallbackTitle) };
-}
-
-// ── Detect small viewport (mobile / small tablet) ──
-function isSmallViewport() {
-  return window.innerWidth < 1024;
 }
 
 // ── Group key: strip vol/part/chapter markers + subtitles, take first 3 words ──
@@ -89,8 +82,6 @@ export default function MangaList() {
   const [ageFilter, setAgeFilter] = useState('all');
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null); // modal state
-  const [modalView, setModalView] = useState('list'); // 'list' | 'card'
-  const [pendingItem, setPendingItem] = useState(null); // mobile warning gate
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const searchInputRef = useRef(null);
@@ -190,30 +181,20 @@ export default function MangaList() {
   const currentFieldLabel = SORT_FIELDS.find((f) => f.value === sortField)?.label || 'Name';
 
   // ── Handlers ──
-  const navigateToReader = (manga) => {
-    const slug = manga.name.replace(/\.pdf$/i, '');
-    navigate(getDoujinPath(`/${encodeURIComponent(slug)}/1`));
-  };
-
   const handleGroupClick = (group) => {
     if (group.itemCount === 1) {
-      // Single item → check mobile warning first
-      if (isSmallViewport()) {
-        setPendingItem(group.items[0]);
-      } else {
-        navigateToReader(group.items[0]);
-      }
+      // Single item → go directly to reader
+      const slug = group.items[0].name.replace(/\.pdf$/i, '');
+      navigate(getDoujinPath(`/${encodeURIComponent(slug)}/1`));
     } else {
+      // Multiple items → open modal
       setSelectedGroup(group);
     }
   };
 
   const handleItemClick = (manga) => {
-    if (isSmallViewport()) {
-      setPendingItem(manga);
-    } else {
-      navigateToReader(manga);
-    }
+    const slug = manga.name.replace(/\.pdf$/i, '');
+    navigate(getDoujinPath(`/${encodeURIComponent(slug)}/1`));
   };
 
   if (loading) return <LoadingOverlay message="Loading Manga Gallery..." />;
@@ -252,9 +233,9 @@ export default function MangaList() {
               {/* NEW / OLD toggle pills */}
               <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid var(--border-medium)' }}>
                 {[
-                  { key: 'all',  label: 'All',  activeColor: 'var(--accent-blue)' },
-                  { key: 'new',  label: 'New',  activeColor: 'var(--accent-red)' },
-                  { key: 'old',  label: 'Old',  activeColor: 'var(--accent-purple)' },
+                  { key: 'all', label: 'All', activeColor: 'var(--accent-blue)' },
+                  { key: 'new', label: 'New', activeColor: 'var(--accent-red)' },
+                  { key: 'old', label: 'Old', activeColor: 'var(--accent-purple)' },
                 ].map((f, idx) => (
                   <button
                     key={f.key}
@@ -288,7 +269,7 @@ export default function MangaList() {
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setShowSortMenu(false)}></div>
                     <div className="absolute right-0 top-full mt-2 z-50 glass-card rounded-xl p-2 min-w-[220px] shadow-2xl animate-fade-scale"
-                         style={{ border: '1px solid var(--glass-border)' }}>
+                      style={{ border: '1px solid var(--glass-border)' }}>
                       <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-tertiary)' }}>Sort by</p>
                       {SORT_FIELDS.map((f) => (
                         <button key={f.value} onClick={() => setSortField(f.value)}
@@ -318,7 +299,7 @@ export default function MangaList() {
                 className="glass-card p-2 rounded-xl hover:shadow-lg transition-all duration-300 active:scale-95"
                 title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
                 <i className={`bi ${theme === 'dark' ? 'bi-sun-fill' : 'bi-moon-fill'} text-base`}
-                   style={{ color: theme === 'dark' ? 'var(--accent-orange)' : 'var(--accent-purple)' }}></i>
+                  style={{ color: theme === 'dark' ? 'var(--accent-orange)' : 'var(--accent-purple)' }}></i>
               </button>
             </div>
           </div>
@@ -467,200 +448,57 @@ export default function MangaList() {
               </button>
             </div>
 
-            {/* View toggle + divider */}
-            <div className="flex items-center justify-between px-5 pb-2">
-              <div style={{ borderTop: '1px solid var(--border-light)', flex: 1, marginRight: '12px' }}></div>
-              <div className="flex rounded-lg overflow-hidden shrink-0" style={{ border: '1px solid var(--border-medium)' }}>
-                <button
-                  onClick={() => setModalView('list')}
-                  className="px-2.5 py-1 text-[11px] font-semibold transition-all duration-200 flex items-center gap-1"
-                  style={{
-                    background: modalView === 'list' ? 'var(--accent-blue)' : 'transparent',
-                    color: modalView === 'list' ? '#fff' : 'var(--text-secondary)',
-                  }}
-                >
-                  <i className="bi bi-list-ul text-xs"></i>
-                  <span className="hidden md:inline">List</span>
-                </button>
-                <button
-                  onClick={() => setModalView('card')}
-                  className="px-2.5 py-1 text-[11px] font-semibold transition-all duration-200 flex items-center gap-1"
-                  style={{
-                    background: modalView === 'card' ? 'var(--accent-blue)' : 'transparent',
-                    color: modalView === 'card' ? '#fff' : 'var(--text-secondary)',
-                    borderLeft: '1px solid var(--border-medium)',
-                  }}
-                >
-                  <i className="bi bi-grid-fill text-xs"></i>
-                  <span className="hidden md:inline">Card</span>
-                </button>
-              </div>
-            </div>
+            {/* Divider */}
+            <div className="mx-5" style={{ borderTop: '1px solid var(--border-light)' }}></div>
 
-            {/* Items — List View */}
-            {modalView === 'list' && (
-              <div className="overflow-y-auto flex-1 p-3 custom-scrollbar">
-                {selectedGroup.items.map((manga, idx) => {
-                  const itemIsNew = isNewFile(manga.modifiedTime);
-                  return (
-                    <button
-                      key={manga.id}
-                      onClick={() => handleItemClick(manga)}
-                      className="w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-all duration-150 hover:scale-[1.01] active:scale-[0.99]"
-                      style={{
-                        background: 'transparent',
-                        animationDelay: `${idx * 30}ms`,
-                        animation: 'slide-up 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = theme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                    >
-                      {/* Item thumbnail */}
-                      <div className="w-11 h-14 rounded-lg overflow-hidden shrink-0 shadow-md"
-                        style={{ background: 'var(--border-light)' }}>
-                        {manga.thumbnailLink ? (
-                          <img src={manga.thumbnailLink} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--text-tertiary)' }}>
-                            <i className="bi bi-file-pdf text-lg"></i>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Item info */}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm line-clamp-1">{manga.parsedTitle}</p>
-                        <p className="text-[11px] line-clamp-1" style={{ color: 'var(--text-tertiary)' }}>
-                          {manga.parsedArtist}
-                        </p>
-                      </div>
-
-                      {/* Badges + chevron */}
-                      <div className="flex items-center gap-2 shrink-0">
-                        {itemIsNew && (
-                          <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase rounded text-white"
-                            style={{ background: 'var(--accent-red)' }}>New</span>
-                        )}
-                        <i className="bi bi-chevron-right text-xs" style={{ color: 'var(--text-tertiary)' }}></i>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Items — Card View */}
-            {modalView === 'card' && (
-              <div className="overflow-y-auto flex-1 p-4 custom-scrollbar">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {selectedGroup.items.map((manga, idx) => {
-                    const itemIsNew = isNewFile(manga.modifiedTime);
-                    return (
-                      <div
-                        key={manga.id}
-                        onClick={() => handleItemClick(manga)}
-                        className="flex flex-col overflow-hidden rounded-xl cursor-pointer transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] hover:shadow-lg"
-                        style={{
-                          background: theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
-                          border: '1px solid var(--border-light)',
-                          animationDelay: `${idx * 40}ms`,
-                          animation: 'slide-up 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
-                        }}
-                      >
-                        <div className="aspect-[3/4] w-full relative overflow-hidden" style={{ background: 'var(--border-light)' }}>
-                          {itemIsNew && (
-                            <div className="absolute top-1.5 right-1.5 z-10 px-1.5 py-0.5 text-white text-[9px] font-bold uppercase rounded shadow-lg pointer-events-none"
-                              style={{ background: 'var(--accent-red)' }}>New</div>
-                          )}
-                          {manga.thumbnailLink ? (
-                            <img src={manga.thumbnailLink} alt="" className="w-full h-full object-cover" loading="lazy" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--text-tertiary)' }}>
-                              <i className="bi bi-file-pdf text-3xl"></i>
-                            </div>
-                          )}
+            {/* Items list */}
+            <div className="overflow-y-auto flex-1 p-3 custom-scrollbar">
+              {selectedGroup.items.map((manga, idx) => {
+                const itemIsNew = isNewFile(manga.modifiedTime);
+                return (
+                  <button
+                    key={manga.id}
+                    onClick={() => handleItemClick(manga)}
+                    className="w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-all duration-150 hover:scale-[1.01] active:scale-[0.99]"
+                    style={{
+                      background: 'transparent',
+                      animationDelay: `${idx * 30}ms`,
+                      animation: 'slide-up 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = theme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  >
+                    {/* Item thumbnail */}
+                    <div className="w-11 h-14 rounded-lg overflow-hidden shrink-0 shadow-md"
+                      style={{ background: 'var(--border-light)' }}>
+                      {manga.thumbnailLink ? (
+                        <img src={manga.thumbnailLink} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--text-tertiary)' }}>
+                          <i className="bi bi-file-pdf text-lg"></i>
                         </div>
-                        <div className="p-2 text-center">
-                          <p className="font-medium text-[11px] md:text-xs line-clamp-2">{manga.parsedTitle}</p>
-                          <p className="text-[10px] line-clamp-1 mt-0.5" style={{ color: 'var(--text-tertiary)' }}>{manga.parsedArtist}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+                      )}
+                    </div>
 
-      {/* ── Mobile Data Warning Dialog ── */}
-      {pendingItem && (
-        <div
-          className="fixed inset-0 z-[200] flex items-center justify-center p-6"
-          onClick={() => setPendingItem(null)}
-          style={{ animation: 'fade-in 150ms ease' }}
-        >
-          <div className="absolute inset-0"
-            style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)' }} />
+                    {/* Item info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm line-clamp-1">{manga.parsedTitle}</p>
+                      <p className="text-[11px] line-clamp-1" style={{ color: 'var(--text-tertiary)' }}>
+                        {manga.parsedArtist}
+                      </p>
+                    </div>
 
-          <div
-            className="relative z-10 w-full max-w-sm overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: theme === 'dark' ? 'rgba(28,28,30,0.95)' : 'rgba(255,255,255,0.95)',
-              backdropFilter: 'blur(24px)',
-              WebkitBackdropFilter: 'blur(24px)',
-              border: '1px solid var(--glass-border)',
-              borderRadius: '16px',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.35)',
-              animation: 'fade-scale 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-            }}
-          >
-            {/* Warning icon + text */}
-            <div className="p-6 pb-4 text-center">
-              <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center"
-                style={{ background: 'rgba(255, 149, 0, 0.12)' }}>
-                <i className="bi bi-exclamation-triangle-fill text-xl" style={{ color: 'var(--accent-orange)' }}></i>
-              </div>
-              <h3 className="font-bold text-base mb-1.5">Large File Warning</h3>
-              <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                This manga loads as a <strong>full PDF</strong> from Google Drive, which can be
-                <strong> 20–100+ MB</strong>. Unlike traditional sites that stream images,
-                the entire file must download before reading.
-              </p>
-              <p className="text-[11px] mt-2 font-medium" style={{ color: 'var(--accent-orange)' }}>
-                <i className="bi bi-wifi mr-1"></i>
-                Wi-Fi recommended for the best experience.
-              </p>
-            </div>
-
-            {/* Action buttons */}
-            <div style={{ borderTop: '1px solid var(--border-light)' }}>
-              <div className="flex">
-                <button
-                  onClick={() => setPendingItem(null)}
-                  className="flex-1 py-3.5 text-sm font-semibold transition-colors duration-150"
-                  style={{ color: 'var(--accent-blue)', borderRight: '1px solid var(--border-light)' }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = theme === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    const item = pendingItem;
-                    setPendingItem(null);
-                    navigateToReader(item);
-                  }}
-                  className="flex-1 py-3.5 text-sm font-bold transition-colors duration-150"
-                  style={{ color: 'var(--accent-orange)' }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = theme === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  Proceed Anyway
-                </button>
-              </div>
+                    {/* Badges + chevron */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {itemIsNew && (
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase rounded text-white"
+                          style={{ background: 'var(--accent-red)' }}>New</span>
+                      )}
+                      <i className="bi bi-chevron-right text-xs" style={{ color: 'var(--text-tertiary)' }}></i>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
