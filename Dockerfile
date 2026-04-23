@@ -11,6 +11,9 @@ RUN npm run build
 FROM node:20-alpine
 WORKDIR /app
 
+# Install curl for health checks
+RUN apk add --no-cache curl
+
 # We reference the "builder" stage defined above. 
 # This must match "AS builder" exactly.
 COPY --from=builder /app/dist ./dist
@@ -22,4 +25,4 @@ RUN npm install --omit=dev
 
 EXPOSE 4000
 # Ensure this points to your actual entry file in the server folder
-CMD ["node", "server/index.js"]
+CMD ["node", "--max-old-space-size=400", "server/index.js"]

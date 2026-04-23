@@ -15,7 +15,7 @@ export default defineConfig({
       'bdlag.batodeluna-lu.art',
       'www.batodeluna-lu.art',
     ],
-    port: 4173,
+    port: 4000,
   },
   server: {
     proxy: {

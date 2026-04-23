@@ -31,7 +31,18 @@ if (missingEnvKeys.length > 0) {
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY,
-  { auth: { persistSession: false, autoRefreshToken: false } }
+  {
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: {
+      fetch: (url, options = {}) => {
+        // Set connection timeout for Supabase requests
+        return fetch(url, {
+          ...options,
+          signal: AbortSignal.timeout(30000), // 30 second timeout
+        });
+      },
+    },
+  }
 );
 
 // Allow all subdomains of batodeluna-lu.art + localhost for dev
@@ -199,8 +210,24 @@ function mergeEmployeeValues(employee, values) {
   };
 }
 
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok' });
+app.get('/api/health', async (_req, res) => {
+  try {
+    // Verify database connectivity with a simple query
+    const { data, error } = await supabaseAdmin
+      .from('app_users')
+      .select('id')
+      .limit(1);
+    
+    if (error) {
+      console.error('[health] Database check failed:', error);
+      return res.status(503).json({ status: 'unhealthy', reason: 'Database unavailable' });
+    }
+    
+    return res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+  } catch (err) {
+    console.error('[health] Error:', err);
+    return res.status(503).json({ status: 'unhealthy', reason: 'Health check failed' });
+  }
 });
 
 app.get('/api/fetch-manga', fetchMangaHandler);
@@ -504,6 +531,11 @@ app.use((req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT} (API + static)`);
 });
+
+// Configure server timeouts and keepalive for Cloudflare tunnel stability
+server.keepAliveTimeout = 120000; // 120 seconds (greater than Cloudflare's 100s default to prevent 502s)
+server.headersTimeout = 121000; // Must be > keepAliveTimeout
+server.requestTimeout = 300000; // 5 minute timeout to allow downloading large PDF mangas
