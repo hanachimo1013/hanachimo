@@ -1,0 +1,3 @@
+## 2026-04-23 - Screen Reader Accessibility in Toasts
+**Learning:** Toast notifications need explicit `role="status"` and `aria-live="polite"` attributes to be properly announced by screen readers when they dynamically appear on screen. Additionally, decorative font icons within these toasts should have `aria-hidden="true"` to prevent screen readers from reading arbitrary font characters, and icon-only buttons need an `aria-label`.
+**Action:** When creating or modifying dynamic notification components (like Toasts or Alerts), always include the appropriate `role` and `aria-live` attributes to ensure screen reader users are notified of the change without stealing focus. Always apply `aria-hidden` to decorative icons and `aria-label` to icon-only interactive elements.
