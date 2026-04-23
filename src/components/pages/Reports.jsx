@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useEmployees } from '../../hooks/useEmployees';
 import { formatPeso, getEeShare, getErShare } from '../../utils/formatters';
@@ -104,8 +106,6 @@ export default function Reports() {
     // Yield to let React render the loading overlay
     await new Promise(r => setTimeout(r, 50));
     try {
-      const { default: jsPDF } = await import('jspdf');
-      const { default: autoTable } = await import('jspdf-autotable');
       const { totals, totalPayments } = calculateInsuranceReport();
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
@@ -180,8 +180,6 @@ export default function Reports() {
     setPdfGenerating(true);
     await new Promise(r => setTimeout(r, 50));
     try {
-      const { default: jsPDF } = await import('jspdf');
-      const { default: autoTable } = await import('jspdf-autotable');
       const { eeTotal, erTotal, totalPayments } = calculateSalaryReport();
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();

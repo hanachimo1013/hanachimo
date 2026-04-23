@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { useEmployees } from '../../hooks/useEmployees';
 import EmployeeCard from '../employee/EmployeeCard';
 import { formatPeso, getEeShare, getErShare } from '../../utils/formatters';
@@ -14,9 +16,7 @@ const StatusCard = ({ title, value, color }) => (
 
 
 // Function to generate PDF receipt for contribution totals
-const generateEmployerReceipt = async (employee, masked) => {
-  const { default: jsPDF } = await import('jspdf');
-  const { default: autoTable } = await import('jspdf-autotable');
+const generateEmployerReceipt = (employee, masked) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
