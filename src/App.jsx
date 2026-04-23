@@ -1,18 +1,25 @@
-import React, { useEffect } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { SpeedInsights } from "@vercel/speed-insights/react"
-import Layout from './components/layout/Layout';
-import Dashboard from './components/pages/Dashboard';
-import Employees from './components/employee/Employees';
-import Settings from './components/pages/Settings';
-import Reports from './components/pages/Reports';
-import NotFound from './components/pages/NotFound';
-import Login from './components/auth/Login';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import PublicOnlyRoute from './components/auth/PublicOnlyRoute';
+import LoadingOverlay from './components/ui/LoadingOverlay';
+
+// ── Eagerly loaded (tiny, always needed) ──
 import HanachimoProfile from './components/pages/HanachimoProfile';
-import MangaList from './components/pages/MangaList';
-import MangaReader from './components/pages/MangaReader';
+import NotFound from './components/pages/NotFound';
+
+// ── Lazy loaded: Doujin section (react-pdf is ~800KB) ──
+const MangaList = lazy(() => import('./components/pages/MangaList'));
+const MangaReader = lazy(() => import('./components/pages/MangaReader'));
+
+// ── Lazy loaded: BDLAG admin section (supabase, jspdf, recharts) ──
+const Layout = lazy(() => import('./components/layout/Layout'));
+const Dashboard = lazy(() => import('./components/pages/Dashboard'));
+const Employees = lazy(() => import('./components/employee/Employees'));
+const Settings = lazy(() => import('./components/pages/Settings'));
+const Reports = lazy(() => import('./components/pages/Reports'));
+const Login = lazy(() => import('./components/auth/Login'));
+const ProtectedRoute = lazy(() => import('./components/auth/ProtectedRoute'));
+const PublicOnlyRoute = lazy(() => import('./components/auth/PublicOnlyRoute'));
 
 /* ──────────────────────────────────────────────
    Context Detection helpers
@@ -83,44 +90,51 @@ function SubdomainRedirector() {
   return null;
 }
 
+// Suspense fallback for lazy-loaded routes
+function RouteFallback() {
+  return <LoadingOverlay message="Loading…" />;
+}
+
 export default function App() {
   return (
     <Router>
       <TitleUpdater />
       <SubdomainRedirector />
       <main className="flex flex-col min-h-screen">
-        <Routes>
-          {/* ──────────────────────────────────────────────
-             Doujin Manga Section
-             ────────────────────────────────────────────── */}
-          <Route path="/doujin">
-            <Route index element={<MangaList />} />
-            <Route path=":slug" element={<MangaReader />} />
-            <Route path=":slug/:pageNum" element={<MangaReader />} />
-          </Route>
+        <Suspense fallback={<RouteFallback />}>
+          <Routes>
+            {/* ──────────────────────────────────────────────
+               Doujin Manga Section
+               ────────────────────────────────────────────── */}
+            <Route path="/doujin">
+              <Route index element={<MangaList />} />
+              <Route path=":slug" element={<MangaReader />} />
+              <Route path=":slug/:pageNum" element={<MangaReader />} />
+            </Route>
 
-          {/* ──────────────────────────────────────────────
-             BDLAG Admin Section
-             ────────────────────────────────────────────── */ }
-          <Route path="/bdlag">
-            <Route index element={<Navigate to="login" replace />} />
-            <Route path="login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
-            <Route path="dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
-            <Route path="employees" element={<ProtectedRoute><Layout><Employees /></Layout></ProtectedRoute>} />
-            <Route path="settings" element={<ProtectedRoute allowedRoles={['superadmin', 'viewer']}><Layout><Settings /></Layout></ProtectedRoute>} />
-            <Route path="reports" element={<ProtectedRoute allowedRoles={['superadmin', 'viewer']}><Layout><Reports /></Layout></ProtectedRoute>} />
-            <Route path="report" element={<Navigate to="../reports" replace />} />
-          </Route>
+            {/* ──────────────────────────────────────────────
+               BDLAG Admin Section
+               ────────────────────────────────────────────── */ }
+            <Route path="/bdlag">
+              <Route index element={<Navigate to="login" replace />} />
+              <Route path="login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
+              <Route path="dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
+              <Route path="employees" element={<ProtectedRoute><Layout><Employees /></Layout></ProtectedRoute>} />
+              <Route path="settings" element={<ProtectedRoute allowedRoles={['superadmin', 'viewer']}><Layout><Settings /></Layout></ProtectedRoute>} />
+              <Route path="reports" element={<ProtectedRoute allowedRoles={['superadmin', 'viewer']}><Layout><Reports /></Layout></ProtectedRoute>} />
+              <Route path="report" element={<Navigate to="../reports" replace />} />
+            </Route>
 
-          {/* ──────────────────────────────────────────────
-             Public Profile / Home
-             ────────────────────────────────────────────── */}
-          <Route path="/" element={<HanachimoProfile />} />
-          <Route path="/hanachimo" element={<HanachimoProfile />} />
+            {/* ──────────────────────────────────────────────
+               Public Profile / Home
+               ────────────────────────────────────────────── */}
+            <Route path="/" element={<HanachimoProfile />} />
+            <Route path="/hanachimo" element={<HanachimoProfile />} />
 
-          {/* Catch-all */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* Catch-all */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
         <SpeedInsights />
       </main>
     </Router>
