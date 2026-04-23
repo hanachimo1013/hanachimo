@@ -12,7 +12,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 // How many pages to render around the current visible page
-const BUFFER_PAGES = 2;
+const BUFFER_PAGES = 4;
 
 // Simple in-memory cache so navigating back doesn't re-download
 const blobCache = new Map();
@@ -22,10 +22,13 @@ function getDoujinPath(path) {
 }
 
 function PageSkeleton({ height, width }) {
+  // Use a stable estimated height so the DOM doesn't collapse/expand
+  // when pages enter/leave the render window.
+  const stableHeight = height || '140vh';
   return (
     <div
-      className="flex items-center justify-center animate-pulse"
-      style={{ height: height || '100vh', width: width || '100%', background: 'rgba(255,255,255,0.04)' }}
+      className="flex items-center justify-center"
+      style={{ height: stableHeight, width: width || '100%', background: 'rgba(255,255,255,0.04)' }}
     >
       <AppleSpinner white />
     </div>
@@ -49,6 +52,10 @@ export default function MangaReader() {
   const pageRefs = useRef([]);
   const observerRef = useRef(null);
   const scrollTimeoutRef = useRef(null);
+  // Guard: only scrollIntoView on initial load or explicit navigation, not observer-driven
+  const initialScrollDoneRef = useRef(false);
+  // Track the high-water mark so we never un-render already-seen pages
+  const renderedRangeRef = useRef({ min: Infinity, max: -Infinity });
 
   // ── 1. Fetch PDF with progress & caching ─────────────────────────
   useEffect(() => {
@@ -148,19 +155,41 @@ export default function MangaReader() {
   }, [slug]);
 
   // ── 4. Determine which pages to actually render (virtualization) ──
+  // Use an expanding window: once a page is rendered, keep it rendered
+  // to avoid layout shifts (the root cause of the stutter).
   const renderedPages = useMemo(() => {
     if (!numPages) return new Set();
     const center = visiblePage - 1; // 0-indexed
+
+    // Expand buffer
+    const newMin = Math.max(0, center - BUFFER_PAGES);
+    const newMax = Math.min(numPages - 1, center + BUFFER_PAGES);
+
+    // For manhwa mode, keep the high-water mark so we never un-render
+    if (viewMode === 'manhwa') {
+      renderedRangeRef.current.min = Math.min(renderedRangeRef.current.min, newMin);
+      renderedRangeRef.current.max = Math.max(renderedRangeRef.current.max, newMax);
+    } else {
+      // Manga mode: just use the buffer window (single page view)
+      renderedRangeRef.current.min = newMin;
+      renderedRangeRef.current.max = newMax;
+    }
+
     const pages = new Set();
-    for (let i = center - BUFFER_PAGES; i <= center + BUFFER_PAGES; i++) {
-      if (i >= 0 && i < numPages) pages.add(i);
+    for (let i = renderedRangeRef.current.min; i <= renderedRangeRef.current.max; i++) {
+      pages.add(i);
     }
     return pages;
-  }, [numPages, visiblePage]);
+  }, [numPages, visiblePage, viewMode]);
 
   // ── 5. Scroll to the requested page after document load (Manhwa) ──
+  // Only fire on initial load (when numPages first becomes non-null)
+  // NOT when the observer updates visiblePage / URL.
   useEffect(() => {
     if (!numPages || viewMode === 'manga') return;
+    if (initialScrollDoneRef.current) return; // already scrolled
+
+    initialScrollDoneRef.current = true;
     const idx = currentPage - 1;
     const el = pageRefs.current[idx];
     if (el) {
@@ -168,7 +197,14 @@ export default function MangaReader() {
         el.scrollIntoView({ behavior: 'auto', block: 'start', inline: 'start' });
       });
     }
-  }, [numPages, currentPage, viewMode]);
+  }, [numPages, viewMode]); // intentionally omitting currentPage to avoid re-firing
+
+  // Reset the scroll guard when switching view modes
+  useEffect(() => {
+    initialScrollDoneRef.current = false;
+    // Also reset the rendered range
+    renderedRangeRef.current = { min: Infinity, max: -Infinity };
+  }, [viewMode]);
 
   // ── 6. IntersectionObserver to track visible page (Manhwa) ────────
   useEffect(() => {
@@ -178,30 +214,36 @@ export default function MangaReader() {
 
     const observer = new IntersectionObserver(
       (entries) => {
+        // Find the most-visible entry
+        let bestEntry = null;
         for (const entry of entries) {
-          if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
-            const idx = parseInt(entry.target.getAttribute('data-page-index'), 10);
-            const pageNumber = idx + 1;
-
-            setVisiblePage(pageNumber);
-
-            // Debounced URL update
-            clearTimeout(scrollTimeoutRef.current);
-            scrollTimeoutRef.current = setTimeout(() => {
-              if (pageNumber.toString() !== (pageNum || '1')) {
-                window.history.replaceState(
-                  null,
-                  '',
-                  getDoujinPath(`/${encodeURIComponent(slug)}/${pageNumber}`)
-                );
-              }
-            }, 150);
+          if (entry.isIntersecting) {
+            if (!bestEntry || entry.intersectionRatio > bestEntry.intersectionRatio) {
+              bestEntry = entry;
+            }
           }
+        }
+
+        if (bestEntry) {
+          const idx = parseInt(bestEntry.target.getAttribute('data-page-index'), 10);
+          const pageNumber = idx + 1;
+
+          setVisiblePage(pageNumber);
+
+          // Debounced URL update via replaceState (no React re-render)
+          clearTimeout(scrollTimeoutRef.current);
+          scrollTimeoutRef.current = setTimeout(() => {
+            window.history.replaceState(
+              null,
+              '',
+              getDoujinPath(`/${encodeURIComponent(slug)}/${pageNumber}`)
+            );
+          }, 200);
         }
       },
       {
         root: containerRef.current,
-        threshold: [0.3, 0.6],
+        threshold: [0.1, 0.3, 0.5],
       }
     );
 
@@ -215,7 +257,7 @@ export default function MangaReader() {
       observer.disconnect();
       clearTimeout(scrollTimeoutRef.current);
     };
-  }, [numPages, slug, pageNum, viewMode]);
+  }, [numPages, slug, viewMode]);
 
   // ── 7. Compute page dimensions (responsive) ──────────────────────
   const isMobile = window.innerWidth < 768;
@@ -377,7 +419,7 @@ export default function MangaReader() {
           className={
             viewMode === 'manga'
               ? 'flex items-center justify-center w-full h-full'
-              : 'flex flex-col items-center w-full mt-20 mb-10 gap-2'
+              : 'flex flex-col items-center w-full mt-20 mb-10 gap-0'
           }
         >
           {numPages && (viewMode === 'manga' ? (
@@ -400,14 +442,11 @@ export default function MangaReader() {
               key={`page_${index + 1}`}
               ref={(el) => { pageRefs.current[index] = el; }}
               data-page-index={index}
-              className={
-                viewMode === 'manga'
-                  ? 'shrink-0 flex justify-center items-center min-w-full'
-                  : 'shrink-0 w-full max-w-3xl flex justify-center px-2 md:px-0'
-              }
+              className="shrink-0 w-full max-w-3xl flex justify-center px-2 md:px-0"
               style={{
-                scrollSnapAlign: viewMode === 'manga' ? 'start' : undefined,
-                minHeight: viewMode === 'manga' ? '100%' : undefined,
+                // Give un-rendered placeholders a stable minimum height
+                // so layout doesn't jump when pages enter/leave the render window
+                minHeight: renderedPages.has(index) ? undefined : '140vh',
               }}
             >
               {renderedPages.has(index) ? (
@@ -422,7 +461,8 @@ export default function MangaReader() {
                 />
               ) : (
                 <PageSkeleton
-                  height={pageDimensions.height || window.innerHeight}
+                  height="140vh"
+                  width={pageDimensions.width}
                 />
               )}
             </div>
