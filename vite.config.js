@@ -8,6 +8,21 @@ export default defineConfig({
     tailwindcss(),
     react(),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Heavy PDF rendering libs — only loaded when MangaReader is visited
+          'pdf-renderer': ['react-pdf', 'pdfjs-dist'],
+          // Vendor: core React ecosystem (shared across all routes)
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          // Other large optional deps
+          'html2canvas': ['html2canvas'],
+          'dompurify': ['dompurify'],
+        },
+      },
+    },
+  },
   preview: {
     allowedHosts: [
       'batodeluna-lu.art',

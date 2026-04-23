@@ -474,46 +474,47 @@ export default function MangaList() {
                 <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
                   {selectedGroup.groupArtist}
                 </p>
-                <p className="text-[11px] mt-1 font-medium" style={{ color: 'var(--text-secondary)' }}>
-                  {selectedGroup.itemCount} volume{selectedGroup.itemCount !== 1 ? 's' : ''}
-                </p>
+                {/* Volume count + Card/List toggle on same line */}
+                <div className="flex items-center gap-2 mt-1.5">
+                  <p className="text-[11px] font-medium" style={{ color: 'var(--text-secondary)' }}>
+                    {selectedGroup.itemCount} volume{selectedGroup.itemCount !== 1 ? 's' : ''}
+                  </p>
+                  <div className="flex rounded-md overflow-hidden" style={{ border: '1px solid var(--border-medium)' }}>
+                    <button
+                      onClick={() => setModalView('list')}
+                      className="px-1.5 py-0.5 transition-all duration-200"
+                      title="List view"
+                      style={{
+                        background: modalView === 'list' ? 'var(--accent-blue)' : 'transparent',
+                        color: modalView === 'list' ? '#fff' : 'var(--text-tertiary)',
+                      }}
+                    >
+                      <i className="bi bi-list-ul text-[11px]"></i>
+                    </button>
+                    <button
+                      onClick={() => setModalView('card')}
+                      className="px-1.5 py-0.5 transition-all duration-200"
+                      title="Card view"
+                      style={{
+                        background: modalView === 'card' ? 'var(--accent-blue)' : 'transparent',
+                        color: modalView === 'card' ? '#fff' : 'var(--text-tertiary)',
+                        borderLeft: '1px solid var(--border-medium)',
+                      }}
+                    >
+                      <i className="bi bi-grid-fill text-[11px]"></i>
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              {/* Card / List toggle + Close */}
-              <div className="flex items-center gap-2 shrink-0">
-                <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid var(--border-medium)' }}>
-                  <button
-                    onClick={() => setModalView('list')}
-                    className="p-1.5 transition-all duration-200"
-                    title="List view"
-                    style={{
-                      background: modalView === 'list' ? 'var(--accent-blue)' : 'transparent',
-                      color: modalView === 'list' ? '#fff' : 'var(--text-tertiary)',
-                    }}
-                  >
-                    <i className="bi bi-list-ul text-sm"></i>
-                  </button>
-                  <button
-                    onClick={() => setModalView('card')}
-                    className="p-1.5 transition-all duration-200"
-                    title="Card view"
-                    style={{
-                      background: modalView === 'card' ? 'var(--accent-blue)' : 'transparent',
-                      color: modalView === 'card' ? '#fff' : 'var(--text-tertiary)',
-                      borderLeft: '1px solid var(--border-medium)',
-                    }}
-                  >
-                    <i className="bi bi-grid-fill text-sm"></i>
-                  </button>
-                </div>
-                <button
-                  onClick={() => setSelectedGroup(null)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-150"
-                  style={{ background: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)' }}
-                >
-                  <i className="bi bi-x-lg text-xs" style={{ color: 'var(--text-secondary)' }}></i>
-                </button>
-              </div>
+              {/* Close button */}
+              <button
+                onClick={() => setSelectedGroup(null)}
+                className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-150"
+                style={{ background: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)' }}
+              >
+                <i className="bi bi-x-lg text-xs" style={{ color: 'var(--text-secondary)' }}></i>
+              </button>
             </div>
 
             {/* Divider */}

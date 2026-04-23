@@ -1,18 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { SpeedInsights } from "@vercel/speed-insights/react"
-import Layout from './components/layout/Layout';
-import Dashboard from './components/pages/Dashboard';
-import Employees from './components/employee/Employees';
-import Settings from './components/pages/Settings';
-import Reports from './components/pages/Reports';
-import NotFound from './components/pages/NotFound';
-import Login from './components/auth/Login';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import PublicOnlyRoute from './components/auth/PublicOnlyRoute';
-import HanachimoProfile from './components/pages/HanachimoProfile';
-import MangaList from './components/pages/MangaList';
-import MangaReader from './components/pages/MangaReader';
+import LoadingOverlay from './components/ui/LoadingOverlay';
+
+// ── Lazy-loaded page components (code-splitting) ──
+const Layout = React.lazy(() => import('./components/layout/Layout'));
+const Dashboard = React.lazy(() => import('./components/pages/Dashboard'));
+const Employees = React.lazy(() => import('./components/employee/Employees'));
+const Settings = React.lazy(() => import('./components/pages/Settings'));
+const Reports = React.lazy(() => import('./components/pages/Reports'));
+const NotFound = React.lazy(() => import('./components/pages/NotFound'));
+const Login = React.lazy(() => import('./components/auth/Login'));
+const ProtectedRoute = React.lazy(() => import('./components/auth/ProtectedRoute'));
+const PublicOnlyRoute = React.lazy(() => import('./components/auth/PublicOnlyRoute'));
+const HanachimoProfile = React.lazy(() => import('./components/pages/HanachimoProfile'));
+const MangaList = React.lazy(() => import('./components/pages/MangaList'));
+const MangaReader = React.lazy(() => import('./components/pages/MangaReader'));
 
 /* ──────────────────────────────────────────────
    Context Detection helpers
@@ -88,41 +91,43 @@ export default function App() {
     <Router>
       <TitleUpdater />
       <SubdomainRedirector />
-      <main className="flex flex-col min-h-screen">
-        <Routes>
-          {/* ──────────────────────────────────────────────
-             Doujin Manga Section
-             ────────────────────────────────────────────── */}
-          <Route path="/doujin">
-            <Route index element={<MangaList />} />
-            <Route path=":slug" element={<MangaReader />} />
-            <Route path=":slug/:pageNum" element={<MangaReader />} />
-          </Route>
+      <Suspense fallback={<LoadingOverlay message="Loading..." />}>
+        <main className="flex flex-col min-h-screen">
+          <Routes>
+            {/* ──────────────────────────────────────────────
+               Doujin Manga Section
+               ────────────────────────────────────────────── */}
+            <Route path="/doujin">
+              <Route index element={<MangaList />} />
+              <Route path=":slug" element={<MangaReader />} />
+              <Route path=":slug/:pageNum" element={<MangaReader />} />
+            </Route>
 
-          {/* ──────────────────────────────────────────────
-             BDLAG Admin Section
-             ────────────────────────────────────────────── */ }
-          <Route path="/bdlag">
-            <Route index element={<Navigate to="login" replace />} />
-            <Route path="login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
-            <Route path="dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
-            <Route path="employees" element={<ProtectedRoute><Layout><Employees /></Layout></ProtectedRoute>} />
-            <Route path="settings" element={<ProtectedRoute allowedRoles={['superadmin', 'viewer']}><Layout><Settings /></Layout></ProtectedRoute>} />
-            <Route path="reports" element={<ProtectedRoute allowedRoles={['superadmin', 'viewer']}><Layout><Reports /></Layout></ProtectedRoute>} />
-            <Route path="report" element={<Navigate to="../reports" replace />} />
-          </Route>
+            {/* ──────────────────────────────────────────────
+               BDLAG Admin Section
+               ────────────────────────────────────────────── */ }
+            <Route path="/bdlag">
+              <Route index element={<Navigate to="login" replace />} />
+              <Route path="login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
+              <Route path="dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
+              <Route path="employees" element={<ProtectedRoute><Layout><Employees /></Layout></ProtectedRoute>} />
+              <Route path="settings" element={<ProtectedRoute allowedRoles={['superadmin', 'viewer']}><Layout><Settings /></Layout></ProtectedRoute>} />
+              <Route path="reports" element={<ProtectedRoute allowedRoles={['superadmin', 'viewer']}><Layout><Reports /></Layout></ProtectedRoute>} />
+              <Route path="report" element={<Navigate to="../reports" replace />} />
+            </Route>
 
-          {/* ──────────────────────────────────────────────
-             Public Profile / Home
-             ────────────────────────────────────────────── */}
-          <Route path="/" element={<HanachimoProfile />} />
-          <Route path="/hanachimo" element={<HanachimoProfile />} />
+            {/* ──────────────────────────────────────────────
+               Public Profile / Home
+               ────────────────────────────────────────────── */}
+            <Route path="/" element={<HanachimoProfile />} />
+            <Route path="/hanachimo" element={<HanachimoProfile />} />
 
-          {/* Catch-all */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <SpeedInsights />
-      </main>
+            {/* Catch-all */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <SpeedInsights />
+        </main>
+      </Suspense>
     </Router>
   );
 }
