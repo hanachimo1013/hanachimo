@@ -474,36 +474,36 @@ export default function MangaList() {
                 <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
                   {selectedGroup.groupArtist}
                 </p>
-                {/* Volume count + Card/List toggle on same line */}
-                <div className="flex items-center gap-2 mt-1.5">
-                  <p className="text-[11px] font-medium" style={{ color: 'var(--text-secondary)' }}>
-                    {selectedGroup.itemCount} volume{selectedGroup.itemCount !== 1 ? 's' : ''}
-                  </p>
-                  <div className="flex rounded-md overflow-hidden" style={{ border: '1px solid var(--border-medium)' }}>
+                <p className="text-[11px] font-medium mt-1" style={{ color: 'var(--text-secondary)' }}>
+                  {selectedGroup.itemCount} volume{selectedGroup.itemCount !== 1 ? 's' : ''}
+                </p>
+
+                {/* Labeled segmented control */}
+                <div
+                  className="flex mt-2.5 rounded-lg p-0.5"
+                  style={{
+                    background: theme === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)',
+                    width: 'fit-content',
+                  }}
+                >
+                  {[
+                    { key: 'list', icon: 'bi-list-ul', label: 'List' },
+                    { key: 'card', icon: 'bi-grid-fill', label: 'Card' },
+                  ].map((v) => (
                     <button
-                      onClick={() => setModalView('list')}
-                      className="px-1.5 py-0.5 transition-all duration-200"
-                      title="List view"
+                      key={v.key}
+                      onClick={() => setModalView(v.key)}
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-semibold transition-all duration-200"
                       style={{
-                        background: modalView === 'list' ? 'var(--accent-blue)' : 'transparent',
-                        color: modalView === 'list' ? '#fff' : 'var(--text-tertiary)',
+                        background: modalView === v.key ? 'var(--accent-blue)' : 'transparent',
+                        color: modalView === v.key ? '#fff' : 'var(--text-tertiary)',
+                        boxShadow: modalView === v.key ? '0 1px 4px rgba(0,122,255,0.3)' : 'none',
                       }}
                     >
-                      <i className="bi bi-list-ul text-[11px]"></i>
+                      <i className={`bi ${v.icon} text-[11px]`}></i>
+                      {v.label}
                     </button>
-                    <button
-                      onClick={() => setModalView('card')}
-                      className="px-1.5 py-0.5 transition-all duration-200"
-                      title="Card view"
-                      style={{
-                        background: modalView === 'card' ? 'var(--accent-blue)' : 'transparent',
-                        color: modalView === 'card' ? '#fff' : 'var(--text-tertiary)',
-                        borderLeft: '1px solid var(--border-medium)',
-                      }}
-                    >
-                      <i className="bi bi-grid-fill text-[11px]"></i>
-                    </button>
-                  </div>
+                  ))}
                 </div>
               </div>
 
