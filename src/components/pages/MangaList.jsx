@@ -72,6 +72,18 @@ function isNewFile(modifiedTime) {
   return (Date.now() - new Date(modifiedTime).getTime()) <= TWO_DAYS_MS;
 }
 
+// ── Check if user is on mobile data or small viewport ──
+function shouldWarnDataUsage() {
+  // Check viewport
+  const isSmallViewport = window.innerWidth < 768;
+  // Check Network Information API (cellular / slow)
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const isCellular = conn && (conn.type === 'cellular' || conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g' || conn.effectiveType === '3g');
+  // Also flag if saveData is on
+  const isSaveData = conn && conn.saveData;
+  return isSmallViewport || isCellular || isSaveData;
+}
+
 export default function MangaList() {
   const [mangaList, setMangaList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -82,6 +94,9 @@ export default function MangaList() {
   const [ageFilter, setAgeFilter] = useState('all');
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null); // modal state
+  const [modalView, setModalView] = useState('list'); // 'list' | 'card'
+  const [pendingManga, setPendingManga] = useState(null); // data-warning dialog
+  const [suppressWarning, setSuppressWarning] = useState(() => sessionStorage.getItem('suppressDataWarning') === '1');
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const searchInputRef = useRef(null);
@@ -181,20 +196,45 @@ export default function MangaList() {
   const currentFieldLabel = SORT_FIELDS.find((f) => f.value === sortField)?.label || 'Name';
 
   // ── Handlers ──
+  const navigateToReader = (manga) => {
+    const slug = manga.name.replace(/\.pdf$/i, '');
+    navigate(getDoujinPath(`/${encodeURIComponent(slug)}/1`));
+  };
+
+  const attemptRead = (manga) => {
+    if (!suppressWarning && shouldWarnDataUsage()) {
+      setPendingManga(manga);
+    } else {
+      navigateToReader(manga);
+    }
+  };
+
   const handleGroupClick = (group) => {
     if (group.itemCount === 1) {
-      // Single item → go directly to reader
-      const slug = group.items[0].name.replace(/\.pdf$/i, '');
-      navigate(getDoujinPath(`/${encodeURIComponent(slug)}/1`));
+      attemptRead(group.items[0]);
     } else {
-      // Multiple items → open modal
       setSelectedGroup(group);
     }
   };
 
   const handleItemClick = (manga) => {
-    const slug = manga.name.replace(/\.pdf$/i, '');
-    navigate(getDoujinPath(`/${encodeURIComponent(slug)}/1`));
+    attemptRead(manga);
+  };
+
+  const handleWarningProceed = () => {
+    if (pendingManga) navigateToReader(pendingManga);
+    setPendingManga(null);
+  };
+
+  const handleWarningDismiss = () => {
+    setPendingManga(null);
+  };
+
+  const handleWarningSuppress = () => {
+    setSuppressWarning(true);
+    sessionStorage.setItem('suppressDataWarning', '1');
+    if (pendingManga) navigateToReader(pendingManga);
+    setPendingManga(null);
   };
 
   if (loading) return <LoadingOverlay message="Loading Manga Gallery..." />;
@@ -438,67 +478,209 @@ export default function MangaList() {
                   {selectedGroup.itemCount} volume{selectedGroup.itemCount !== 1 ? 's' : ''}
                 </p>
               </div>
-              {/* Close button */}
-              <button
-                onClick={() => setSelectedGroup(null)}
-                className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-150"
-                style={{ background: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)' }}
-              >
-                <i className="bi bi-x-lg text-xs" style={{ color: 'var(--text-secondary)' }}></i>
-              </button>
+
+              {/* Card / List toggle + Close */}
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid var(--border-medium)' }}>
+                  <button
+                    onClick={() => setModalView('list')}
+                    className="p-1.5 transition-all duration-200"
+                    title="List view"
+                    style={{
+                      background: modalView === 'list' ? 'var(--accent-blue)' : 'transparent',
+                      color: modalView === 'list' ? '#fff' : 'var(--text-tertiary)',
+                    }}
+                  >
+                    <i className="bi bi-list-ul text-sm"></i>
+                  </button>
+                  <button
+                    onClick={() => setModalView('card')}
+                    className="p-1.5 transition-all duration-200"
+                    title="Card view"
+                    style={{
+                      background: modalView === 'card' ? 'var(--accent-blue)' : 'transparent',
+                      color: modalView === 'card' ? '#fff' : 'var(--text-tertiary)',
+                      borderLeft: '1px solid var(--border-medium)',
+                    }}
+                  >
+                    <i className="bi bi-grid-fill text-sm"></i>
+                  </button>
+                </div>
+                <button
+                  onClick={() => setSelectedGroup(null)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-150"
+                  style={{ background: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)' }}
+                >
+                  <i className="bi bi-x-lg text-xs" style={{ color: 'var(--text-secondary)' }}></i>
+                </button>
+              </div>
             </div>
 
             {/* Divider */}
             <div className="mx-5" style={{ borderTop: '1px solid var(--border-light)' }}></div>
 
-            {/* Items list */}
-            <div className="overflow-y-auto flex-1 p-3 custom-scrollbar">
-              {selectedGroup.items.map((manga, idx) => {
-                const itemIsNew = isNewFile(manga.modifiedTime);
-                return (
-                  <button
-                    key={manga.id}
-                    onClick={() => handleItemClick(manga)}
-                    className="w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-all duration-150 hover:scale-[1.01] active:scale-[0.99]"
-                    style={{
-                      background: 'transparent',
-                      animationDelay: `${idx * 30}ms`,
-                      animation: 'slide-up 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = theme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                  >
-                    {/* Item thumbnail */}
-                    <div className="w-11 h-14 rounded-lg overflow-hidden shrink-0 shadow-md"
-                      style={{ background: 'var(--border-light)' }}>
-                      {manga.thumbnailLink ? (
-                        <img src={manga.thumbnailLink} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--text-tertiary)' }}>
-                          <i className="bi bi-file-pdf text-lg"></i>
+            {/* Items — List view */}
+            {modalView === 'list' && (
+              <div className="overflow-y-auto flex-1 p-3 custom-scrollbar">
+                {selectedGroup.items.map((manga, idx) => {
+                  const itemIsNew = isNewFile(manga.modifiedTime);
+                  return (
+                    <button
+                      key={manga.id}
+                      onClick={() => handleItemClick(manga)}
+                      className="w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-all duration-150 hover:scale-[1.01] active:scale-[0.99]"
+                      style={{
+                        background: 'transparent',
+                        animationDelay: `${idx * 30}ms`,
+                        animation: 'slide-up 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = theme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <div className="w-11 h-14 rounded-lg overflow-hidden shrink-0 shadow-md"
+                        style={{ background: 'var(--border-light)' }}>
+                        {manga.thumbnailLink ? (
+                          <img src={manga.thumbnailLink} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--text-tertiary)' }}>
+                            <i className="bi bi-file-pdf text-lg"></i>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm line-clamp-1">{manga.parsedTitle}</p>
+                        <p className="text-[11px] line-clamp-1" style={{ color: 'var(--text-tertiary)' }}>
+                          {manga.parsedArtist}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {itemIsNew && (
+                          <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase rounded text-white"
+                            style={{ background: 'var(--accent-red)' }}>New</span>
+                        )}
+                        <i className="bi bi-chevron-right text-xs" style={{ color: 'var(--text-tertiary)' }}></i>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Items — Card view */}
+            {modalView === 'card' && (
+              <div className="overflow-y-auto flex-1 p-4 custom-scrollbar">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {selectedGroup.items.map((manga, idx) => {
+                    const itemIsNew = isNewFile(manga.modifiedTime);
+                    return (
+                      <div
+                        key={manga.id}
+                        onClick={() => handleItemClick(manga)}
+                        className="rounded-xl overflow-hidden cursor-pointer transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] hover:shadow-lg"
+                        style={{
+                          background: theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+                          border: '1px solid var(--border-light)',
+                          animationDelay: `${idx * 40}ms`,
+                          animation: 'slide-up 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
+                        }}
+                      >
+                        <div className="aspect-[3/4] w-full relative overflow-hidden">
+                          {itemIsNew && (
+                            <div className="absolute top-1.5 right-1.5 z-10 px-1.5 py-0.5 text-white text-[9px] font-bold uppercase rounded shadow-lg pointer-events-none"
+                              style={{ background: 'var(--accent-red)' }}>New</div>
+                          )}
+                          {manga.thumbnailLink ? (
+                            <img src={manga.thumbnailLink} alt="" className="w-full h-full object-cover" loading="lazy" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--text-tertiary)', background: 'var(--border-light)' }}>
+                              <i className="bi bi-file-pdf text-3xl"></i>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
+                        <div className="p-2 text-center">
+                          <p className="font-medium text-[11px] md:text-xs line-clamp-2">{manga.parsedTitle}</p>
+                          <p className="text-[10px] line-clamp-1 mt-0.5" style={{ color: 'var(--text-tertiary)' }}>
+                            {manga.parsedArtist}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
-                    {/* Item info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm line-clamp-1">{manga.parsedTitle}</p>
-                      <p className="text-[11px] line-clamp-1" style={{ color: 'var(--text-tertiary)' }}>
-                        {manga.parsedArtist}
-                      </p>
-                    </div>
+      {/* ── Data Usage Warning Dialog ── */}
+      {pendingManga && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+          onClick={handleWarningDismiss}
+          style={{ animation: 'fade-in 150ms ease' }}
+        >
+          <div className="absolute inset-0"
+            style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)' }} />
 
-                    {/* Badges + chevron */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      {itemIsNew && (
-                        <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase rounded text-white"
-                          style={{ background: 'var(--accent-red)' }}>New</span>
-                      )}
-                      <i className="bi bi-chevron-right text-xs" style={{ color: 'var(--text-tertiary)' }}></i>
-                    </div>
-                  </button>
-                );
-              })}
+          <div
+            className="relative z-10 w-full max-w-sm overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: theme === 'dark' ? 'rgba(28,28,30,0.95)' : 'rgba(255,255,255,0.95)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+              border: '1px solid var(--glass-border)',
+              borderRadius: '20px',
+              boxShadow: '0 24px 80px rgba(0,0,0,0.4)',
+              animation: 'fade-scale 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            }}
+          >
+            {/* Icon */}
+            <div className="flex flex-col items-center text-center px-6 pt-6 pb-4">
+              <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4"
+                style={{ background: 'rgba(255,149,0,0.12)' }}>
+                <i className="bi bi-exclamation-triangle-fill text-2xl" style={{ color: 'var(--accent-orange)' }}></i>
+              </div>
+              <h3 className="font-bold text-base mb-2">Large File Warning</h3>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                This PDF may be <strong>large</strong> and will be streamed directly from Google Drive.
+                Unlike traditional image-based sites, this will consume more data.
+              </p>
+              <p className="text-xs mt-2" style={{ color: 'var(--text-tertiary)' }}>
+                Consider using Wi-Fi for a better experience.
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div style={{ borderTop: '1px solid var(--border-light)' }}>
+              <button
+                onClick={handleWarningProceed}
+                className="w-full py-3.5 text-sm font-semibold transition-colors duration-150"
+                style={{ color: 'var(--accent-blue)', borderBottom: '1px solid var(--border-light)' }}
+                onMouseEnter={(e) => e.currentTarget.style.background = theme === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                Continue Anyway
+              </button>
+              <button
+                onClick={handleWarningSuppress}
+                className="w-full py-3.5 text-sm transition-colors duration-150"
+                style={{ color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-light)' }}
+                onMouseEnter={(e) => e.currentTarget.style.background = theme === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                Don't warn me again
+              </button>
+              <button
+                onClick={handleWarningDismiss}
+                className="w-full py-3.5 text-sm font-semibold transition-colors duration-150"
+                style={{ color: 'var(--accent-red)' }}
+                onMouseEnter={(e) => e.currentTarget.style.background = theme === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
