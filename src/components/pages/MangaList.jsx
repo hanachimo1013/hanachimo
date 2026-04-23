@@ -474,37 +474,9 @@ export default function MangaList() {
                 <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
                   {selectedGroup.groupArtist}
                 </p>
-                <p className="text-[11px] font-medium mt-1" style={{ color: 'var(--text-secondary)' }}>
+                <p className="text-[11px] font-medium mt-1.5" style={{ color: 'var(--text-secondary)' }}>
                   {selectedGroup.itemCount} volume{selectedGroup.itemCount !== 1 ? 's' : ''}
                 </p>
-
-                {/* Labeled segmented control */}
-                <div
-                  className="flex mt-2.5 rounded-lg p-0.5"
-                  style={{
-                    background: theme === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)',
-                    width: 'fit-content',
-                  }}
-                >
-                  {[
-                    { key: 'list', icon: 'bi-list-ul', label: 'List' },
-                    { key: 'card', icon: 'bi-grid-fill', label: 'Card' },
-                  ].map((v) => (
-                    <button
-                      key={v.key}
-                      onClick={() => setModalView(v.key)}
-                      className="flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-semibold transition-all duration-200"
-                      style={{
-                        background: modalView === v.key ? 'var(--accent-blue)' : 'transparent',
-                        color: modalView === v.key ? '#fff' : 'var(--text-tertiary)',
-                        boxShadow: modalView === v.key ? '0 1px 4px rgba(0,122,255,0.3)' : 'none',
-                      }}
-                    >
-                      <i className={`bi ${v.icon} text-[11px]`}></i>
-                      {v.label}
-                    </button>
-                  ))}
-                </div>
               </div>
 
               {/* Close button */}
@@ -515,6 +487,44 @@ export default function MangaList() {
               >
                 <i className="bi bi-x-lg text-xs" style={{ color: 'var(--text-secondary)' }}></i>
               </button>
+            </div>
+
+            {/* View mode toggle bar */}
+            <div className="flex items-center justify-between px-5 py-2.5">
+              <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>
+                View
+              </span>
+              <div
+                className="flex rounded-lg overflow-hidden"
+                style={{
+                  border: '1px solid var(--border-medium)',
+                  background: theme === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
+                }}
+              >
+                <button
+                  onClick={() => setModalView('list')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold transition-all duration-200"
+                  style={{
+                    background: modalView === 'list' ? 'var(--accent-blue)' : 'transparent',
+                    color: modalView === 'list' ? '#fff' : 'var(--text-tertiary)',
+                  }}
+                >
+                  <i className="bi bi-list-ul"></i>
+                  List
+                </button>
+                <button
+                  onClick={() => setModalView('card')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold transition-all duration-200"
+                  style={{
+                    background: modalView === 'card' ? 'var(--accent-blue)' : 'transparent',
+                    color: modalView === 'card' ? '#fff' : 'var(--text-tertiary)',
+                    borderLeft: '1px solid var(--border-medium)',
+                  }}
+                >
+                  <i className="bi bi-grid-fill"></i>
+                  Card
+                </button>
+              </div>
             </div>
 
             {/* Divider */}

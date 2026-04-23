@@ -47,7 +47,6 @@ export default function MangaReader() {
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState('manga');
   const [visiblePage, setVisiblePage] = useState(currentPage);
-  const [pillTheme, setPillTheme] = useState('dark'); // 'dark' = dark pill (for light bg), 'light' = light pill (for dark bg)
 
   const containerRef = useRef(null);
   const pageRefs = useRef([]);
@@ -317,95 +316,6 @@ export default function MangaReader() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleNextPage, handlePrevPage, viewMode, navigate]);
 
-  // ── 10. Adaptive pill brightness detection ─────────────────────────
-  useEffect(() => {
-    if (!numPages || loading) return;
-
-    // Small delay to let react-pdf render the canvas
-    const timer = setTimeout(() => {
-      try {
-        // Find the currently visible page canvas
-        const container = containerRef.current;
-        if (!container) return;
-
-        let canvas;
-        if (viewMode === 'manga') {
-          canvas = container.querySelector('canvas');
-        } else {
-          // Manhwa mode: find the canvas closest to the visible page
-          const pageDiv = pageRefs.current[visiblePage - 1];
-          if (pageDiv) canvas = pageDiv.querySelector('canvas');
-        }
-
-        if (!canvas || canvas.width === 0 || canvas.height === 0) return;
-
-        // Sample pixels from the bottom ~15% center strip (where the pill overlaps)
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        const sampleY = Math.floor(canvas.height * 0.82);
-        const sampleH = Math.floor(canvas.height * 0.15);
-        const sampleX = Math.floor(canvas.width * 0.25);
-        const sampleW = Math.floor(canvas.width * 0.5);
-
-        const imageData = ctx.getImageData(sampleX, sampleY, sampleW, sampleH);
-        const data = imageData.data;
-
-        // Compute average brightness (perceived luminance)
-        let totalBrightness = 0;
-        const pixelCount = data.length / 4;
-        // Sample every 8th pixel for performance
-        const step = 8;
-        let sampled = 0;
-        for (let i = 0; i < data.length; i += 4 * step) {
-          const r = data[i];
-          const g = data[i + 1];
-          const b = data[i + 2];
-          // Perceived brightness formula
-          totalBrightness += (0.299 * r + 0.587 * g + 0.114 * b);
-          sampled++;
-        }
-
-        const avgBrightness = totalBrightness / sampled;
-        // If background is dark (brightness < 128), use light pill; otherwise dark pill
-        setPillTheme(avgBrightness < 128 ? 'light' : 'dark');
-      } catch {
-        // Silently ignore — cross-origin or missing canvas
-        setPillTheme('light');
-      }
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [visiblePage, numPages, viewMode, loading]);
-
-  // Pill color tokens derived from pillTheme
-  const pillColors = useMemo(() => {
-    if (pillTheme === 'light') {
-      // Light / frosted pill for dark backgrounds
-      return {
-        bg: 'rgba(255, 255, 255, 0.12)',
-        border: 'rgba(255, 255, 255, 0.18)',
-        text: 'rgba(255, 255, 255, 0.85)',
-        textMuted: 'rgba(255, 255, 255, 0.55)',
-        toggleBg: 'rgba(255, 255, 255, 0.1)',
-        toggleActive: 'rgba(255, 255, 255, 0.95)',
-        toggleActiveText: '#000',
-        toggleInactive: 'rgba(255, 255, 255, 0.5)',
-        separator: 'rgba(255, 255, 255, 0.12)',
-      };
-    }
-    // Dark pill for light backgrounds
-    return {
-      bg: 'rgba(0, 0, 0, 0.45)',
-      border: 'rgba(0, 0, 0, 0.12)',
-      text: 'rgba(0, 0, 0, 0.85)',
-      textMuted: 'rgba(0, 0, 0, 0.5)',
-      toggleBg: 'rgba(0, 0, 0, 0.08)',
-      toggleActive: 'rgba(0, 0, 0, 0.85)',
-      toggleActiveText: '#fff',
-      toggleInactive: 'rgba(0, 0, 0, 0.45)',
-      separator: 'rgba(0, 0, 0, 0.1)',
-    };
-  }, [pillTheme]);
-
   // ── Loading state with progress bar ───────────────────────────────
   if (loading) {
     return (
@@ -439,68 +349,48 @@ export default function MangaReader() {
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-black text-white">
-      {/* ── Floating Bottom Pill (adaptive to background brightness) ── */}
-      <div
-        className="fixed left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full flex gap-3 items-center shadow-2xl hover:opacity-100 opacity-70 md:opacity-90"
-        style={{
-          bottom: window.innerWidth < 768
-            ? 'calc(12px + env(safe-area-inset-bottom, 0px))'
-            : '32px',
-          background: pillColors.bg,
-          border: `1px solid ${pillColors.border}`,
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          fontSize: '12px',
-          transition: 'background 500ms ease, border-color 500ms ease, box-shadow 500ms ease',
-          boxShadow: pillTheme === 'light'
-            ? '0 4px 24px rgba(0,0,0,0.35)'
-            : '0 4px 24px rgba(0,0,0,0.15)',
-        }}
+      {/* ── Floating Bottom Pill (Safari-style) ── */}
+      <div className="fixed left-1/2 -translate-x-1/2 z-50 glass-subtle px-4 py-2 rounded-full flex gap-3 items-center shadow-2xl transition-opacity duration-300 hover:opacity-100 opacity-60 md:opacity-90"
+           style={{
+             bottom: window.innerWidth < 768
+               ? 'calc(12px + env(safe-area-inset-bottom, 0px))'
+               : '32px',
+             backdropFilter: 'blur(20px)',
+             WebkitBackdropFilter: 'blur(20px)',
+             fontSize: '12px',
+           }}
       >
         <button
           onClick={() => navigate(getDoujinPath('/'))}
-          className="transition-colors duration-300"
-          style={{ color: pillColors.text }}
+          className="text-white/80 hover:text-[var(--accent-blue)] transition-colors"
           title="Back to Gallery"
         >
           <i className="bi bi-arrow-left text-xs"></i>
         </button>
 
         {/* Compact view mode toggle */}
-        <div className="flex rounded-md p-0.5" style={{ background: pillColors.toggleBg, transition: 'background 500ms ease' }}>
+        <div className="flex bg-white/10 rounded-md p-0.5">
           <button
             onClick={() => setViewMode('manga')}
-            className="px-2 py-0.5 text-[11px] rounded transition-all duration-300"
-            style={{
-              background: viewMode === 'manga' ? pillColors.toggleActive : 'transparent',
-              color: viewMode === 'manga' ? pillColors.toggleActiveText : pillColors.toggleInactive,
-              fontWeight: viewMode === 'manga' ? 600 : 400,
-            }}
+            className={`px-2 py-0.5 text-[11px] rounded transition-all ${viewMode === 'manga' ? 'bg-white text-black font-semibold' : 'text-white/60 hover:text-white'}`}
           >
             Manga
           </button>
           <button
             onClick={() => setViewMode('manhwa')}
-            className="px-2 py-0.5 text-[11px] rounded transition-all duration-300"
-            style={{
-              background: viewMode === 'manhwa' ? pillColors.toggleActive : 'transparent',
-              color: viewMode === 'manhwa' ? pillColors.toggleActiveText : pillColors.toggleInactive,
-              fontWeight: viewMode === 'manhwa' ? 600 : 400,
-            }}
+            className={`px-2 py-0.5 text-[11px] rounded transition-all ${viewMode === 'manhwa' ? 'bg-white text-black font-semibold' : 'text-white/60 hover:text-white'}`}
           >
             Manhwa
           </button>
         </div>
 
         {/* Compact page nav */}
-        <div className="flex items-center gap-2 font-mono transition-colors duration-300" style={{ color: pillColors.textMuted }}>
-          <button onClick={handlePrevPage} disabled={currentPage <= 1} className="disabled:opacity-30 transition-colors duration-300" style={{ color: pillColors.text }}>
+        <div className="flex items-center gap-2 font-mono text-white/70">
+          <button onClick={handlePrevPage} disabled={currentPage <= 1} className="disabled:opacity-30 hover:text-white transition-colors">
             <i className="bi bi-chevron-left text-[10px]"></i>
           </button>
-          <span className="tabular-nums" style={{ color: pillColors.text, transition: 'color 500ms ease' }}>
-            {visiblePage}<span style={{ color: pillColors.textMuted, margin: '0 2px' }}>/</span>{numPages || '…'}
-          </span>
-          <button onClick={handleNextPage} disabled={numPages && currentPage >= numPages} className="disabled:opacity-30 transition-colors duration-300" style={{ color: pillColors.text }}>
+          <span className="tabular-nums">{visiblePage}<span className="text-white/30 mx-0.5">/</span>{numPages || '…'}</span>
+          <button onClick={handleNextPage} disabled={numPages && currentPage >= numPages} className="disabled:opacity-30 hover:text-white transition-colors">
             <i className="bi bi-chevron-right text-[10px]"></i>
           </button>
         </div>
