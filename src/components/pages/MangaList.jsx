@@ -659,7 +659,7 @@ const MangaList = () => {
                 Unlike traditional image-based sites, this will consume more data.
               </p>
               <p className="text-xs mt-2" style={{ color: 'var(--text-tertiary)' }}>
-                Consider using Wi-Fi for a better experience.
+                Consider using Wi-Fi for a better gooning experience.
               </p>
             </div>
 
