@@ -69,7 +69,7 @@ const RepoCard = ({ repo }) => {
   );
 };
 
-export default function HanachimoProfile() {
+const HanachimoProfile = () => {
   const [profile, setProfile] = useState(null);
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -327,4 +327,6 @@ export default function HanachimoProfile() {
       </main>
     </div>
   );
-}
+};
+
+export default HanachimoProfile;

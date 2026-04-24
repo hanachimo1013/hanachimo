@@ -16,6 +16,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+app.disable('x-powered-by'); // Security: hide express signature
 const PORT = Number(process.env.PORT || 4000);
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '8h';
@@ -64,7 +65,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-function createToken(user) {
+const createToken = (user) => {
   return jwt.sign(
     {
       sub: String(user.id),
@@ -77,7 +78,7 @@ function createToken(user) {
   );
 }
 
-function requireAuth(req, res, next) {
+const requireAuth = (req, res, next) => {
   const authHeader = req.headers.authorization || '';
   const [scheme, token] = authHeader.split(' ');
 
@@ -93,7 +94,7 @@ function requireAuth(req, res, next) {
   }
 }
 
-function requireRole(...allowedRoles) {
+const requireRole = (...allowedRoles) => {
   return (req, res, next) => {
     if (!req.user?.role || !allowedRoles.includes(req.user.role)) {
       return res.status(403).json({ message: 'Forbidden for your role.' });
@@ -102,7 +103,7 @@ function requireRole(...allowedRoles) {
   };
 }
 
-function toDbEmployee(payload) {
+const toDbEmployee = (payload) => {
   return {
     name: String(payload.name || '').trim(),
     designation: String(payload.designation || '').trim(),
@@ -115,7 +116,7 @@ function toDbEmployee(payload) {
   };
 }
 
-function toEmployeeValues(payload) {
+const toEmployeeValues = (payload) => {
   const values = {
     ee_total: Number(payload.eeTotal ?? payload.ee_total ?? payload.eeShare ?? payload.eeshare ?? 0),
     er_total: Number(payload.erTotal ?? payload.er_total ?? payload.erShare ?? payload.ershare ?? 0),
@@ -149,13 +150,13 @@ function toEmployeeValues(payload) {
   return values;
 }
 
-function maskText(value) {
+const maskText = (value) => {
   const text = String(value || '');
   if (text.length <= 2) return '*'.repeat(text.length);
   return `${text.slice(0, 2)}${'*'.repeat(Math.max(1, text.length - 3))}${text.slice(-1)}`;
 }
 
-function maskEmployeesForViewer(list) {
+const maskEmployeesForViewer = (list) => {
   return list.map((emp) => ({
     ...emp,
     name: maskText(emp.name),
@@ -175,7 +176,7 @@ function maskEmployeesForViewer(list) {
   }));
 }
 
-function maskValuesForViewer(list) {
+const maskValuesForViewer = (list) => {
   return list.map((row) => ({
     ...row,
     ee_total: 0,
@@ -189,13 +190,13 @@ function maskValuesForViewer(list) {
   }));
 }
 
-function buildEmployeeKey(employee) {
+const buildEmployeeKey = (employee) => {
   const name = String(employee?.name || '').trim();
   const designation = String(employee?.designation || '').trim();
   return `${name}||${designation}`;
 }
 
-function mergeEmployeeValues(employee, values) {
+const mergeEmployeeValues = (employee, values) => {
   if (!values) return employee;
   return {
     ...employee,

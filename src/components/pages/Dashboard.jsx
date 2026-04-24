@@ -148,7 +148,7 @@ const EmployeeTable = ({ employees, loading, isViewer, onHistory }) => {
   );
 };
 
-export default function Dashboard() {
+const Dashboard = () => {
   const { user } = useAuth();
   const isViewer = user?.role === 'viewer';
   const { employees, loading, valuesLoading, fetchEmployeeValues } = useEmployees();
@@ -350,4 +350,6 @@ export default function Dashboard() {
       )}
     </>
   );
-}
+};
+
+export default Dashboard;

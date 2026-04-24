@@ -17,11 +17,11 @@ const BUFFER_PAGES = 4;
 // Simple in-memory cache so navigating back doesn't re-download
 const blobCache = new Map();
 
-function getDoujinPath(path) {
+const getDoujinPath = (path) => {
   return `/doujin${path}`;
-}
+};
 
-function PageSkeleton({ height, width }) {
+const PageSkeleton = ({ height, width }) => {
   // Use a stable estimated height so the DOM doesn't collapse/expand
   // when pages enter/leave the render window.
   const stableHeight = height || '140vh';
@@ -33,9 +33,9 @@ function PageSkeleton({ height, width }) {
       <AppleSpinner white />
     </div>
   );
-}
+};
 
-export default function MangaReader() {
+const MangaReader = () => {
   const { slug, pageNum } = useParams();
   const navigate = useNavigate();
   const currentPage = parseInt(pageNum || '1', 10);
@@ -480,4 +480,6 @@ export default function MangaReader() {
       )}
     </div>
   );
-}
+};
+
+export default MangaReader;

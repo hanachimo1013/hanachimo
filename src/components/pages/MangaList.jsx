@@ -8,7 +8,7 @@ const SORT_FIELDS = [
   { value: 'modifiedTime', label: 'Date Modified' },
 ];
 
-function compareFn(a, b, field, direction) {
+const compareFn = (a, b, field, direction) => {
   let valA = a[field];
   let valB = b[field];
   if (field === 'modifiedTime') {
@@ -23,11 +23,11 @@ function compareFn(a, b, field, direction) {
   return 0;
 }
 
-function getDoujinPath(path) {
+const getDoujinPath = (path) => {
   return `/doujin${path}`;
 }
 
-function formatTitleCase(str) {
+const formatTitleCase = (str) => {
   return str.split(' ').map((word) => {
     if (word.length === 0) return word;
     return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
@@ -35,7 +35,7 @@ function formatTitleCase(str) {
 }
 
 // ── Unslugify: extract artist (in []) and title from filename ──
-function unslugify(filename) {
+const unslugify = (filename) => {
   const stripped = filename.replace(/\.pdf$/i, '');
 
   // Pattern: optional_digits_[artist]_Title_Words
@@ -55,7 +55,7 @@ function unslugify(filename) {
 }
 
 // ── Group key: strip vol/part/chapter markers + subtitles, take first 3 words ──
-function getGroupKey(title) {
+const getGroupKey = (title) => {
   const cleaned = title
     .replace(/-[^-]+-/g, '')                        // Remove -subtitle- markers
     .replace(/\bVol\.?\s*[\d.]+/gi, '')              // Remove Vol. X
@@ -67,13 +67,13 @@ function getGroupKey(title) {
 }
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
-function isNewFile(modifiedTime) {
+const isNewFile = (modifiedTime) => {
   if (!modifiedTime) return false;
   return (Date.now() - new Date(modifiedTime).getTime()) <= TWO_DAYS_MS;
 }
 
 // ── Check if user is on mobile data or small viewport ──
-function shouldWarnDataUsage() {
+const shouldWarnDataUsage = () => {
   // Check viewport
   const isSmallViewport = window.innerWidth < 768;
   // Check Network Information API (cellular / slow)
@@ -84,7 +84,7 @@ function shouldWarnDataUsage() {
   return isSmallViewport || isCellular || isSaveData;
 }
 
-export default function MangaList() {
+const MangaList = () => {
   const [mangaList, setMangaList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -196,46 +196,46 @@ export default function MangaList() {
   const currentFieldLabel = SORT_FIELDS.find((f) => f.value === sortField)?.label || 'Name';
 
   // ── Handlers ──
-  const navigateToReader = (manga) => {
+  const navigateToReader = React.useCallback((manga) => {
     const slug = manga.name.replace(/\.pdf$/i, '');
     navigate(getDoujinPath(`/${encodeURIComponent(slug)}/1`));
-  };
+  }, [navigate]);
 
-  const attemptRead = (manga) => {
+  const attemptRead = React.useCallback((manga) => {
     if (!suppressWarning && shouldWarnDataUsage()) {
       setPendingManga(manga);
     } else {
       navigateToReader(manga);
     }
-  };
+  }, [suppressWarning, navigateToReader]);
 
-  const handleGroupClick = (group) => {
+  const handleGroupClick = React.useCallback((group) => {
     if (group.itemCount === 1) {
       attemptRead(group.items[0]);
     } else {
       setSelectedGroup(group);
     }
-  };
+  }, [attemptRead]);
 
-  const handleItemClick = (manga) => {
+  const handleItemClick = React.useCallback((manga) => {
     attemptRead(manga);
-  };
+  }, [attemptRead]);
 
-  const handleWarningProceed = () => {
+  const handleWarningProceed = React.useCallback(() => {
     if (pendingManga) navigateToReader(pendingManga);
     setPendingManga(null);
-  };
+  }, [pendingManga, navigateToReader]);
 
-  const handleWarningDismiss = () => {
+  const handleWarningDismiss = React.useCallback(() => {
     setPendingManga(null);
-  };
+  }, []);
 
-  const handleWarningSuppress = () => {
+  const handleWarningSuppress = React.useCallback(() => {
     setSuppressWarning(true);
     sessionStorage.setItem('suppressDataWarning', '1');
     if (pendingManga) navigateToReader(pendingManga);
     setPendingManga(null);
-  };
+  }, [pendingManga, navigateToReader]);
 
   if (loading) return <LoadingOverlay message="Loading Manga Gallery..." />;
 
@@ -698,4 +698,6 @@ export default function MangaList() {
       )}
     </div>
   );
-}
+};
+
+export default MangaList;

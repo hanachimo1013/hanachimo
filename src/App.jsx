@@ -20,7 +20,7 @@ const MangaReader = React.lazy(() => import('./components/pages/MangaReader'));
 /* ──────────────────────────────────────────────
    Context Detection helpers
    ────────────────────────────────────────────── */
-function getAppContext() {
+const getAppContext = () => {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname.toLowerCase();
 
@@ -34,7 +34,7 @@ function getAppContext() {
     if (sub === 'bdlag') return 'bdlag';
   }
   return 'www';
-}
+};
 
 const routeTitles = {
   'dashboard': 'Dashboard',
@@ -44,7 +44,7 @@ const routeTitles = {
   'login': 'Login',
 };
 
-function TitleUpdater() {
+const TitleUpdater = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -63,14 +63,14 @@ function TitleUpdater() {
   }, [pathname]);
 
   return null;
-}
+};
 
 /**
  * Subdomain Redirector
  * If a user hits doujin.domain.art/ (no path), redirect them to /doujin
  * This preserves legacy subdomain access while using path-based routing.
  */
-function SubdomainRedirector() {
+const SubdomainRedirector = () => {
   const { pathname } = useLocation();
   const hostname = window.location.hostname;
   
@@ -84,9 +84,9 @@ function SubdomainRedirector() {
     }
   }
   return null;
-}
+};
 
-export default function App() {
+const App = () => {
   return (
     <Router>
       <TitleUpdater />
@@ -130,4 +130,6 @@ export default function App() {
       </Suspense>
     </Router>
   );
-}
+};
+
+export default App;
