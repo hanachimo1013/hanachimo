@@ -18,7 +18,6 @@ RUN apk add --no-cache curl
 # This must match "AS builder" exactly.
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/server ./server
-COPY --from=builder /app/api ./api 
 COPY --from=builder /app/package*.json ./
 
 RUN npm install --omit=dev

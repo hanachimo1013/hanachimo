@@ -2,6 +2,7 @@ import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import LoadingOverlay from './components/ui/LoadingOverlay';
+import { TilingPattern } from 'jspdf';
 
 // ── Lazy-loaded page components (code-splitting) ──
 const Layout = React.lazy(() => import('./components/layout/Layout'));
@@ -21,18 +22,11 @@ const MangaReader = React.lazy(() => import('./components/pages/MangaReader'));
    Context Detection helpers
    ────────────────────────────────────────────── */
 const getAppContext = () => {
-  const hostname = window.location.hostname;
   const pathname = window.location.pathname.toLowerCase();
 
   if (pathname.startsWith('/doujin')) return 'doujin';
   if (pathname.startsWith('/bdlag')) return 'bdlag';
 
-  const parts = hostname.split('.');
-  if (parts.length >= 3) {
-    const sub = parts[0].toLowerCase();
-    if (sub === 'doujin') return 'doujin';
-    if (sub === 'bdlag') return 'bdlag';
-  }
   return 'www';
 };
 
@@ -50,7 +44,7 @@ const TitleUpdater = () => {
   useEffect(() => {
     const ctx = getAppContext();
     if (ctx === 'doujin') {
-      document.title = 'Doujin | Batodeluna';
+      document.title = `Doujin | ${title}`;
     } else if (ctx === 'bdlag') {
       const parts = pathname.split('/').filter(Boolean);
       // If path is /bdlag/dashboard, basename is dashboard
@@ -58,31 +52,10 @@ const TitleUpdater = () => {
       const title = routeTitles[basename] || 'Admin';
       document.title = `BDLAG | ${title}`;
     } else {
-      document.title = 'Hanachimo';
+      document.title = 'Bato de Luna Art Gallery';
     }
   }, [pathname]);
 
-  return null;
-};
-
-/**
- * Subdomain Redirector
- * If a user hits doujin.domain.art/ (no path), redirect them to /doujin
- * This preserves legacy subdomain access while using path-based routing.
- */
-const SubdomainRedirector = () => {
-  const { pathname } = useLocation();
-  const hostname = window.location.hostname;
-  
-  // Only redirect if at the root path of a subdomain
-  if (pathname === '/') {
-    const parts = hostname.split('.');
-    if (parts.length >= 3) {
-      const sub = parts[0].toLowerCase();
-      if (sub === 'doujin') return <Navigate to="/doujin" replace />;
-      if (sub === 'bdlag') return <Navigate to="/bdlag" replace />;
-    }
-  }
   return null;
 };
 
