@@ -45,9 +45,12 @@ const MangaReader = () => {
   const [loading, setLoading] = useState(true);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState('manga');
-  const [sequenceMode, setSequenceMode] = useState('rtl');
+  const [viewMode, setViewMode] = useState(() => localStorage.getItem('mangaReaderViewMode') || 'manga');
+  const [sequenceMode, setSequenceMode] = useState(() => localStorage.getItem('mangaReaderSequenceMode') || 'rtl');
   const [visiblePage, setVisiblePage] = useState(currentPage);
+
+  useEffect(() => { localStorage.setItem('mangaReaderViewMode', viewMode); }, [viewMode]);
+  useEffect(() => { localStorage.setItem('mangaReaderSequenceMode', sequenceMode); }, [sequenceMode]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showJumpModal, setShowJumpModal] = useState(false);
   const [jumpInput, setJumpInput] = useState('');

@@ -50,7 +50,7 @@ const TitleUpdater = () => {
   useEffect(() => {
     const ctx = getAppContext();
     if (ctx === 'doujin') {
-      document.title = 'Doujin | Batodeluna';
+      document.title = `Doujin`;
     } else if (ctx === 'bdlag') {
       const parts = pathname.split('/').filter(Boolean);
       // If path is /bdlag/dashboard, basename is dashboard
@@ -58,14 +58,12 @@ const TitleUpdater = () => {
       const title = routeTitles[basename] || 'Admin';
       document.title = `BDLAG | ${title}`;
     } else {
-      document.title = 'Hanachimo';
+      document.title = 'Bato de Luna Art Gallery';
     }
   }, [pathname]);
 
   return null;
 };
-
-
 
 const App = () => {
   return (

@@ -91,10 +91,10 @@ const MangaList = () => {
   const [sortField, setSortField] = useState(() => localStorage.getItem('mangaSortField') || 'name');
   const [sortDir, setSortDir] = useState(() => localStorage.getItem('mangaSortDir') || 'asc');
   const [searchQuery, setSearchQuery] = useState('');
-  const [ageFilter, setAgeFilter] = useState('all');
+  const [ageFilter, setAgeFilter] = useState(() => localStorage.getItem('mangaAgeFilter') || 'all');
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null); // modal state
-  const [modalView, setModalView] = useState('list'); // 'list' | 'card'
+  const [modalView, setModalView] = useState(() => localStorage.getItem('mangaModalView') || 'list'); // 'list' | 'card'
   const [pendingManga, setPendingManga] = useState(null); // data-warning dialog
   const [suppressWarning, setSuppressWarning] = useState(() => sessionStorage.getItem('suppressDataWarning') === '1');
   const navigate = useNavigate();
@@ -109,6 +109,8 @@ const MangaList = () => {
   // Persist sorting changes
   useEffect(() => { localStorage.setItem('mangaSortField', sortField); }, [sortField]);
   useEffect(() => { localStorage.setItem('mangaSortDir', sortDir); }, [sortDir]);
+  useEffect(() => { localStorage.setItem('mangaAgeFilter', ageFilter); }, [ageFilter]);
+  useEffect(() => { localStorage.setItem('mangaModalView', modalView); }, [modalView]);
 
   useEffect(() => {
     fetch('/api/fetch-manga')
