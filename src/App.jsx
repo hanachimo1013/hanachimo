@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { SpeedInsights } from "@vercel/speed-insights/react"
+
 import LoadingOverlay from './components/ui/LoadingOverlay';
 
 // ── Lazy-loaded page components (code-splitting) ──
@@ -125,7 +125,7 @@ const App = () => {
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <SpeedInsights />
+
         </main>
       </Suspense>
     </Router>
