@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" },
+    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } }
+  ],
+  "routes": [
+    {
+      "src": "/api/health",
+      "dest": "/api/health.js"
+    },
+    {
+      "src": "/api/auth/login",
+      "dest": "/api/auth/login.js"
+    },
+    {
+      "src": "/api/auth/me",
+      "dest": "/api/auth/me.js"
+    },
+    {
+      "src": "/api/employees",
+      "dest": "/api/employees/index.js"
+    },
+    {
+      "src": "/api/employees/([^/]+)",
+      "dest": "/api/employees/[id].js?id=$1"
+    },
+    {
+      "src": "/api/employee-values",
+      "dest": "/api/employee-values/index.js"
+    },
+    {
+      "src": "/api/system-logs",
+      "dest": "/api/system-logs/index.js"
+    },
+    {
+      "src": "/api/fetch-manga",
+      "dest": "/api/fetch-manga/index.js"
+    },
+    { "handle": "filesystem" },
+    {
+      "src": "/(.*)",
+      "methods": ["GET", "HEAD"],
+      "dest": "/index.html"
+    }
+  ]
+}

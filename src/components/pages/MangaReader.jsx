@@ -22,6 +22,8 @@ const getDoujinPath = (path) => {
 };
 
 const PageSkeleton = ({ height, width }) => {
+  // Use a stable estimated height so the DOM doesn't collapse/expand
+  // when pages enter/leave the render window.
   const stableHeight = height || '140vh';
   return (
     <div
@@ -33,164 +35,6 @@ const PageSkeleton = ({ height, width }) => {
   );
 };
 
-/* ── Dropdown Component ── */
-const PillDropdown = ({ label, value, options, onChange, isOpen, onToggle, dropdownRef }) => (
-  <div className="relative" ref={dropdownRef}>
-    <button
-      onClick={onToggle}
-      className="flex items-center gap-1 px-2 py-0.5 text-[11px] rounded-md bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-all cursor-pointer select-none"
-      title={label}
-    >
-      <span className="font-medium">{options.find(o => o.value === value)?.label || value}</span>
-      <i className={`bi bi-chevron-${isOpen ? 'up' : 'down'} text-[8px] ml-0.5 opacity-60`}></i>
-    </button>
-    {isOpen && (
-      <div
-        className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 min-w-[140px] rounded-xl overflow-hidden shadow-2xl animate-fade-scale z-[60]"
-        style={{
-          background: 'rgba(30, 30, 32, 0.92)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          border: '1px solid rgba(255,255,255,0.1)',
-        }}
-      >
-        <div className="px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-wider text-white/30 select-none">
-          {label}
-        </div>
-        {options.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => { onChange(opt.value); onToggle(); }}
-            className={`w-full text-left px-3 py-1.5 text-[11px] transition-all cursor-pointer ${
-              value === opt.value
-                ? 'bg-white/15 text-white font-semibold'
-                : 'text-white/60 hover:bg-white/8 hover:text-white'
-            }`}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-    )}
-  </div>
-);
-
-/* ── Jump-to-Page Modal ── */
-const JumpToPageModal = ({ isOpen, onClose, numPages, onJump }) => {
-  const [pageInput, setPageInput] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-  const inputRef = useRef(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      setPageInput('');
-      setErrorMsg('');
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
-  }, [isOpen]);
-
-  const handleSubmit = useCallback((e) => {
-    e.preventDefault();
-    const trimmed = pageInput.trim();
-
-    if (!trimmed) {
-      setErrorMsg('Please enter a page number.');
-      return;
-    }
-
-    const num = parseInt(trimmed, 10);
-
-    if (isNaN(num) || !Number.isInteger(Number(trimmed))) {
-      setErrorMsg(`"${trimmed}" is not a valid page number.`);
-      return;
-    }
-
-    if (num < 1 || num > numPages) {
-      setErrorMsg(`Page must be between 1 and ${numPages}.`);
-      return;
-    }
-
-    setErrorMsg('');
-    onJump(num);
-    onClose();
-  }, [pageInput, numPages, onJump, onClose]);
-
-  // Close on Escape
-  useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
-  return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center"
-      onClick={onClose}
-      style={{ background: 'rgba(0,0,0,0.55)' }}
-    >
-      <div
-        className="relative w-[280px] rounded-2xl p-5 animate-fade-scale"
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          background: 'rgba(30, 30, 32, 0.94)',
-          backdropFilter: 'blur(32px)',
-          WebkitBackdropFilter: 'blur(32px)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
-        }}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white text-sm font-semibold">Jump to Page</h3>
-          <button
-            onClick={onClose}
-            className="text-white/40 hover:text-white transition-colors text-xs cursor-pointer"
-          >
-            <i className="bi bi-x-lg"></i>
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          <div className="relative">
-            <input
-              ref={inputRef}
-              type="text"
-              inputMode="numeric"
-              value={pageInput}
-              onChange={(e) => { setPageInput(e.target.value); setErrorMsg(''); }}
-              placeholder={`1 – ${numPages}`}
-              className="w-full px-3 py-2 rounded-lg text-sm text-white placeholder-white/30 outline-none transition-all"
-              style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: errorMsg ? '1px solid rgba(255,59,48,0.6)' : '1px solid rgba(255,255,255,0.1)',
-              }}
-            />
-          </div>
-
-          {errorMsg && (
-            <p className="text-[11px] mt-2 text-red-400 font-medium animate-fade-in">
-              <i className="bi bi-exclamation-circle mr-1"></i>{errorMsg}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            className="w-full mt-3 py-2 rounded-lg text-xs font-semibold text-white transition-all cursor-pointer hover:brightness-110 active:scale-[0.97]"
-            style={{ background: 'rgba(0,122,255,0.8)' }}
-          >
-            Go
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-/* ════════════════════════════════════════════════════════════════════
-   MangaReader
-   ════════════════════════════════════════════════════════════════════ */
 const MangaReader = () => {
   const { slug, pageNum } = useParams();
   const navigate = useNavigate();
@@ -201,34 +45,23 @@ const MangaReader = () => {
   const [loading, setLoading] = useState(true);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState('manga');       // manga | manhwa
-  const [sequenceMode, setSequenceMode] = useState('rtl');  // rtl | ltr
+  const [viewMode, setViewMode] = useState('manga');
+  const [sequenceMode, setSequenceMode] = useState('rtl');
   const [visiblePage, setVisiblePage] = useState(currentPage);
-
-  // Dropdown open states
-  const [viewDropOpen, setViewDropOpen] = useState(false);
-  const [seqDropOpen, setSeqDropOpen] = useState(false);
-  const [jumpModalOpen, setJumpModalOpen] = useState(false);
-
-  const viewDropRef = useRef(null);
-  const seqDropRef = useRef(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showJumpModal, setShowJumpModal] = useState(false);
+  const [jumpInput, setJumpInput] = useState('');
+  const [jumpError, setJumpError] = useState('');
+  const dropdownRef = useRef(null);
 
   const containerRef = useRef(null);
   const pageRefs = useRef([]);
   const observerRef = useRef(null);
   const scrollTimeoutRef = useRef(null);
+  // Guard: only scrollIntoView on initial load or explicit navigation, not observer-driven
   const initialScrollDoneRef = useRef(false);
+  // Track the high-water mark so we never un-render already-seen pages
   const renderedRangeRef = useRef({ min: Infinity, max: -Infinity });
-
-  // ── Close dropdowns on outside click ─────────────────────────────
-  useEffect(() => {
-    const handler = (e) => {
-      if (viewDropRef.current && !viewDropRef.current.contains(e.target)) setViewDropOpen(false);
-      if (seqDropRef.current && !seqDropRef.current.contains(e.target)) setSeqDropOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
 
   // ── 1. Fetch PDF with progress & caching ─────────────────────────
   useEffect(() => {
@@ -273,6 +106,7 @@ const MangaReader = () => {
             setPdfBlobUrl(url);
           }
         } else if (res.body) {
+          // Fallback: stream without content-length — indeterminate progress
           const reader = res.body.getReader();
           const chunks = [];
           let received = 0;
@@ -282,6 +116,7 @@ const MangaReader = () => {
             if (done) break;
             chunks.push(value);
             received += value.length;
+            // Asymptotic progress: ramps up but never reaches 100 until done
             if (active) setDownloadProgress(Math.min(95, Math.round(100 * (1 - Math.exp(-received / 500000)))));
           }
 
@@ -293,6 +128,7 @@ const MangaReader = () => {
             setPdfBlobUrl(url);
           }
         } else {
+          // Final fallback: no streaming support at all
           const blob = await res.blob();
           if (active) {
             const url = URL.createObjectURL(blob);
@@ -324,17 +160,23 @@ const MangaReader = () => {
     }
   }, [slug]);
 
-  // ── 4. Virtualization ──────────────────────────────────────────────
+  // ── 4. Determine which pages to actually render (virtualization) ──
+  // Use an expanding window: once a page is rendered, keep it rendered
+  // to avoid layout shifts (the root cause of the stutter).
   const renderedPages = useMemo(() => {
     if (!numPages) return new Set();
-    const center = visiblePage - 1;
+    const center = visiblePage - 1; // 0-indexed
+
+    // Expand buffer
     const newMin = Math.max(0, center - BUFFER_PAGES);
     const newMax = Math.min(numPages - 1, center + BUFFER_PAGES);
 
+    // For manhwa mode, keep the high-water mark so we never un-render
     if (viewMode === 'manhwa') {
       renderedRangeRef.current.min = Math.min(renderedRangeRef.current.min, newMin);
       renderedRangeRef.current.max = Math.max(renderedRangeRef.current.max, newMax);
     } else {
+      // Manga mode: just use the buffer window (single page view)
       renderedRangeRef.current.min = newMin;
       renderedRangeRef.current.max = newMax;
     }
@@ -346,10 +188,12 @@ const MangaReader = () => {
     return pages;
   }, [numPages, visiblePage, viewMode]);
 
-  // ── 5. Scroll to requested page after document load (Manhwa) ──────
+  // ── 5. Scroll to the requested page after document load (Manhwa) ──
+  // Only fire on initial load (when numPages first becomes non-null)
+  // NOT when the observer updates visiblePage / URL.
   useEffect(() => {
     if (!numPages || viewMode === 'manga') return;
-    if (initialScrollDoneRef.current) return;
+    if (initialScrollDoneRef.current) return; // already scrolled
 
     initialScrollDoneRef.current = true;
     const idx = currentPage - 1;
@@ -364,10 +208,11 @@ const MangaReader = () => {
   // Reset the scroll guard when switching view modes
   useEffect(() => {
     initialScrollDoneRef.current = false;
+    // Also reset the rendered range
     renderedRangeRef.current = { min: Infinity, max: -Infinity };
   }, [viewMode]);
 
-  // ── 6. IntersectionObserver (Manhwa) ──────────────────────────────
+  // ── 6. IntersectionObserver to track visible page (Manhwa) ────────
   useEffect(() => {
     if (!numPages || !containerRef.current || viewMode === 'manga') return;
 
@@ -375,6 +220,7 @@ const MangaReader = () => {
 
     const observer = new IntersectionObserver(
       (entries) => {
+        // Find the most-visible entry
         let bestEntry = null;
         for (const entry of entries) {
           if (entry.isIntersecting) {
@@ -390,6 +236,7 @@ const MangaReader = () => {
 
           setVisiblePage(pageNumber);
 
+          // Debounced URL update via replaceState (no React re-render)
           clearTimeout(scrollTimeoutRef.current);
           scrollTimeoutRef.current = setTimeout(() => {
             window.history.replaceState(
@@ -418,13 +265,15 @@ const MangaReader = () => {
     };
   }, [numPages, slug, viewMode]);
 
-  // ── 7. Compute page dimensions ────────────────────────────────────
+  // ── 7. Compute page dimensions (responsive) ──────────────────────
   const isMobile = window.innerWidth < 768;
   const pageDimensions = useMemo(() => {
     const mobile = window.innerWidth < 768;
     if (viewMode === 'manhwa') {
+      // Mobile: full width with small margins, Desktop: capped at 800px
       return { width: mobile ? window.innerWidth - 16 : Math.min(window.innerWidth - 64, 800), height: undefined };
     }
+    // Manga mode: Mobile explicitly bounds width so content stretches don't clip. Desktop: bound height.
     if (mobile) {
       return { width: window.innerWidth - 16, height: undefined };
     }
@@ -432,7 +281,7 @@ const MangaReader = () => {
     return { width: undefined, height: h };
   }, [viewMode]);
 
-  // ── 8. Navigation — respects sequenceMode ─────────────────────────
+  // ── 8. Navigation handlers (Also sync visiblePage in Manga mode) ─
   const handleNextPage = useCallback(() => {
     if (numPages && currentPage < numPages) {
       if (viewMode === 'manga') setVisiblePage(currentPage + 1);
@@ -447,62 +296,61 @@ const MangaReader = () => {
     }
   }, [currentPage, slug, navigate, viewMode]);
 
-  // Ensure visiblePage stays in sync with URL in Manga mode
+  // Ensure visiblePage stays in sync with URL if user changes via URL directly in Manga mode
   useEffect(() => {
     if (viewMode === 'manga') setVisiblePage(currentPage);
   }, [currentPage, viewMode]);
 
-  // Jump to page handler
-  const handleJumpToPage = useCallback((page) => {
-    if (viewMode === 'manga') {
-      setVisiblePage(page);
-      navigate(getDoujinPath(`/${encodeURIComponent(slug)}/${page}`), { replace: true });
-    } else {
-      // Manhwa: scroll to the page
-      const idx = page - 1;
-      const el = pageRefs.current[idx];
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-      setVisiblePage(page);
-      window.history.replaceState(null, '', getDoujinPath(`/${encodeURIComponent(slug)}/${page}`));
-    }
-  }, [viewMode, slug, navigate]);
-
-  // ── 9. Keyboard Navigation — respects sequenceMode ────────────────
+  // ── 9. Keyboard Navigation ─────────────────────────────────────────
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
-      const isRtl = sequenceMode === 'rtl';
-
       if (e.key === 'ArrowLeft') {
-        isRtl ? handleNextPage() : handlePrevPage();
+        sequenceMode === 'rtl' ? handleNextPage() : handlePrevPage();
       } else if (e.key === 'ArrowRight') {
-        isRtl ? handlePrevPage() : handleNextPage();
+        sequenceMode === 'rtl' ? handlePrevPage() : handleNextPage();
       } else if (e.key === 'Escape') {
-        if (jumpModalOpen) {
-          setJumpModalOpen(false);
-        } else {
-          navigate(getDoujinPath('/'));
-        }
+        if (showJumpModal) { setShowJumpModal(false); setJumpError(''); }
+        else if (showDropdown) setShowDropdown(false);
+        else navigate(getDoujinPath('/'));
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNextPage, handlePrevPage, sequenceMode, navigate, jumpModalOpen]);
+  }, [handleNextPage, handlePrevPage, sequenceMode, navigate, showJumpModal, showDropdown]);
 
-  // ── Click zone handlers (respect sequenceMode) ────────────────────
-  const handleLeftZoneClick = useCallback(() => {
-    sequenceMode === 'rtl' ? handleNextPage() : handlePrevPage();
-  }, [sequenceMode, handleNextPage, handlePrevPage]);
+  // ── Close dropdown on outside click ──
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setShowDropdown(false);
+    };
+    if (showDropdown) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showDropdown]);
 
-  const handleRightZoneClick = useCallback(() => {
-    sequenceMode === 'rtl' ? handlePrevPage() : handleNextPage();
-  }, [sequenceMode, handleNextPage, handlePrevPage]);
+  // ── Jump to page handler ──
+  const handleJumpToPage = useCallback(() => {
+    const page = parseInt(jumpInput, 10);
+    if (isNaN(page) || page < 1 || page > numPages) {
+      setJumpError(`Invalid page. Enter a number between 1 and ${numPages}.`);
+      return;
+    }
+    setJumpError('');
+    setShowJumpModal(false);
+    setJumpInput('');
+    setVisiblePage(page);
+    navigate(getDoujinPath(`/${encodeURIComponent(slug)}/${page}`), { replace: true });
+    if (viewMode === 'manhwa') {
+      requestAnimationFrame(() => {
+        const el = pageRefs.current[page - 1];
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+  }, [jumpInput, numPages, slug, navigate, viewMode]);
 
-  // ── Loading state ─────────────────────────────────────────────────
+  // ── Loading state with progress bar ───────────────────────────────
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-black">
@@ -533,29 +381,10 @@ const MangaReader = () => {
     );
   }
 
-  // ── Dropdown options ──────────────────────────────────────────────
-  const viewModeOptions = [
-    { value: 'manga', label: 'Manga' },
-    { value: 'manhwa', label: 'Manhwa' },
-  ];
-
-  const sequenceModeOptions = [
-    { value: 'rtl', label: 'Right to Left' },
-    { value: 'ltr', label: 'Left to Right' },
-  ];
-
   return (
     <div className="relative h-screen w-full overflow-hidden bg-black text-white">
-      {/* ── Jump-to-Page Modal ── */}
-      <JumpToPageModal
-        isOpen={jumpModalOpen}
-        onClose={() => setJumpModalOpen(false)}
-        numPages={numPages}
-        onJump={handleJumpToPage}
-      />
-
       {/* ── Floating Bottom Pill (Safari-style) ── */}
-      <div className="fixed left-1/2 -translate-x-1/2 z-50 glass-subtle px-3 py-2 rounded-full flex gap-2 items-center shadow-2xl transition-opacity duration-300 hover:opacity-100 opacity-60 md:opacity-90"
+      <div className="fixed left-1/2 -translate-x-1/2 z-50 glass-subtle px-4 py-2 rounded-full flex gap-3 items-center shadow-2xl transition-opacity duration-300 hover:opacity-100 opacity-60 md:opacity-90"
            style={{
              bottom: window.innerWidth < 768
                ? 'calc(12px + env(safe-area-inset-bottom, 0px))'
@@ -565,68 +394,116 @@ const MangaReader = () => {
              fontSize: '12px',
            }}
       >
-        {/* Back button */}
         <button
           onClick={() => navigate(getDoujinPath('/'))}
-          className="text-white/80 hover:text-[var(--accent-blue)] transition-colors cursor-pointer"
+          className="text-white/80 hover:text-[var(--accent-blue)] transition-colors"
           title="Back to Gallery"
         >
           <i className="bi bi-arrow-left text-xs"></i>
         </button>
 
-        {/* Divider */}
-        <div className="w-px h-4 bg-white/15"></div>
+        {/* Settings dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setShowDropdown((v) => !v)}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all ${showDropdown ? 'bg-white/20 text-white' : 'bg-white/10 text-white/70 hover:text-white hover:bg-white/15'}`}
+            title="Reader Settings"
+          >
+            <i className="bi bi-gear text-[11px]"></i>
+            <span className="text-[11px] capitalize">{viewMode}</span>
+            <i className={`bi bi-chevron-${showDropdown ? 'up' : 'down'} text-[8px] ml-0.5`}></i>
+          </button>
 
-        {/* View Mode Dropdown */}
-        <PillDropdown
-          label="Viewing Mode"
-          value={viewMode}
-          options={viewModeOptions}
-          onChange={setViewMode}
-          isOpen={viewDropOpen}
-          onToggle={() => { setViewDropOpen(v => !v); setSeqDropOpen(false); }}
-          dropdownRef={viewDropRef}
-        />
+          {showDropdown && (
+            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 min-w-[180px] rounded-xl overflow-hidden shadow-2xl animate-fade-scale"
+                 style={{ background: 'rgba(30,30,32,0.92)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div className="px-3 pt-2.5 pb-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Viewing Type</span>
+              </div>
+              {['manga', 'manhwa'].map((m) => (
+                <button key={m} onClick={() => { setViewMode(m); if (m === 'manga') setSequenceMode('rtl'); }}
+                  className={`w-full text-left px-3 py-2 text-[12px] flex items-center justify-between transition-colors ${viewMode === m ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}>
+                  <span className="capitalize">{m}</span>
+                  {viewMode === m && <i className="bi bi-check2 text-[var(--accent-blue)] text-[11px]"></i>}
+                </button>
+              ))}
 
-        {/* Sequence Mode Dropdown (only visible in manga mode) */}
-        {viewMode === 'manga' && (
-          <PillDropdown
-            label="Reading Direction"
-            value={sequenceMode}
-            options={sequenceModeOptions}
-            onChange={setSequenceMode}
-            isOpen={seqDropOpen}
-            onToggle={() => { setSeqDropOpen(v => !v); setViewDropOpen(false); }}
-            dropdownRef={seqDropRef}
-          />
-        )}
+              <div className="mx-3 my-1 border-t border-white/8"></div>
 
-        {/* Divider */}
-        <div className="w-px h-4 bg-white/15"></div>
+              <div className="px-3 pt-1 pb-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Sequence</span>
+              </div>
+              {[{ key: 'rtl', label: 'Right to Left' }, { key: 'ltr', label: 'Left to Right' }].map(({ key, label }) => (
+                <button key={key} onClick={() => setSequenceMode(key)}
+                  className={`w-full text-left px-3 py-2 text-[12px] flex items-center justify-between transition-colors ${sequenceMode === key ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}>
+                  <span>{label}</span>
+                  {sequenceMode === key && <i className="bi bi-check2 text-[var(--accent-blue)] text-[11px]"></i>}
+                </button>
+              ))}
+              <div className="h-1.5"></div>
+            </div>
+          )}
+        </div>
 
-        {/* Page nav */}
-        <div className="flex items-center gap-1.5 font-mono text-white/70">
-          <button onClick={handlePrevPage} disabled={currentPage <= 1} className="disabled:opacity-30 hover:text-white transition-colors cursor-pointer">
+        {/* Compact page nav */}
+        <div className="flex items-center gap-2 font-mono text-white/70">
+          <button onClick={sequenceMode === 'rtl' ? handleNextPage : handlePrevPage} disabled={currentPage <= 1} className="disabled:opacity-30 hover:text-white transition-colors">
             <i className="bi bi-chevron-left text-[10px]"></i>
           </button>
-          <span className="tabular-nums text-[11px]">{visiblePage}<span className="text-white/30 mx-0.5">/</span>{numPages || '…'}</span>
-          <button onClick={handleNextPage} disabled={numPages && currentPage >= numPages} className="disabled:opacity-30 hover:text-white transition-colors cursor-pointer">
+          <span className="tabular-nums">{visiblePage}<span className="text-white/30 mx-0.5">/</span>{numPages || '…'}</span>
+          <button onClick={sequenceMode === 'rtl' ? handlePrevPage : handleNextPage} disabled={numPages && currentPage >= numPages} className="disabled:opacity-30 hover:text-white transition-colors">
             <i className="bi bi-chevron-right text-[10px]"></i>
           </button>
         </div>
 
-        {/* Divider */}
-        <div className="w-px h-4 bg-white/15"></div>
-
-        {/* Search / Jump to page button */}
+        {/* Jump to page button */}
         <button
-          onClick={() => setJumpModalOpen(true)}
-          className="text-white/60 hover:text-white transition-colors cursor-pointer"
-          title="Jump to page"
+          onClick={() => { setShowJumpModal(true); setJumpInput(''); setJumpError(''); }}
+          className="text-white/60 hover:text-white hover:bg-white/10 rounded-md px-1.5 py-1 transition-all"
+          title="Jump to Page"
         >
-          <i className="bi bi-search text-[10px]"></i>
+          <i className="bi bi-search text-[11px]"></i>
         </button>
       </div>
+
+      {/* ── Jump to Page Modal ── */}
+      {showJumpModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center" onClick={() => { setShowJumpModal(false); setJumpError(''); }}>
+          <div className="absolute inset-0 bg-black/60" style={{ backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)' }}></div>
+          <div className="relative z-10 w-[280px] rounded-2xl p-5 animate-fade-scale"
+               style={{ background: 'rgba(36,36,38,0.95)', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}
+               onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-white text-sm font-semibold mb-3">Jump to Page</h3>
+            <input
+              type="number"
+              min="1"
+              max={numPages || 1}
+              value={jumpInput}
+              onChange={(e) => { setJumpInput(e.target.value); setJumpError(''); }}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleJumpToPage(); }}
+              placeholder={`1 – ${numPages || '?'}`}
+              autoFocus
+              className="w-full rounded-lg px-3 py-2 text-sm text-white outline-none placeholder:text-white/30"
+              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
+            />
+            {jumpError && (
+              <p className="text-[11px] mt-2 px-1" style={{ color: 'var(--accent-red)' }}>{jumpError}</p>
+            )}
+            <div className="flex gap-2 mt-3">
+              <button onClick={() => { setShowJumpModal(false); setJumpError(''); }}
+                className="flex-1 rounded-lg py-2 text-[12px] font-medium text-white/60 hover:text-white transition-colors"
+                style={{ background: 'rgba(255,255,255,0.06)' }}>
+                Cancel
+              </button>
+              <button onClick={handleJumpToPage}
+                className="flex-1 rounded-lg py-2 text-[12px] font-semibold text-white transition-colors"
+                style={{ background: 'var(--accent-blue)' }}>
+                Go
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Reader Container ── */}
       <div
@@ -676,6 +553,8 @@ const MangaReader = () => {
               data-page-index={index}
               className="shrink-0 w-full max-w-3xl flex justify-center px-2 md:px-0"
               style={{
+                // Give un-rendered placeholders a stable minimum height
+                // so layout doesn't jump when pages enter/leave the render window
                 minHeight: renderedPages.has(index) ? undefined : '140vh',
               }}
             >
@@ -704,8 +583,8 @@ const MangaReader = () => {
       {/* ── Click zones for Manga mode tap navigation ── */}
       {viewMode === 'manga' && (
         <>
-          <div className="absolute top-0 bottom-0 left-0 w-1/4 z-40 cursor-pointer" onClick={handleLeftZoneClick} title={sequenceMode === 'rtl' ? 'Next Page' : 'Previous Page'}></div>
-          <div className="absolute top-0 bottom-0 right-0 w-1/4 z-40 cursor-pointer" onClick={handleRightZoneClick} title={sequenceMode === 'rtl' ? 'Previous Page' : 'Next Page'}></div>
+          <div className="absolute top-0 bottom-0 left-0 w-1/4 z-40 cursor-pointer" onClick={sequenceMode === 'rtl' ? handleNextPage : handlePrevPage} title={sequenceMode === 'rtl' ? 'Next Page' : 'Previous Page'}></div>
+          <div className="absolute top-0 bottom-0 right-0 w-1/4 z-40 cursor-pointer" onClick={sequenceMode === 'rtl' ? handlePrevPage : handleNextPage} title={sequenceMode === 'rtl' ? 'Previous Page' : 'Next Page'}></div>
         </>
       )}
     </div>

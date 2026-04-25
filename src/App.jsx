@@ -1,8 +1,7 @@
 import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-
+import { SpeedInsights } from "@vercel/speed-insights/react"
 import LoadingOverlay from './components/ui/LoadingOverlay';
-import { TilingPattern } from 'jspdf';
 
 // ── Lazy-loaded page components (code-splitting) ──
 const Layout = React.lazy(() => import('./components/layout/Layout'));
@@ -22,11 +21,18 @@ const MangaReader = React.lazy(() => import('./components/pages/MangaReader'));
    Context Detection helpers
    ────────────────────────────────────────────── */
 const getAppContext = () => {
+  const hostname = window.location.hostname;
   const pathname = window.location.pathname.toLowerCase();
 
   if (pathname.startsWith('/doujin')) return 'doujin';
   if (pathname.startsWith('/bdlag')) return 'bdlag';
 
+  const parts = hostname.split('.');
+  if (parts.length >= 3) {
+    const sub = parts[0].toLowerCase();
+    if (sub === 'doujin') return 'doujin';
+    if (sub === 'bdlag') return 'bdlag';
+  }
   return 'www';
 };
 
@@ -44,7 +50,7 @@ const TitleUpdater = () => {
   useEffect(() => {
     const ctx = getAppContext();
     if (ctx === 'doujin') {
-      document.title = `Doujin | ${title}`;
+      document.title = 'Doujin | Batodeluna';
     } else if (ctx === 'bdlag') {
       const parts = pathname.split('/').filter(Boolean);
       // If path is /bdlag/dashboard, basename is dashboard
@@ -52,18 +58,19 @@ const TitleUpdater = () => {
       const title = routeTitles[basename] || 'Admin';
       document.title = `BDLAG | ${title}`;
     } else {
-      document.title = 'Bato de Luna Art Gallery';
+      document.title = 'Hanachimo';
     }
   }, [pathname]);
 
   return null;
 };
 
+
+
 const App = () => {
   return (
     <Router>
       <TitleUpdater />
-      <SubdomainRedirector />
       <Suspense fallback={<LoadingOverlay message="Loading..." />}>
         <main className="flex flex-col min-h-screen">
           <Routes>
@@ -98,7 +105,7 @@ const App = () => {
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-
+          <SpeedInsights />
         </main>
       </Suspense>
     </Router>
